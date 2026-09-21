@@ -9,9 +9,9 @@
 
 ```bash
 cd sheaf
-cp .env.example .env            # edit SESSION_SECRET and WORKER_SECRET
+cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET and SHEAF_ENCRYPTION_KEY (openssl rand -hex 32)
 npm install                     # runs prisma generate
-npm run db:push                 # creates prisma/dev.db (SQLite)
+npm run db:push                 # creates prisma/dev.db (SQLite) and installs the audit triggers
 npm run db:seed                 # demo organisation "Northwind Labs" with batches at every stage
 npm run dev                     # http://localhost:3000 (use -- -p 3100 if 3000 is taken)
 ```
@@ -33,8 +33,14 @@ Seeded accounts (password `sheaf-demo-2026`):
 | `npm run build` / `npm start` | Production build and server |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | `next lint` (eslint, core-web-vitals) |
-| `npm test` | vitest unit tests (money, CSV parser/validator, states, permissions, addresses) |
-| `npm run db:push` / `db:seed` / `db:studio` | Prisma helpers |
+| `npm test` | vitest: unit tests plus database integration tests against `prisma/test.db` (created automatically) |
+| `npm run test:e2e` | Playwright end-to-end suite against a production build (`npm run build` first; `npx playwright install chromium` once) |
+| `npm run check` | lint + typecheck + test |
+| `npm run db:push` / `db:seed` / `db:studio` | Prisma helpers; `db:push` also runs `db:harden` |
+| `npm run db:harden` | (Re)install the append-only triggers on `AuditEvent` |
+| `npm run db:encrypt` | Encrypt personal data written before encryption was enabled |
+| `npm run db:provider -- postgresql` | Switch the Prisma datasource to PostgreSQL (or back to `sqlite`) |
+| `npm run start:standalone` | Run the standalone server (`node .next/standalone/server.js`), as the Docker image does |
 
 ## Environment variables
 
@@ -43,14 +49,16 @@ See `.env.example` for the full list with comments. Summary:
 | Variable | Default | Notes |
 |---|---|---|
 | `DATABASE_URL` | `file:./dev.db` | Prisma connection |
-| `SESSION_SECRET` | — | Required; signs session token hashes |
+| `SESSION_SECRET` | — | Required; signs session token hashes. Production refuses placeholders or fewer than 32 characters |
+| `SHEAF_ENCRYPTION_KEY` | — | 64 hex characters. Encrypts names, references and CSV originals at rest. Required in production; derived from `SESSION_SECRET` elsewhere. Back it up with the database |
+| `SHEAF_RATE_LIMIT` | `on` | Sign-in/sign-up rate limiting; `off` only for automated tests |
 | `SHEAF_MODE` | `demo` | `demo` or `real`; shown in the UI, recorded on every batch |
 | `RELAY_API_URL` | `https://api.relay.link` | Use `https://api.testnets.relay.link` for testnets |
 | `RELAY_API_KEY` | empty | Optional; raises rate limits; server-only |
 | `RELAY_REFERRER` | empty | Optional label; requires the key |
 | `SHEAF_ORIGIN_CHAIN_ID` / `SHEAF_DESTINATION_CHAIN_ID` | `8453` | Defaults for new organisations; per-org values live in Settings |
 | `NEXT_PUBLIC_RPC_URL_<chainId>` | empty | Browser RPC override for the wallet console |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | empty | Not wired yet; injected wallets only |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | empty | Adds a WalletConnect connector (QR modal) next to injected wallets when set |
 | `WORKER_MODE` | `in-process` | `off` on serverless hosts |
 | `WORKER_SECRET` | — | Protects `POST /api/worker/run` |
 | `WORKER_INTERVAL_MS` | `2000` | Poll interval of the in-process worker |
@@ -90,12 +98,20 @@ Status of real mode: quoting and status polling were verified against the live p
 npm test
 ```
 
-Covers: exact amount parsing/formatting and float traps; CSV parsing (quotes, CRLF, BOM, delimiters), header aliases, every row error class, 10,000-row performance and the row limit; state transitions; the permission matrix; address checks.
+Unit tests cover exact amount parsing/formatting and float traps; CSV parsing (quotes, CRLF, BOM, delimiters), header aliases, every row error class, 10,000-row performance and the row limit; state transitions; the full capability matrix and DTO redaction; address checks; field encryption; rate limiting; the production configuration guard; and every mock-provider scenario.
+
+Database integration tests (`tests/db/`) run against a throwaway SQLite file and cover encryption at rest, the append-only audit rule at both layers, the batch lifecycle (import, correction, route preparation, four-eyes approval, invalidation, funding, execution guards, cancellation, organisation isolation) and the worker (idempotent submission, retry, refund, permanent failure, unknown-state guard, job claiming, backoff and stale-lock release).
+
+```bash
+npm run build
+npx playwright install chromium   # once
+npm run test:e2e
+```
+
+The end-to-end suite starts a production server on port 3111 with its own seeded database and drives the browser through the public pages, sign-in, viewer redaction and the complete demo workflow (create → import with a bad row → in-place correction → routes → approver approval in a second session → simulated funding → execution → completion → reconciliation search → activity feed), on desktop and a mobile viewport.
 
 End-to-end verification of the batch workflow (create → CSV rejections → import with scripted rows → correct/remove → prepare routes → route-unavailable handling → four-eyes approval → approval invalidation on edit → fund → idempotent execute → partial failure → retry guard → retry success → viewer redaction → exports → reconciliation edit → audit trail) was run against the production build with curl; see `docs/implementation-status.md`.
 
 ## Deployment notes
 
-- Switch Prisma to PostgreSQL for anything beyond a single-box evaluation.
-- Run one worker: either keep `WORKER_MODE=in-process` on a single long-lived server, or set it to `off` and call `POST /api/worker/run` with the `x-worker-secret` header every few seconds from a scheduler.
-- Put the app behind HTTPS; session cookies are `secure` in production.
+See [deployment.md](deployment.md) for the Docker image, the compose stack with PostgreSQL, required secrets, the worker topology and the pre-launch checklist.

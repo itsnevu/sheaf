@@ -34,7 +34,7 @@ Assumed adversary goal: link "this treasury" to "this set of contractors and amo
 
 - Relay receives and stores the complete route graph and publishes request metadata. Anyone with the `requestId` or the treasury address can list its requests.
 - RPC and wallet providers see the treasury address and operator IP. A VPN or a self-hosted RPC reduces IP linkage; Sheaf supports a per-chain RPC override.
-- Sheaf's own hosting sees everything. Database at rest: SQLite/Postgres without field-level encryption in this build (see Section 11).
+- Sheaf's own hosting sees everything. Database at rest: contractor names, internal references and CSV originals are encrypted with AES-256-GCM under `SHEAF_ENCRYPTION_KEY`; wallet addresses and amounts stay in clear so they can be queried (see Section 11).
 
 ## 5. Internal access boundaries (implemented)
 
@@ -79,8 +79,8 @@ Only these are claimed:
 
 ## 11. Technical limitations
 
-- No field-level encryption of recipient data at rest in this build. Names, addresses and references are plain columns. Adding envelope encryption (per-organisation key in a KMS) is the first production hardening task.
-- No immutable audit store; audit rows rely on application discipline and database permissions.
+- Field-level encryption covers names, references and CSV originals with one server-side key. Wallet addresses and amounts are plaintext columns (needed for duplicate detection and search); per-organisation keys held in a KMS are a follow-up.
+- The audit table is append-only (the data layer refuses updates and deletes, and database triggers enforce the same rule for raw SQL). It is not anchored in an external or immutable store.
 - No mixing, shielded pools, or zero-knowledge transfers. Sheaf does not integrate any privacy protocol.
 - Same-chain routes have zero external privacy.
 - Relay is a single trusted intermediary with full visibility.
@@ -93,7 +93,7 @@ Only these are claimed:
 | Public Relay request feed | Contact Relay about private/opt-out request indexing; use `useDepositAddress` with strict addresses so the on-chain sender is a fresh deposit address | Documented; not enabled |
 | Burst timing fingerprint | Optional bounded jitter, off by default | Implemented |
 | Operator IP linkage | Self-hosted RPC (`NEXT_PUBLIC_RPC_URL_<chain>`), VPN | Configurable |
-| Data at rest | Field-level encryption with per-org keys; restrict DB access; backups encrypted | Not implemented |
+| Data at rest | Field-level encryption (names, references, CSV originals) with a server-side key; restrict DB access; back up the key with the database | Implemented (single key; per-org KMS keys not implemented) |
 | Insider misuse | Four-eyes approval, role separation, audit trail, export logging | Implemented |
 | Amount fingerprint | Accept; document to customers. Do not alter approved amounts. | Documented |
 | Treasury reuse across cycles | Rotate treasury wallets per period (organisation policy) | Documented |

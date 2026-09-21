@@ -53,7 +53,9 @@ export default function SecurityPage() {
             <li>Viewers receive redacted addresses from the API, not only in the UI.</li>
             <li>Four-eyes approval: the last editor of the recipient set cannot approve it (configurable).</li>
             <li>Approvals bind to a hash of the recipient set and are invalidated by any change.</li>
-            <li>Append-only audit events for every state change, download and export.</li>
+            <li>Append-only audit events for every state change, download and export, enforced by the data layer and by database triggers.</li>
+            <li>Contractor names, internal references and CSV originals are encrypted at rest (AES-256-GCM).</li>
+            <li>Rate-limited sign-in and sign-up; the server refuses to start in production with placeholder secrets.</li>
             <li>Idempotency keys and a duplicate-send guard: a payment is never re-sent while its last attempt is pending or unknown.</li>
             <li>Optional bounded spacing between submissions (0–30 min), off by default, timestamps kept internally.</li>
           </ul>
@@ -61,8 +63,8 @@ export default function SecurityPage() {
         <div className="n-panel n-clip p-6">
           <h2 className="n-h3">What is not implemented</h2>
           <ul className="mt-4 space-y-2.5 text-[0.9375rem] text-[var(--n-muted)]">
-            <li>Field-level encryption of recipient data at rest (first production hardening task).</li>
-            <li>Immutable or externally anchored audit storage.</li>
+            <li>Externally anchored audit storage (the audit table is append-only inside the database, not written to a separate ledger).</li>
+            <li>Per-organisation encryption keys in a KMS; one server-side key encrypts every organisation.</li>
             <li>Mixing, shielded pools, zero-knowledge transfers or any privacy protocol.</li>
             <li>Address validation for non-EVM networks.</li>
             <li>Hardware-key or SSO authentication; sessions are cookie-based with scrypt password hashing.</li>

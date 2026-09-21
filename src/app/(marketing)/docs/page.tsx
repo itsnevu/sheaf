@@ -105,7 +105,7 @@ Mateo Ruiz,0x9f0e1d2c3b4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e,980.50,USDC,INV-2026-0913`
 
         <Section id="limitations" title="Known limitations">
           <ul className="list-disc space-y-1.5 pl-5">
-            <li>No field-level encryption at rest; no immutable audit store.</li>
+            <li>Encryption at rest uses one server-side key (no per-organisation KMS keys); the audit table is append-only but not externally anchored.</li>
             <li>EVM addresses only.</li>
             <li>Real mode untested end-to-end on-chain; use Base Sepolia first.</li>
             <li>Public Relay rate limit (50 quotes/min) bounds route preparation speed without an API key.</li>

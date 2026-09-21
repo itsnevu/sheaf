@@ -8,7 +8,7 @@ Batch contractor payments in digital assets for finance teams: prepare, approve,
 ## Quick start
 
 ```bash
-cp .env.example .env
+cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET, SHEAF_ENCRYPTION_KEY
 npm install
 npm run db:push && npm run db:seed
 npm run dev
@@ -19,7 +19,8 @@ Open http://localhost:3000, sign in as `finance@northwind.example` / `sheaf-demo
 ## Documentation
 
 - [Architecture](docs/architecture.md)
-- [Development guide](docs/development.md) (setup, env vars, demo scenarios, real-mode requirements)
+- [Development guide](docs/development.md) (setup, env vars, demo scenarios, real-mode requirements, tests)
+- [Deployment](docs/deployment.md) (Docker image, PostgreSQL, secrets, worker topology, launch checklist)
 - [Implementation status](docs/implementation-status.md) (what was verified, limitations, next steps)
 - [Privacy threat model](docs/security/privacy-threat-model.md)
 - [Relay integration research](docs/research/relay-integration-research.md)
@@ -27,4 +28,4 @@ Open http://localhost:3000, sign in as `finance@northwind.example` / `sheaf-demo
 
 ## Scripts
 
-`npm run dev` · `npm run build` · `npm start` · `npm test` · `npm run typecheck` · `npm run lint` · `npm run db:push` · `npm run db:seed` · `npm run db:studio`
+`npm run dev` · `npm run build` · `npm start` · `npm run check` (lint + typecheck + test) · `npm test` · `npm run test:e2e` · `npm run db:push` · `npm run db:seed` · `npm run db:harden` · `npm run db:encrypt` · `npm run db:provider -- postgresql` · `npm run db:studio`
