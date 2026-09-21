@@ -17,7 +17,7 @@ export default function ScrollCue() {
       <div className="n-cue-svgs">
         {[0, 1, 2].map((i) => (
           <span key={i}>
-            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" stroke="#2dd4bf" strokeWidth="2">
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" stroke="#ff2e55" strokeWidth="2">
               <path d="M1 1l6 6 6-6" />
             </svg>
           </span>

@@ -1,59 +1,76 @@
 /* ─────────────────────────────────────────────────────────────────────────
-   Night theme for the marketing site (structural homage to the reference:
-   dark single-hue world, mono uppercase display, chamfered buttons, glow).
+   Arena theme for the marketing site: deep navy world, black bands, violet
+   stages with white bars, hot-pink accent, mono uppercase display type and
+   Anek body type, pill buttons with a glowing halo, crosshair marks.
    The dashboard keeps the light theme. Imported by globals.css.
    ───────────────────────────────────────────────────────────────────────── */
 .site-night {
-  --n-bg: #0b0c0e;
-  --n-ink: #f2f1ec;
+  --n-bg: #0a0816;
+  --n-black: #000;
+  --n-ink: #ededed;
   --n-muted: #a1a1a1;
-  --n-line: #2a2c33;
-  --n-line-soft: #202226;
-  --n-accent: #2dd4bf;
-  --n-accent-deep: #1d7a6f;
-  --n-card: #10302c;
+  --n-line: #404040;
+  --n-line-soft: #262626;
+  --n-card: #131313;
+  --n-panel: #202020;
+  --n-accent: #ff2e55;
+  --n-accent-2: #ff3ddb;
+  --n-violet: #6852fd;
+  --n-cool: #774bf6;
+  --n-lilac: #d8adfd;
+  --n-grad-hot: linear-gradient(89deg, #ff1f4b 1.78%, #ff3ddb 85.08%);
+  --n-grad-cool: linear-gradient(89deg, #774bf6 1.78%, #ff2e55 85.08%);
+  --n-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   background: var(--n-bg);
   color: var(--n-ink);
   min-height: 100dvh;
   position: relative;
   isolation: isolate;
+  font-family: var(--font-sans);
 }
+/* Atmosphere: faint grid, a violet glow at the horizon and diagonal streaks. */
 .site-night::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(60% 45% at 50% 0%, rgba(29, 122, 111, 0.55) 0%, rgba(29, 122, 111, 0) 70%),
-    radial-gradient(45% 60% at 0% 60%, rgba(18, 59, 54, 0.6) 0%, rgba(18, 59, 54, 0) 70%),
-    radial-gradient(45% 60% at 100% 70%, rgba(18, 59, 54, 0.5) 0%, rgba(18, 59, 54, 0) 70%),
-    linear-gradient(180deg, #050606 0%, #0b0c0e 45%, #0d1b19 100%);
+    radial-gradient(55% 40% at 50% 0%, rgba(104, 82, 253, 0.28) 0%, rgba(104, 82, 253, 0) 70%),
+    radial-gradient(40% 50% at 100% 90%, rgba(255, 46, 85, 0.16) 0%, rgba(255, 46, 85, 0) 70%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 120px),
+    var(--n-bg);
 }
 .site-night::after {
   content: "";
   position: fixed;
-  inset: 0;
+  inset: -40vh -20vw;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background:
+    linear-gradient(115deg, transparent 0 38%, rgba(255, 46, 85, 0.5) 38% calc(38% + 1px), transparent calc(38% + 1px) 100%),
+    linear-gradient(115deg, transparent 0 62%, rgba(104, 82, 253, 0.55) 62% calc(62% + 1px), transparent calc(62% + 1px) 100%),
+    linear-gradient(115deg, transparent 0 80%, rgba(255, 46, 85, 0.35) 80% calc(80% + 1px), transparent calc(80% + 1px) 100%);
+  mask-image: radial-gradient(60% 45% at 50% 40%, #000 0%, transparent 100%);
+  opacity: 0.8;
 }
 .site-night ::selection {
   background: var(--n-accent);
-  color: #05110f;
+  color: #fff;
 }
 .site-night :focus-visible {
   outline-color: var(--n-accent);
 }
 
-/* Display type: mono, uppercase, tight. 40 → 80px like the reference. */
+/* ── Type ─────────────────────────────────────────────────────────────── */
+/* Display: mono, uppercase. */
 .n-display {
   font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
-  font-size: 40px;
+  font-size: 38px;
   overflow-wrap: anywhere;
 }
 @media (min-width: 640px) {
@@ -63,73 +80,146 @@
 }
 @media (min-width: 1280px) {
   .n-display {
-    font-size: 72px;
+    font-size: 64px;
   }
 }
 @media (min-width: 1477px) {
   .n-display {
-    font-size: 80px;
+    font-size: 72px;
   }
 }
 .n-display em,
-.n-display .accent {
+.n-display .accent,
+.n-h2 em {
   font-style: normal;
   color: var(--n-accent);
+}
+/* Lead: the sans statements ("Peers rank the work.") */
+.n-lead {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  font-size: 40px;
+}
+@media (min-width: 1024px) {
+  .n-lead {
+    font-size: 64px;
+  }
+}
+@media (min-width: 1477px) {
+  .n-lead {
+    font-size: 80px;
+  }
 }
 .n-h2 {
   font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: -0.03em;
-  line-height: 1.02;
-  font-size: 32px;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+  font-size: 30px;
 }
 @media (min-width: 944px) {
   .n-h2 {
-    font-size: 48px;
+    font-size: 44px;
   }
 }
 @media (min-width: 1477px) {
   .n-h2 {
-    font-size: 64px;
+    font-size: 56px;
   }
 }
 .n-h3 {
   font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  font-size: 22px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  font-size: 20px;
 }
 @media (min-width: 944px) {
   .n-h3 {
-    font-size: 28px;
+    font-size: 24px;
   }
 }
 .n-label {
   font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: -0.02em;
+  font-size: 11px;
+  letter-spacing: 0.06em;
 }
 .n-body {
   color: var(--n-muted);
   font-size: 1.0625rem;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 @media (min-width: 1024px) {
   .n-body {
-    font-size: 1.25rem;
+    font-size: 1.1875rem;
+  }
+}
+.n-mono-line {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--n-lilac);
+}
+@media (min-width: 1024px) {
+  .n-mono-line {
+    font-size: 18px;
   }
 }
 
-/* Chamfered (octagonal) shapes, 10px cuts. */
+/* ── Shapes ───────────────────────────────────────────────────────────── */
 .n-clip {
   clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
 }
-/* Primary glow button: accent fill, blurred halo behind, pointer-tracked hotspot. */
+/* Crosshair "+" mark. */
+.n-cross {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)) center / 100% 1px no-repeat,
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)) center / 1px 100% no-repeat;
+}
+.n-cross-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+/* Corner-bracket button (feature cards). */
+.n-bracket {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 28px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background:
+    linear-gradient(#fff, #fff) top left / 10px 1px no-repeat,
+    linear-gradient(#fff, #fff) top left / 1px 10px no-repeat,
+    linear-gradient(#fff, #fff) top right / 10px 1px no-repeat,
+    linear-gradient(#fff, #fff) top right / 1px 10px no-repeat,
+    linear-gradient(#fff, #fff) bottom left / 10px 1px no-repeat,
+    linear-gradient(#fff, #fff) bottom left / 1px 10px no-repeat,
+    linear-gradient(#fff, #fff) bottom right / 10px 1px no-repeat,
+    linear-gradient(#fff, #fff) bottom right / 1px 10px no-repeat;
+  transition: background-color 0.2s;
+}
+.n-bracket:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Buttons: pill with a glowing halo ─────────────────────────────────── */
 .n-btn-wrap {
   position: relative;
   display: inline-block;
@@ -137,17 +227,18 @@
 .n-btn-halo {
   position: absolute;
   inset: 0;
-  background: radial-gradient(287% 102% at 29% 62%, var(--n-accent-deep) 0, var(--n-accent) 100%);
-  filter: blur(16px);
-  opacity: 0.75;
+  border-radius: 999px;
+  background: var(--n-grad-hot);
+  filter: blur(14px);
+  opacity: 0.65;
   transition:
     filter 0.4s,
     opacity 0.4s;
   will-change: filter;
 }
 .n-btn-wrap:hover .n-btn-halo {
-  filter: blur(28px);
-  opacity: 1;
+  filter: blur(24px);
+  opacity: 0.95;
 }
 .n-btn {
   position: relative;
@@ -155,15 +246,16 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 52px;
-  padding: 0 32px;
+  min-height: 48px;
+  padding: 0 30px;
+  border-radius: 999px;
   font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 14px;
-  letter-spacing: -0.01em;
-  color: #05110f;
-  background: radial-gradient(287% 102% at 29% 62%, var(--n-accent-deep) 0, var(--n-accent) 100%);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: var(--n-grad-hot);
   overflow: hidden;
   transition: transform 0.15s;
 }
@@ -175,7 +267,7 @@
   width: 10rem;
   aspect-ratio: 1;
   border-radius: 100%;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0) 100%);
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, 0.5) 0, rgba(255, 255, 255, 0) 100%);
   opacity: 0;
   transition: opacity 0.4s;
   pointer-events: none;
@@ -191,18 +283,61 @@
 .n-btn-ghost {
   background: transparent;
   color: var(--n-ink);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 .n-btn-ghost:hover {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
 .n-btn-sm {
   min-height: 38px;
+  padding: 0 20px;
+  font-size: 11px;
+}
+/* Solid pink pill used in the header. */
+.n-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
   padding: 0 18px;
-  font-size: 12px;
+  border-radius: 999px;
+  background: var(--n-accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  transition: filter 0.2s;
+}
+.n-pill:hover {
+  filter: brightness(1.1);
+}
+/* Badge row items: round icon + mono caption. */
+.n-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+.n-badge-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1.5px solid #fff;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--n-accent);
 }
 
-/* Cards with pointer-tracked glow. */
+/* ── Cards with pointer-tracked glow ───────────────────────────────────── */
 .n-glow {
   position: relative;
   overflow: hidden;
@@ -212,12 +347,12 @@
   content: "";
   position: absolute;
   z-index: -1;
-  top: calc(var(--y, 0) * 1px - 35vw);
-  left: calc(var(--x, 0) * 1px - 35vw);
-  width: 70vw;
+  top: calc(var(--y, 0) * 1px - 30vw);
+  left: calc(var(--x, 0) * 1px - 30vw);
+  width: 60vw;
   aspect-ratio: 1;
   border-radius: 100%;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(45, 212, 191, 0.55) 0, rgba(29, 122, 111, 0.35) 50%, rgba(29, 122, 111, 0) 100%);
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 46, 85, 0.45) 0, rgba(104, 82, 253, 0.3) 50%, rgba(104, 82, 253, 0) 100%);
   filter: blur(50px);
   opacity: 0;
   transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
@@ -229,49 +364,61 @@
   }
 }
 
-/* Header bar */
+/* ── Header ───────────────────────────────────────────────────────────── */
 .n-header-bar {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.72);
   -webkit-backdrop-filter: blur(40px);
   backdrop-filter: blur(40px);
 }
 .n-nav-link {
   position: relative;
-  color: var(--n-muted);
+  color: #fff;
   transition: color 0.2s;
 }
 .n-nav-link:hover,
 .n-nav-link[aria-current="page"] {
-  color: var(--n-ink);
-}
-.n-nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -6px;
-  height: 1px;
-  background: var(--n-accent);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform 0.25s var(--ease-out);
-}
-.n-nav-link:hover::after {
-  transform: scaleX(1);
+  color: var(--n-lilac);
 }
 .n-strip {
   position: relative;
   overflow: hidden;
+  background: var(--n-grad-hot);
+  color: #fff;
+  font-size: 13px;
 }
-.n-strip-halo {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(60% 200% at 50% 50%, var(--n-accent-deep) 0, rgba(29, 122, 111, 0) 100%);
-  filter: blur(16px);
+.n-strip strong {
+  font-weight: 700;
 }
 
-/* Scroll statements: one per viewport, alternating alignment. */
+/* ── Stage: violet band with white bars and a pink glow (scroll statements) ── */
+.n-stage {
+  position: relative;
+  background:
+    radial-gradient(45% 30% at 30% 40%, rgba(255, 46, 85, 0.75) 0%, rgba(255, 46, 85, 0) 70%),
+    linear-gradient(180deg, #4d40b8 0%, #5d4fd1 50%, #4d40b8 100%);
+  overflow: hidden;
+}
+.n-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.85) 0 1px, transparent 1px 44px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.n-stage::after {
+  content: "";
+  position: absolute;
+  inset: -30% -10%;
+  background:
+    linear-gradient(115deg, transparent 0 30%, rgba(255, 46, 85, 0.9) 30% calc(30% + 1px), transparent calc(30% + 1px) 100%),
+    linear-gradient(115deg, transparent 0 55%, rgba(20, 10, 80, 0.9) 55% calc(55% + 1px), transparent calc(55% + 1px) 100%),
+    linear-gradient(115deg, transparent 0 75%, rgba(255, 255, 255, 0.5) 75% calc(75% + 1px), transparent calc(75% + 1px) 100%);
+  pointer-events: none;
+}
 .n-scene {
+  position: relative;
+  z-index: 1;
   min-height: 100svh;
   display: flex;
   align-items: center;
@@ -285,19 +432,22 @@
   .n-scene,
   .n-scene:nth-child(2n) {
     justify-content: center;
-    min-height: 70svh;
+    min-height: 72svh;
   }
 }
 .n-scene > * {
   opacity: 0;
   transform: translateY(24px);
   transition:
-    opacity 0.7s var(--ease-out),
-    transform 0.7s var(--ease-out);
+    opacity 0.7s var(--n-ease-out),
+    transform 0.7s var(--n-ease-out);
 }
 .n-scene.is-in > * {
   opacity: 1;
   transform: none;
+}
+.n-scene-text {
+  text-shadow: 0 2px 40px rgba(10, 8, 22, 0.8);
 }
 @media (prefers-reduced-motion: reduce) {
   .n-scene > * {
@@ -306,15 +456,14 @@
   }
 }
 
-/* Divider bars flanking headline blocks (24 x 96). */
-.n-bar {
-  width: 24px;
-  height: 96px;
-  background: repeating-linear-gradient(180deg, var(--n-accent) 0 6px, transparent 6px 12px);
-  opacity: 0.7;
+/* Black statement band with crosshair columns. */
+.n-band {
+  background: var(--n-black);
+  border-top: 1px solid var(--n-line-soft);
+  border-bottom: 1px solid var(--n-line-soft);
 }
 
-/* Carousel */
+/* ── Carousel ─────────────────────────────────────────────────────────── */
 .n-carousel {
   display: flex;
   overflow-x: auto;
@@ -339,10 +488,11 @@
   }
 }
 .n-arrow {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
   background: #fff;
-  color: #05110f;
+  color: #000;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -350,20 +500,41 @@
     transform 0.15s,
     background 0.2s;
 }
-@media (min-width: 768px) {
-  .n-arrow {
-    width: 64px;
-    height: 64px;
-  }
-}
 .n-arrow:hover {
-  background: var(--n-accent);
+  background: var(--n-lilac);
 }
 .n-arrow:disabled {
   opacity: 0.35;
 }
+/* Feature card. */
+.n-feat {
+  background: var(--n-card);
+  border-right: 1px solid var(--n-line);
+  border-bottom: 1px solid var(--n-line);
+  color: var(--n-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 44px 24px 28px;
+  min-height: 520px;
+}
+.n-feat:first-child {
+  border-left: 1px solid var(--n-line);
+}
+/* Stack card (violet). */
+.n-stack {
+  background: var(--n-violet);
+  color: #fff;
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 32px 24px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-/* Scroll cue chevrons */
+/* ── Scroll cue chevrons ──────────────────────────────────────────────── */
 .n-cue {
   position: fixed;
   left: 0;
@@ -407,7 +578,7 @@
   }
 }
 
-/* Marquee (partner strip) */
+/* Marquee */
 .n-marquee {
   overflow: hidden;
   mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
@@ -422,16 +593,15 @@
   animation-play-state: paused;
 }
 
-/* Big wordmark at the very bottom. */
+/* Big wordmark at the very bottom (solid, clipped by the footer edge). */
 .n-wordmark-huge {
-  font-family: var(--font-mono);
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: -0.06em;
-  line-height: 0.8;
-  font-size: clamp(4rem, 22vw, 22rem);
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.18);
+  letter-spacing: -0.05em;
+  line-height: 0.72;
+  font-size: clamp(5rem, 24vw, 24rem);
+  color: #fff;
   user-select: none;
 }
 
@@ -442,7 +612,7 @@
   height: 2px;
   background: currentColor;
   transition:
-    transform 0.3s var(--ease-out),
+    transform 0.3s var(--n-ease-out),
     opacity 0.2s;
 }
 .n-burger[aria-expanded="true"] span:nth-child(1) {
@@ -476,18 +646,25 @@
   background: rgba(255, 255, 255, 0.03);
 }
 .n-prose code {
-  color: var(--n-accent);
+  color: var(--n-lilac);
 }
 .n-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--n-card);
   border: 1px solid var(--n-line);
 }
 .n-link {
-  color: var(--n-ink);
+  color: var(--n-lilac);
   text-decoration: underline;
   text-underline-offset: 4px;
-  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-decoration-color: rgba(216, 173, 253, 0.4);
 }
 .n-link:hover {
-  text-decoration-color: var(--n-accent);
+  text-decoration-color: var(--n-lilac);
+}
+/* Kept for pages that still use the dashed divider. */
+.n-bar {
+  width: 24px;
+  height: 96px;
+  background: repeating-linear-gradient(180deg, var(--n-accent) 0 6px, transparent 6px 12px);
+  opacity: 0.7;
 }

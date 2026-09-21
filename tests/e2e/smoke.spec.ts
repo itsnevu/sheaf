@@ -5,9 +5,10 @@ test.describe("public site and auth", () => {
   test("marketing pages render without console errors", async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+    // Link prefetches cancelled by the next navigation log a benign "Failed to fetch RSC payload" line.
+    page.on("console", (m) => m.type() === "error" && !/Failed to fetch RSC payload/.test(m.text()) && errors.push(m.text()));
     for (const path of ["/", "/security", "/docs", "/privacy"]) {
-      const res = await page.goto(path);
+      const res = await page.goto(path, { waitUntil: "networkidle" });
       expect(res?.status()).toBe(200);
       await expect(page.locator("main")).toBeVisible();
     }

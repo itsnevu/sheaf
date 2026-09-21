@@ -5,7 +5,7 @@ import Link from "next/link";
  * visibility), the sheets behind it fade (what the outside sees). Original artwork, drawn in
  * code so it scales and inherits colour.
  */
-export function Mark({ size = 28, className = "", inverted = false }: { size?: number; className?: string; inverted?: boolean }) {
+export function Mark({ size = 28, className = "", inverted = false, accent = "#2dd4bf" }: { size?: number; className?: string; inverted?: boolean; accent?: string }) {
   const bg = inverted ? "#f7f6f2" : "#141518";
   const fg = inverted ? "#141518" : "#f7f6f2";
   const id = inverted ? "sheaf-fade-i" : "sheaf-fade";
@@ -21,7 +21,7 @@ export function Mark({ size = 28, className = "", inverted = false }: { size?: n
       <rect x="20" y="6" width="5" height="20" rx="1.2" fill={`url(#${id})`} />
       <rect x="13.5" y="6" width="5" height="20" rx="1.2" fill={`url(#${id})`} opacity="0.7" />
       <rect x="7" y="6" width="5" height="20" rx="1.2" fill={fg} />
-      <rect x="5.5" y="14" width="21" height="4" rx="1.5" fill="#2dd4bf" />
+      <rect x="5.5" y="14" width="21" height="4" rx="1.5" fill={accent} />
     </svg>
   );
 }
