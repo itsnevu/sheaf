@@ -1,0 +1,317 @@
+@import "../styles/night.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Sheaf design tokens. Source of truth alongside tailwind.config.ts.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --canvas: #f6f5f1;
+  --surface: #ffffff;
+  --field: #efeeea;
+  --line: #e3e1db;
+  --ink: #141518;
+  --ink-soft: #585b63;
+  --ink-faint: #8b8e96;
+  --on-ink: #f7f6f2;
+  --veil: #1d7a6f;
+  --veil-deep: #155e56;
+  --veil-tint: #e2f0ec;
+  --shadow-raised: 0 1px 2px rgba(20, 21, 24, 0.05), 0 6px 16px -8px rgba(20, 21, 24, 0.14);
+  --shadow-lifted: 0 2px 4px rgba(20, 21, 24, 0.05), 0 16px 32px -12px rgba(20, 21, 24, 0.24);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --header-h: 64px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    font-feature-settings: "cv11", "ss01", "calt";
+  }
+  ::selection {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--veil);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Type scale */
+  .display-1 {
+    @apply font-display font-medium tracking-[-0.035em] leading-[0.98];
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+  }
+  .display-2 {
+    @apply font-display font-medium tracking-[-0.025em] leading-[1.05];
+    font-size: clamp(1.875rem, 3.2vw, 3rem);
+  }
+  .title-1 {
+    @apply font-display font-medium tracking-[-0.02em] leading-[1.1];
+    font-size: clamp(1.5rem, 2.2vw, 2.125rem);
+  }
+  .title-2 {
+    @apply font-display font-medium tracking-[-0.015em] leading-[1.15] text-[1.25rem];
+  }
+  .title-3 {
+    @apply font-sans font-semibold tracking-[-0.01em] text-[1rem];
+  }
+  .lede {
+    @apply text-ink-soft text-[1.0625rem] leading-[1.6] md:text-[1.125rem];
+  }
+  .eyebrow {
+    @apply font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-ink-faint;
+  }
+  .mono-data {
+    @apply font-mono text-[0.8125rem] tnum;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap select-none transition-[background-color,color,box-shadow,transform] duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    min-height: 2.5rem;
+    padding: 0 1.125rem;
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .btn-lg {
+    min-height: 3rem;
+    padding: 0 1.5rem;
+    font-size: 1rem;
+  }
+  .btn-sm {
+    min-height: 2rem;
+    padding: 0 0.875rem;
+    font-size: 0.8125rem;
+  }
+  .btn-primary {
+    @apply bg-ink text-on-ink;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #2a2c33;
+  }
+  .btn-accent {
+    @apply bg-veil text-white;
+  }
+  .btn-accent:hover:not(:disabled) {
+    @apply bg-veil-deep;
+  }
+  .btn-secondary {
+    @apply bg-surface text-ink border border-line shadow-raised;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    @apply border-line-strong;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-ink-soft;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    @apply bg-field text-ink;
+  }
+  .btn-danger {
+    @apply bg-danger text-white;
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: #8f1c13;
+  }
+
+  /* Inputs */
+  .label {
+    @apply block text-[0.8125rem] font-medium text-ink-soft mb-1.5;
+  }
+  .input {
+    @apply w-full rounded-[10px] bg-surface border border-line px-3.5 text-[0.9375rem] text-ink placeholder:text-ink-faint transition-[border-color,box-shadow] duration-150;
+    min-height: 2.625rem;
+  }
+  .input:hover {
+    @apply border-line-strong;
+  }
+  .input:focus {
+    @apply border-veil shadow-focus outline-none;
+  }
+  .input[aria-invalid="true"] {
+    @apply border-danger;
+  }
+  textarea.input {
+    @apply py-2.5 min-h-[6rem];
+  }
+  select.input {
+    @apply pr-9 appearance-none bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23585b63' stroke-width='1.6'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+  }
+  .help {
+    @apply text-[0.8125rem] text-ink-faint mt-1.5;
+  }
+  .error-text {
+    @apply text-[0.8125rem] text-danger mt-1.5;
+  }
+
+  /* Surfaces */
+  .card {
+    @apply bg-surface border border-line rounded-card shadow-raised;
+  }
+  .panel {
+    @apply bg-surface border border-line rounded-panel shadow-raised;
+  }
+  .inset {
+    @apply bg-field rounded-[10px] shadow-inset;
+  }
+
+  /* Tables */
+  .table {
+    @apply w-full text-[0.875rem] border-collapse;
+  }
+  .table th {
+    @apply text-left font-medium text-ink-faint text-[0.75rem] uppercase tracking-[0.06em] py-2.5 px-3 border-b border-line whitespace-nowrap;
+  }
+  .table td {
+    @apply py-3 px-3 border-b border-line align-middle;
+  }
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+  .table tbody tr:hover td {
+    background: rgba(20, 21, 24, 0.025);
+  }
+  .table-wrap {
+    @apply overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0;
+    scrollbar-width: thin;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 text-[0.75rem] font-medium whitespace-nowrap border;
+  }
+  .badge-neutral {
+    @apply bg-field text-ink-soft border-transparent;
+  }
+  .badge-info {
+    @apply bg-info-tint text-info border-transparent;
+  }
+  .badge-progress {
+    @apply bg-veil-tint text-veil-deep border-transparent;
+  }
+  .badge-success {
+    @apply bg-success-tint text-success border-transparent;
+  }
+  .badge-warning {
+    @apply bg-warning-tint text-warning border-transparent;
+  }
+  .badge-danger {
+    @apply bg-danger-tint text-danger border-transparent;
+  }
+  .badge-dot {
+    @apply inline-block w-1.5 h-1.5 rounded-full bg-current;
+  }
+  .badge-progress .badge-dot {
+    @apply animate-pulse2;
+  }
+
+  /* Skeleton */
+  .skeleton {
+    @apply rounded-md bg-field;
+    background-image: linear-gradient(90deg, #efeeea 0%, #f7f6f2 50%, #efeeea 100%);
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+
+  /* Container */
+  .container-site {
+    @apply mx-auto w-full max-w-site px-4 sm:px-6 lg:px-8;
+  }
+  .container-wide {
+    @apply mx-auto w-full max-w-wide px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Marketing reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.6s var(--ease-out),
+      transform 0.6s var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Dialog */
+  dialog.dialog {
+    @apply bg-surface text-ink rounded-panel border border-line shadow-lifted p-0 w-[min(92vw,34rem)];
+    animation: fade-up 0.25s var(--ease-out);
+  }
+  dialog.dialog::backdrop {
+    background: rgba(20, 21, 24, 0.45);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+
+  /* Link underline */
+  .link {
+    @apply text-ink underline underline-offset-4 decoration-line-strong hover:decoration-ink transition-colors;
+  }
+}
+
+/* Marketing-specific */
+.site-header {
+  background: rgba(246, 245, 241, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+.night {
+  background: var(--night, #0f1012);
+  color: #e9e8e3;
+}
+.hairline-grid {
+  background-image:
+    linear-gradient(to right, rgba(20, 21, 24, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 21, 24, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, #000 40%, transparent 78%);
+}
+.marquee-track {
+  animation: drift 60s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}

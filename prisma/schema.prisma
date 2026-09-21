@@ -1,0 +1,329 @@
+// Sheaf data model. SQLite by default (zero setup); switch provider to "postgresql" for
+// production. Enums are strings because SQLite has none; the allowed values live in
+// src/lib/domain/states.ts and are validated in application code.
+//
+// Money is stored as strings of integer base units (e.g. USDC 6 decimals: "1250000" = 1.25).
+// Never floats. See src/lib/money.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id                 String   @id @default(cuid())
+  name               String
+  slug               String   @unique
+  // EVM address of the treasury wallet expected to sign in real mode (optional in demo).
+  treasuryAddress    String?
+  assetSymbol        String   @default("USDC")
+  assetDecimals      Int      @default(6)
+  originChainId      Int      @default(8453)
+  destinationChainId Int      @default(8453)
+  // Optional spacing between route submissions. Off by default; bounded in code (0..1800s).
+  jitterEnabled      Boolean  @default(false)
+  jitterMaxSeconds   Int      @default(0)
+  // Four-eyes: the approver must differ from the last editor of the recipient set.
+  requireFourEyes    Boolean  @default(true)
+  maxRetries         Int      @default(3)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  memberships    Membership[]
+  batches        PaymentBatch[]
+  auditEvents    AuditEvent[]
+  reconciliation ReconciliationRecord[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  memberships Membership[]
+  sessions    Session[]
+}
+
+model Membership {
+  id             String       @id @default(cuid())
+  userId         String
+  organizationId String
+  // OWNER | FINANCE_ADMIN | APPROVER | VIEWER
+  role           String
+  createdAt      DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  tokenHash      String   @unique
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PaymentBatch {
+  id                 String    @id @default(cuid())
+  organizationId     String
+  name               String
+  reference          String?
+  // DRAFT | VALIDATED | ROUTES_PREPARED | APPROVED | FUNDED | EXECUTING | COMPLETED |
+  // PARTIALLY_FAILED | FAILED | CANCELLED
+  status             String    @default("DRAFT")
+  // demo | real — captured at creation from the server mode. Never changes.
+  mode               String
+  assetSymbol        String
+  assetDecimals      Int
+  assetAddress       String?
+  originChainId      Int
+  destinationChainId Int
+  csvFileName        String?
+  csvOriginal        String?
+  csvHash            String?
+  // sha256 over the ordered valid recipient set (address, amount). Approvals bind to it.
+  recipientSetHash   String?
+  totalAmount        String    @default("0")
+  validCount         Int       @default(0)
+  invalidCount       Int       @default(0)
+  deadlineAt         DateTime?
+  jitterMaxSeconds   Int       @default(0)
+  createdById        String
+  lastEditedById     String?
+  approvedAt         DateTime?
+  fundedAt           DateTime?
+  executionStartedAt DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  recipients     BatchRecipient[]
+  routes         PaymentRoute[]
+  approvals      Approval[]
+  funding        FundingTransaction[]
+  attempts       ExecutionAttempt[]
+  auditEvents    AuditEvent[]
+  reconciliation ReconciliationRecord[]
+  jobs           Job[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt])
+}
+
+model BatchRecipient {
+  id           String    @id @default(cuid())
+  batchId      String
+  rowNumber    Int
+  name         String
+  addressInput String
+  // Checksummed EVM address when valid, else null.
+  address      String?
+  amountInput  String
+  // Integer base units as string when valid, else null.
+  amount       String?
+  assetSymbol  String
+  reference    String?
+  valid        Boolean   @default(false)
+  // JSON array of { code, message }.
+  errors       String    @default("[]")
+  warnings     String    @default("[]")
+  // PENDING | ROUTED | ROUTE_UNAVAILABLE | SCHEDULED | SUBMITTED | CONFIRMING | COMPLETED |
+  // FAILED | RETRY_ELIGIBLE | REFUNDED | CANCELLED
+  status       String    @default("PENDING")
+  attemptCount Int       @default(0)
+  lastError    String?
+  scheduledFor DateTime?
+  submittedAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  batch          PaymentBatch          @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  route          PaymentRoute?
+  attempts       ExecutionAttempt[]
+  reconciliation ReconciliationRecord?
+  auditEvents    AuditEvent[]
+
+  @@index([batchId, status])
+}
+
+model PaymentRoute {
+  id                 String    @id @default(cuid())
+  recipientId        String    @unique
+  batchId            String
+  // mock | relay
+  provider           String
+  providerRequestId  String?
+  // direct_transfer | cross_chain | swap
+  routeKind          String
+  originChainId      Int
+  destinationChainId Int
+  // JSON: provider-neutral steps [{ id, kind, description, chainId, to, data, value }]
+  steps              String    @default("[]")
+  // JSON: { gas, relayer, relayerGas, relayerService, app, totalUsd } all strings
+  fees               String    @default("{}")
+  feeTotalUsd        String?
+  // Origin-chain amount the treasury must send for this route (base units).
+  amountIn           String?
+  timeEstimateSec    Int?
+  quotedAt           DateTime  @default(now())
+  expiresAt          DateTime?
+  // QUOTED | STALE | UNAVAILABLE | CONSUMED
+  status             String    @default("QUOTED")
+  error              String?
+  // Raw provider response for audit (JSON string).
+  raw                String?
+
+  recipient BatchRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  batch     PaymentBatch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId, status])
+}
+
+model Approval {
+  id                String    @id @default(cuid())
+  batchId           String
+  approverId        String
+  approverEmail     String
+  recipientSetHash  String
+  totalAmount       String
+  note              String?
+  // ACTIVE | INVALIDATED
+  status            String    @default("ACTIVE")
+  invalidatedReason String?
+  createdAt         DateTime  @default(now())
+  invalidatedAt     DateTime?
+
+  batch PaymentBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId, status])
+}
+
+model FundingTransaction {
+  id          String    @id @default(cuid())
+  batchId     String
+  chainId     Int
+  fromAddress String
+  txHash      String?
+  amount      String
+  assetSymbol String
+  // SIMULATED | PENDING | CONFIRMED | FAILED
+  status      String
+  simulated   Boolean   @default(false)
+  note        String?
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+
+  batch PaymentBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+}
+
+model ExecutionAttempt {
+  id                String    @id @default(cuid())
+  recipientId       String
+  batchId           String
+  attemptNo         Int
+  idempotencyKey    String    @unique
+  provider          String
+  providerRequestId String?
+  txHash            String?
+  providerStatus    String?
+  // PENDING | SUBMITTED | CONFIRMED | FAILED | UNKNOWN | REFUNDED
+  status            String    @default("PENDING")
+  failReason        String?
+  retryable         Boolean   @default(false)
+  simulated         Boolean   @default(false)
+  // JSON array of { at, event, detail }
+  log               String    @default("[]")
+  scheduledFor      DateTime?
+  startedAt         DateTime  @default(now())
+  finishedAt        DateTime?
+
+  recipient BatchRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  batch     PaymentBatch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId, status])
+  @@index([recipientId, attemptNo])
+}
+
+model AuditEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  batchId        String?
+  recipientId    String?
+  actorId        String?
+  actorEmail     String?
+  // e.g. batch.created, csv.validated, batch.approved, funding.recorded, execution.started,
+  // payment.submitted, payment.completed, payment.failed, payment.retried, reconciliation.updated,
+  // export.downloaded, settings.updated, member.added
+  action         String
+  summary        String
+  payload        String   @default("{}")
+  createdAt      DateTime @default(now())
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  batch        PaymentBatch?   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  recipient    BatchRecipient? @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@index([batchId, createdAt])
+}
+
+model ReconciliationRecord {
+  id             String    @id @default(cuid())
+  recipientId    String    @unique
+  batchId        String
+  organizationId String
+  // UNRECONCILED | MATCHED | EXCEPTION | RESOLVED
+  status         String    @default("UNRECONCILED")
+  txHash         String?
+  feeActual      String?
+  note           String?
+  reconciledById String?
+  reconciledAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  recipient    BatchRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  batch        PaymentBatch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, status])
+}
+
+// Durable job queue for execution and polling. Claimed with a conditional update so two
+// workers never run the same job. See src/lib/worker.
+model Job {
+  id             String    @id @default(cuid())
+  type           String
+  batchId        String?
+  recipientId    String?
+  idempotencyKey String    @unique
+  payload        String    @default("{}")
+  runAt          DateTime  @default(now())
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(5)
+  // QUEUED | RUNNING | DONE | FAILED
+  status         String    @default("QUEUED")
+  lockedAt       DateTime?
+  lockedBy       String?
+  lastError      String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  batch PaymentBatch? @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([status, runAt])
+}
