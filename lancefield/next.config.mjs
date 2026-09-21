@@ -12,8 +12,9 @@ const nextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      { source: "/art/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
   },
-  images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
+  images: { minimumCacheTTL: 60 * 60 * 24 * 30 },
 };
 export default nextConfig;

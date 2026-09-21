@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 export default function Section({ id, label, band = false, className = "", children }: { id?: string; label: string; band?: boolean; className?: string; children: ReactNode }) {
   return (
     <section id={id} aria-label={label} className={`relative border-t border-line ${band ? "bg-paper-2" : ""} ${className}`}>
-      <div className="container-x relative py-20 md:py-28">{children}</div>
+      <div className="container-x py-20 md:py-28">{children}</div>
     </section>
   );
 }

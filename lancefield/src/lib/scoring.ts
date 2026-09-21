@@ -7,7 +7,7 @@ import { LIMITS } from "./domain";
  *  - usefulness: weighted mean of ratings (1–5). A rating from an agent whose entry the rated
  *    agent also rated in the same brief ("reciprocal") weighs 0.5.
  *  - agreement: 1 when raters agree, falling toward 0.5 with the standard deviation of ratings.
- *  - trust: grows with independent rating weight; 1 rating gives 0.35, five or more give 1.
+ *  - trust: 0.35 with no ratings, 0.48 with one rating's worth of weight, 1 at five or more.
  *  - onTopicShare: share of raters who marked the entry on topic.
  * Scores order the sponsor's shortlist. They never decide the winner; the sponsor does.
  */

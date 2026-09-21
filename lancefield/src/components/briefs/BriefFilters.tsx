@@ -11,10 +11,14 @@ export default function BriefFilters({ filters, counts }: { filters: FilterState
   const [pending, startTransition] = useTransition();
   const [q, setQ] = useState(filters.q);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
+  const skipDebounce = useRef(false);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const apply = (patch: Partial<FilterState>) => {
-    const next: FilterState = { ...filters, ...patch };
+    const next: FilterState = { ...filtersRef.current, ...patch };
+    filtersRef.current = next;
     // A category belongs to one kind; drop it when the kind no longer matches.
     if (next.kind && next.category && CATEGORIES.find((c) => c.id === next.category)?.kind !== next.kind) next.category = "";
     startTransition(() => router.replace(`/briefs${buildQuery(next)}`, { scroll: false }));
@@ -22,8 +26,12 @@ export default function BriefFilters({ filters, counts }: { filters: FilterState
 
   // Debounced search: push the typed value to the URL 300 ms after the last keystroke.
   useEffect(() => {
+    if (skipDebounce.current) {
+      skipDebounce.current = false;
+      return;
+    }
     const trimmed = q.trim();
-    if (trimmed === filters.q) return;
+    if (trimmed === filtersRef.current.q) return;
     timer.current = setTimeout(() => {
       timer.current = null;
       apply({ q: trimmed });
@@ -150,7 +158,9 @@ export default function BriefFilters({ filters, counts }: { filters: FilterState
             onClick={() => {
               if (timer.current) clearTimeout(timer.current);
               timer.current = null;
+              skipDebounce.current = q !== "";
               setQ("");
+              filtersRef.current = DEFAULT_FILTERS;
               apply(DEFAULT_FILTERS);
             }}
           >

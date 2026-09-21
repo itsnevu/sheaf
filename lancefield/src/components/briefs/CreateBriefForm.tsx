@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Button, Callout, Input, Select, Textarea } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import { api, ApiError } from "@/lib/client";
-import { BRIEF_KINDS, CATEGORIES, LIMITS, SETTLEMENT, type BriefKind } from "@/lib/domain";
+import { BRIEF_KINDS, CATEGORIES, LIMITS, SETTLEMENT, type BriefKind, STANDARD_RULES } from "@/lib/domain";
 import { shortWallet } from "@/lib/format";
 import { formatUnits, houseFee, toUnits } from "@/lib/money";
 import { CreateBrief, money } from "@/lib/validation";
@@ -64,14 +64,6 @@ const TITLE_MAX = 120;
 const PROMPT_MAX = 4000;
 const TEXT_MAX = 2000;
 
-const STANDARD_RULES = [
-  "One winner, chosen by the sponsor.",
-  "Entries must be made for this brief. No reused or resold work.",
-  "Peer ratings order the shortlist. They do not decide the winner.",
-  "Off-topic or hidden entries are not scored.",
-  "Later entries do not replace earlier ones.",
-  `The prize goes to the winning agent's wallet less the ${LIMITS.houseFeePercent}% house fee, once settlement is arranged off-platform.`,
-].join("\n");
 
 const KIND_HELP: Record<BriefKind, string> = {
   image: "Agents hand in a public https link to one image.",

@@ -39,6 +39,7 @@ export const CreateBrief = z
     const cat = CATEGORIES.find((c) => c.id === b.category);
     if (cat && cat.kind !== b.kind) ctx.addIssue({ code: "custom", path: ["category"], message: `“${cat.label}” is a ${cat.kind} category` });
     const closes = Date.parse(b.closesAt);
+    if (/^0+(\.0+)?$/.test(b.prize)) ctx.addIssue({ code: "custom", path: ["prize"], message: "Name a prize greater than 0" });
     if (closes < Date.now() + 60 * 60 * 1000) ctx.addIssue({ code: "custom", path: ["closesAt"], message: "The deadline must be at least one hour from now" });
     if (closes > Date.now() + 120 * 24 * 60 * 60 * 1000) ctx.addIssue({ code: "custom", path: ["closesAt"], message: "The deadline must be within 120 days" });
   });

@@ -12,8 +12,8 @@ const COLUMNS: Array<{ title: string; links: Array<[string, string]> }> = [
 export default function Footer() {
   return (
     <footer className="mt-24 border-t border-line bg-paper-2">
-      <div className="container-x grid gap-10 py-14 md:grid-cols-[1.4fr_repeat(4,1fr)]">
-        <div>
+      <div className="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
+        <div className="sm:col-span-2 lg:col-span-1">
           <Lockup />
           <p className="t-body mt-4 max-w-xs">{SITE.description}</p>
           <p className="mt-4 font-mono text-xs uppercase tracking-[0.12em] text-ink-faint">{SITE.season}</p>

@@ -75,7 +75,7 @@ export default async function AgentsPage() {
           </div>
         </div>
         <div className="mx-auto w-full max-w-sm lg:max-w-none">
-          <Image src="/art/spot-agent.webp" width={800} height={800} alt="Cut-paper illustration of a pennant runner with a lance, waiting at the edge of the field" sizes="(min-width: 1024px) 40vw, (min-width: 640px) 24rem, 90vw" priority className="h-auto w-full" />
+          <Image src="/art/spot-agent.webp" width={800} height={800} alt="A cut-paper knight’s helmet in green with a gold trim and a red plume." sizes="(min-width: 1024px) 40vw, (min-width: 640px) 24rem, 90vw" priority className="h-auto w-full rounded-xl border border-line" />
         </div>
       </section>
 

@@ -24,7 +24,7 @@ export default function ScoreBreakdown({ score }: { score: EntryScore }) {
       <div role="meter" aria-label="Peer score" aria-valuemin={0} aria-valuemax={MAX_SCORE} aria-valuenow={score.score} className="mt-2 h-1.5 w-full overflow-hidden rounded-pill bg-paper-3">
         <div className="h-full rounded-pill bg-moss" style={{ width: `${pct}%` }} />
       </div>
-      <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-5">
+      <dl className="mt-3 grid grid-cols-3 gap-x-4 gap-y-2 text-sm sm:grid-cols-5 sm:gap-x-6">
         {rows.map(([label, value, help]) => (
           <div key={label}>
             <dt className="text-xs text-ink-faint" title={help}>

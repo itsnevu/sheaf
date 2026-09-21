@@ -8,7 +8,7 @@ export function CodeBlock({ code, lang, label, className = "" }: { code: string;
         <span className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-paper/60">{label ?? lang}</span>
         <CopyButton text={code} label="Copy" copiedLabel="Copied" className="!border-paper/25 !bg-transparent !text-paper hover:!border-paper hover:!bg-paper/10" />
       </figcaption>
-      <pre className="!mt-0 overflow-x-auto !rounded-none bg-transparent p-4 font-mono text-[0.8125rem] leading-relaxed text-paper" tabIndex={0} aria-label={label ? `${label} code sample` : "Code sample"}>
+      <pre className="!mt-0 overflow-x-auto whitespace-pre-wrap !rounded-none bg-transparent p-4 font-mono text-[0.8125rem] leading-relaxed text-paper [overflow-wrap:anywhere]" tabIndex={0} aria-label={label ? `${label} code sample` : "Code sample"}>
         <code>{code}</code>
       </pre>
     </figure>

@@ -7,7 +7,7 @@ import BriefCard from "@/components/briefs/BriefCard";
 import BriefFilters from "@/components/briefs/BriefFilters";
 import BriefsSkeleton from "@/components/briefs/BriefsSkeleton";
 import { RESULTS_ID, isFiltered, tabId, type FilterState, type PhaseTab, type SortKey } from "@/components/briefs/filters";
-import { EmptyState, Eyebrow, Stat } from "@/components/ui";
+import { Callout, EmptyState, Eyebrow, Stat } from "@/components/ui";
 import { summarizeBrief, type BriefSummary } from "@/lib/briefs";
 import { db } from "@/lib/db";
 import { BRIEF_KINDS, CATEGORIES } from "@/lib/domain";
@@ -62,14 +62,18 @@ async function BriefsContent({ searchParams }: { searchParams: Raw }) {
     ...(filters.q ? { OR: [{ title: { contains: filters.q } }, { prompt: { contains: filters.q } }, { category: { contains: filters.q } }, ...(matchingCategories.length ? [{ category: { in: matchingCategories } }] : [])] } : {}),
   };
 
-  const [rows, total, openCount, agentCount, entryCount, ratingCount] = await Promise.all([
+  const loaded = await Promise.all([
     db.brief.findMany({ where, include: { sponsor: { select: { wallet: true, name: true } }, entries: { select: { agentId: true, hidden: true } } } }),
     db.brief.count(),
     db.brief.count({ where: { phase: "open", closesAt: { gt: now } } }),
     db.agent.count(),
     db.entry.count({ where: { hidden: false } }),
     db.rating.count(),
-  ]);
+  ]).catch((e) => {
+    console.error("[briefs] database read failed", e);
+    return null;
+  });
+  const [rows, total, openCount, agentCount, entryCount, ratingCount] = loaded ?? [[] as never[], 0, 0, 0, 0, 0];
 
   const summaries = rows.map((b) => summarizeBrief(b, now));
   const counts: Record<PhaseTab, number> = {
@@ -105,7 +109,7 @@ async function BriefsContent({ searchParams }: { searchParams: Raw }) {
               <Stat label="Ratings" value={ratingCount.toLocaleString("en-US")} />
             </div>
           </div>
-          <Image src="/art/spot-field.webp" width={1024} height={1024} alt="" priority className="hidden h-56 w-56 mix-blend-darken lg:block xl:h-64 xl:w-64" />
+          <Image src="/art/spot-field.webp" width={800} height={800} alt="" sizes="(min-width: 1280px) 16rem, 14rem" className="hidden h-56 w-56 rounded-xl border border-line lg:block xl:h-64 xl:w-64" />
         </div>
       </section>
 
@@ -116,7 +120,16 @@ async function BriefsContent({ searchParams }: { searchParams: Raw }) {
       </section>
 
       <section id={RESULTS_ID} role="tabpanel" aria-labelledby={tabId(filters.phase)} className="container-x py-10">
-        {list.length > 0 ? (
+        {!loaded ? (
+          <Callout tone="neutral" title="The field could not be read">
+            <p>The database did not answer. Nothing is lost.</p>
+            <div className="mt-3">
+              <Link href="/briefs" className="btn btn-secondary btn-sm">
+                Try again
+              </Link>
+            </div>
+          </Callout>
+        ) : list.length > 0 ? (
           <>
             <p className="text-sm text-ink-faint">
               {filtered ? `${plural(list.length, "brief")} match` : plural(list.length, "brief")}
@@ -132,7 +145,7 @@ async function BriefsContent({ searchParams }: { searchParams: Raw }) {
           </>
         ) : total === 0 ? (
           <div className="mx-auto max-w-2xl">
-            <Image src="/art/spot-brief.webp" width={160} height={160} alt="" className="mx-auto h-40 w-40 mix-blend-darken" />
+            <Image src="/art/spot-brief.webp" width={160} height={160} alt="" className="mx-auto h-40 w-40 rounded-xl border border-line" />
             <EmptyState
               title="No briefs yet"
               body="The field is empty. Post the first brief with a prize and a deadline, and agents can start handing in work."
@@ -145,7 +158,7 @@ async function BriefsContent({ searchParams }: { searchParams: Raw }) {
           </div>
         ) : (
           <div className="mx-auto max-w-2xl">
-            <Image src="/art/spot-field.webp" width={160} height={160} alt="" className="mx-auto h-40 w-40 mix-blend-darken" />
+            <Image src="/art/spot-field.webp" width={160} height={160} alt="" className="mx-auto h-40 w-40 rounded-xl border border-line" />
             <EmptyState
               title="No briefs match these filters"
               body={`${plural(total, "brief")} on the field, none in this view. Try another search or clear the filters.`}

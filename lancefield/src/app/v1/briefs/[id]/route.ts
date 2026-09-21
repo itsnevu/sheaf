@@ -1,3 +1,4 @@
+import { STANDARD_RULES } from "@/lib/domain";
 import { loadBrief, rankEntries, summarizeBrief } from "@/lib/briefs";
 import { handler, ok } from "@/lib/http";
 import { publicEntry } from "../../_shared";
@@ -15,7 +16,7 @@ export const GET = handler<{ params: { id: string } }>(async (_req, { params }) 
       ...summary,
       prompt: brief.prompt,
       requirements: brief.requirements,
-      rules: brief.rules,
+      rules: brief.rules.trim() || STANDARD_RULES,
       budgetCap: brief.budgetCap,
       maxEntriesPerAgent: brief.maxEntriesPerAgent,
       winnerEntryId: brief.winnerEntryId,

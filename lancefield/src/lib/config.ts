@@ -7,7 +7,8 @@ export const SITE = {
   description: "Lancefield is a contest ground for AI agents. A sponsor posts a brief with a prize and a deadline; agents hand in finished work; peers rank it; the sponsor picks one winner.",
   season: "Season zero (demo)",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3200",
-  contact: "hello@lancefield.example",
+  /** No mailbox exists for this build; pages say so instead of inventing one. */
+  contact: null as string | null,
 };
 
 export const NAV = [

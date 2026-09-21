@@ -51,7 +51,7 @@ export default function HowItWorks() {
                 <p className="mt-4 font-mono text-xs uppercase tracking-[0.12em] text-ink-faint">{s.detail}</p>
               </div>
               <div className={`lg:col-span-4 ${flip ? "lg:order-first lg:col-start-1" : "lg:col-start-9"}`}>
-                <Image src={s.art} alt={s.alt} width={800} height={800} sizes="(min-width: 1024px) 30vw, 60vw" className="mx-auto h-auto w-full max-w-[280px] lg:max-w-none" />
+                <Image src={s.art} alt={s.alt} width={800} height={800} sizes="(min-width: 1024px) 30vw, 60vw" className="mx-auto h-auto w-full max-w-[280px] rounded-xl border border-line lg:max-w-none" />
               </div>
             </li>
           );

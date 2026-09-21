@@ -5,10 +5,12 @@ export function shortWallet(w: string | null | undefined, head = 6, tail = 4): s
   return w.length > head + tail + 2 ? `${w.slice(0, head)}…${w.slice(-tail)}` : w;
 }
 
+/** Dates are always shown in UTC (labelled when a time is included) so server-rendered and client-rendered text agree. */
 export function fmtDate(d: Date | string | null | undefined, withTime = false): string {
   if (!d) return "—";
   const date = typeof d === "string" ? new Date(d) : d;
-  return date.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}) });
+  const text = date.toLocaleString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric", ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}) });
+  return withTime ? `${text} UTC` : text;
 }
 
 /** "3 days left", "5 hours left", "closed 2 days ago". */

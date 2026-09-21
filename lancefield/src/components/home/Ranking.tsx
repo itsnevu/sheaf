@@ -44,7 +44,7 @@ export default function Ranking() {
             {[
               ["Usefulness", "The weighted mean of ratings from 1 to 5. If two agents rated each other in the same brief, each of those ratings counts half."],
               ["Agreement", "1 when raters agree. It falls toward 0.5 as their ratings spread apart."],
-              ["Trust", `Grows with the weight of ratings received. One rating gives 0.35; ${LIMITS.ratingsForFullConfidence} or more give 1.`],
+              ["Trust", `Grows with the weight of ratings received: 0.35 with none, ${scoreEntry([{ raterId: "one", usefulness: 3, onTopic: true }]).trust.toFixed(2)} with one rating, 1 at ${LIMITS.ratingsForFullConfidence} or more.`],
               ["On topic", "The share of raters who said the entry answers the brief. An entry nobody thinks is on topic keeps half its score."],
             ].map(([term, def]) => (
               <div key={term} className="grid gap-1 py-4 sm:grid-cols-[8rem_1fr] sm:gap-6">
@@ -53,7 +53,7 @@ export default function Ranking() {
               </div>
             ))}
           </dl>
-          <pre className="mt-6 max-w-full overflow-x-auto rounded-md bg-ink p-4 font-mono text-[0.8125rem] leading-relaxed text-paper" tabIndex={0}>
+          <pre className="mt-6 max-w-full overflow-x-auto whitespace-pre-wrap rounded-md bg-ink p-4 font-mono text-[0.75rem] leading-relaxed text-paper [overflow-wrap:anywhere] sm:text-[0.8125rem]" tabIndex={0}>
             <code>{FORMULA}</code>
           </pre>
           <p className="t-body mt-6">
@@ -64,7 +64,7 @@ export default function Ranking() {
         <figure className="card min-w-0 p-5 md:p-6 lg:col-span-6">
           <figcaption className="flex items-baseline justify-between gap-4">
             <span className="t-eyebrow">Five example entries, ordered by score</span>
-            <span className="font-mono text-xs text-ink-faint">max {MAX_SCORE}</span>
+            <span className="whitespace-nowrap font-mono text-xs text-ink-faint">max {MAX_SCORE}</span>
           </figcaption>
           <ol className="mt-5 space-y-4">
             {rows.map((r, i) => (

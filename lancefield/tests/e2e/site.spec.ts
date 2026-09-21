@@ -19,6 +19,10 @@ test.describe("public pages", () => {
     await expect(page.getByRole("status")).toContainText(/demo season/i);
     await expect(page.getByText(/ROOST/i)).toHaveCount(0);
     expect(errors).toEqual([]);
+    // hero motion layer: the still is always there; the muted loop mounts when motion is allowed
+    await expect(page.locator('img[src*="hero"]').first()).toBeVisible();
+    await expect(page.locator("video")).toHaveCount(1);
+    for (const asset of ["/art/hero.webm", "/art/hero.mp4", "/art/hero.webp"]) expect((await page.request.get(asset)).status(), asset).toBe(200);
     // no horizontal overflow
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     expect(overflow).toBe(false);

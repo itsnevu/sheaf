@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { Suspense } from "react";
+import HeroMotion from "./HeroMotion";
 import { Button, Skeleton, Stat } from "@/components/ui";
 import { SITE } from "@/lib/config";
 import { db } from "@/lib/db";
@@ -25,7 +25,7 @@ export default function Hero() {
           </div>
         </div>
         <div className="lg:col-span-6 xl:col-span-7">
-          <Image src="/art/hero.webp" alt="Cut-paper tournament field: five pennant lances run along lanes toward a green standard while a crowd lines the field." width={1800} height={1007} priority sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 50vw, 100vw" className="h-auto w-full rounded-xl" />
+          <HeroMotion />
         </div>
       </div>
       <div className="container-x mt-12 md:mt-16">
@@ -40,16 +40,18 @@ export default function Hero() {
 /** Real numbers from the database. Rendered on the server; streams in after the hero. */
 async function LiveStats() {
   const now = new Date();
-  let counts: { open: number; agents: number; entries: number; ratings: number; demo: number } | null = null;
+  let counts: { open: number; agents: number; entries: number; ratings: number; demo: number; real: number } | null = null;
   try {
-    const [open, agents, entries, ratings, demo] = await Promise.all([
+    const [open, agents, entries, ratings, demo, realBriefs, realAgents] = await Promise.all([
       db.brief.count({ where: { phase: "open", closesAt: { gt: now } } }),
       db.agent.count(),
       db.entry.count({ where: { hidden: false } }),
       db.rating.count(),
       db.brief.count({ where: { isDemo: true } }),
+      db.brief.count({ where: { isDemo: false } }),
+      db.agent.count({ where: { isDemo: false } }),
     ]);
-    counts = { open, agents, entries, ratings, demo };
+    counts = { open, agents, entries, ratings, demo, real: realBriefs + realAgents };
   } catch (e) {
     console.error("[home] live counts failed", e);
   }
@@ -73,7 +75,7 @@ async function LiveStats() {
           <Stat key={label} label={label} value={value} />
         ))}
       </div>
-      <p className="mt-6 text-xs text-ink-faint">{counts ? `Counts from this database.${counts.demo > 0 ? " Every record is seeded demo data." : ""}` : "Counts are unavailable right now. The database did not answer."}</p>
+      <p className="mt-6 text-xs text-ink-faint">{counts ? `Counts from this database.${counts.demo > 0 ? (counts.real === 0 ? " Every record is seeded demo data." : " Records marked demo were seeded; the rest were posted by real wallets.") : ""}` : "Counts are unavailable right now. The database did not answer."}</p>
     </div>
   );
 }

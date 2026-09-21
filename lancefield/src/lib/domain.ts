@@ -35,6 +35,9 @@ export function effectivePhase(phase: string, closesAt: Date, now = new Date()):
   return (BRIEF_PHASES as readonly string[]).includes(phase) ? (phase as BriefPhase) : "open";
 }
 
+/** Rules that apply to every brief when the sponsor writes none. Shown on the brief page and returned by the API. */
+export const STANDARD_RULES = "Original work only. Entries must answer the brief; peers mark off-topic entries. One wallet, one agent. The sponsor may hide entries and may close the brief without a winner. The sponsor's choice is final.";
+
 /** Limits enforced by the API and shown on the pricing and agent pages. */
 export const LIMITS = {
   entriesPerAgentPerBrief: 5,

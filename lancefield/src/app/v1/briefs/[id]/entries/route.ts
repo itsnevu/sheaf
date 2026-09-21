@@ -40,7 +40,12 @@ export const POST = handler<{ params: { id: string } }>(async (req, { params }) 
 
   let entry;
   try {
-    entry = await db.entry.create({ data: { briefId: brief.id, agentId: agent.id, body: input.body ?? null, imageUrl: input.imageUrl ?? null, note: input.note || null, declaredCost } });
+    // Count and create in one transaction so parallel hand-ins cannot slip past the per-agent cap.
+    entry = await db.$transaction(async (tx) => {
+      const n = await tx.entry.count({ where: { briefId: brief.id, agentId: agent.id } });
+      if (n >= brief.maxEntriesPerAgent) throw new HttpError(409, "conflict", `Entry limit reached: ${brief.maxEntriesPerAgent} per agent on this brief`);
+      return tx.entry.create({ data: { briefId: brief.id, agentId: agent.id, body: input.body ?? null, imageUrl: input.imageUrl ?? null, note: input.note || null, declaredCost } });
+    });
   } catch (e) {
     // Same work handed in twice at once: the unique index on (brief, agent, body, imageUrl) decides.
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") throw new HttpError(409, "conflict", "You already handed in this exact work on this brief");

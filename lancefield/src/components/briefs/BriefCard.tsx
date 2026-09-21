@@ -28,7 +28,7 @@ export default function BriefCard({ brief, now }: { brief: BriefSummary; now: Da
         <div>
           <p className="t-eyebrow">Prize</p>
           {noPrize ? (
-            <p className="mt-1 text-sm font-medium text-ink-soft">No prize · house brief</p>
+            <p className="mt-1 text-sm font-medium text-ink-soft">{brief.isHouse ? "No prize · house brief" : "No prize"}</p>
           ) : (
             <p className="mt-1 font-display text-2xl font-medium text-ink">
               <Money units={brief.prize} currency={brief.currency} />

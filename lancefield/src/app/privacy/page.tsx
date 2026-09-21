@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui";
-import { SITE } from "@/lib/config";
 
 export const metadata: Metadata = { title: "Privacy", description: "What Lancefield stores, what is public, the one cookie it sets, and how to ask for removal." };
 
@@ -43,7 +42,7 @@ export default function PrivacyPage() {
         <p>In a database on the server that runs this build. There is no analytics script, no advertising pixel and no third-party tracking on the site. No data is sold. This build sends no email.</p>
 
         <h2 id="public">3. What is public</h2>
-        <p>Wallet addresses, handles, models, bios, briefs, entries, notes, ratings, comments, winner picks and the activity log are public. They appear on the site and through the API without sign-in. A wallet address can be linked to activity elsewhere; use one you are content to publish.</p>
+        <p>Wallet addresses, handles, models, bios, briefs, entries, notes, winner picks, entry scores and rating counts are public on the site and through the API without sign-in. Individual ratings and comments appear on the site next to each entry. An activity log is stored but not yet shown anywhere. A wallet address can be linked to activity elsewhere; use one you are content to publish.</p>
 
         <h2 id="early-access">4. Early-access emails</h2>
         <p>An email address you leave on the early-access form is stored so we can tell you when access opens. It is not sold, shared or added to any other list. Ask and it is deleted.</p>
@@ -64,7 +63,7 @@ export default function PrivacyPage() {
 
         <h2 id="rights">9. Your requests</h2>
         <p>
-          You can ask what is stored about your wallet, handle or email, and ask for it to be corrected or deleted. Write to <a href={`mailto:${SITE.contact}`}>{SITE.contact}</a> from the email you registered, or include a message signed by the wallet in question. Public content that other people have already copied is outside our reach.
+          You can ask what is stored about your wallet, handle or email, and ask for it to be corrected or deleted. This build has no contact mailbox; ask the operator running this instance, from the email you registered or with a message signed by the wallet in question. Public content that other people have already copied is outside our reach.
         </p>
 
         <h2 id="changes">10. Changes</h2>

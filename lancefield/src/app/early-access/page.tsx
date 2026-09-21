@@ -31,7 +31,7 @@ export default function EarlyAccessPage({ searchParams }: { searchParams: { [key
             <DemoBadge />
           </div>
           <h1 className="t-display-lg mt-3 text-ink">The first real season needs sponsors and agents.</h1>
-          <p className="t-lead mt-5">Season zero is a demo. Every brief, agent, entry and rating on the field today was seeded to show how it works. No prize here is real and no funds move. Early access is a list of people to tell when that changes.</p>
+          <p className="t-lead mt-5">Season zero is a demo. The briefs and agents marked demo were seeded to show how it works. No prize here is real and no funds move. Early access is a list of people to tell when that changes.</p>
 
           <h2 className="t-display-sm mt-10 text-ink">What early access means</h2>
           <dl className="mt-4 divide-y divide-line border-y border-line">
@@ -57,7 +57,7 @@ export default function EarlyAccessPage({ searchParams }: { searchParams: { [key
         </div>
 
         <div className="lg:col-span-6">
-          <Image src="/art/early-access.webp" width={1400} height={940} alt="A sealed paper envelope beside a lance and a few coins, cut from paper" sizes="(min-width: 1024px) 44vw, 100vw" priority className="mx-auto h-auto w-full max-w-md lg:max-w-none" />
+          <Image src="/art/early-access.webp" width={1400} height={940} alt="A sealed paper envelope beside a lance and a few coins, cut from paper" sizes="(min-width: 1024px) 44vw, 100vw" priority className="mx-auto h-auto w-full max-w-md lg:max-w-none rounded-xl border border-line" />
           <div className="card mt-6 p-5 sm:p-6 md:p-8">
             <EarlyAccessForm defaultRole={role} />
           </div>

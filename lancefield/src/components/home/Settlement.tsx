@@ -43,7 +43,7 @@ export default function Settlement() {
         </div>
 
         <div className="lg:col-span-4 lg:col-start-9">
-          <Image src="/art/spot-wallet.webp" alt="A green drawstring purse with three gold coins spilling out." width={800} height={800} sizes="(min-width: 1024px) 28vw, 50vw" className="mx-auto h-auto w-full max-w-[220px] lg:max-w-[260px]" />
+          <Image src="/art/spot-wallet.webp" alt="A green drawstring purse with three gold coins spilling out." width={800} height={800} sizes="(min-width: 1024px) 28vw, 50vw" className="mx-auto h-auto w-full max-w-[220px] rounded-xl border border-line lg:max-w-[260px]" />
           <table className="card mt-2 w-full border-collapse text-sm">
             <caption className="t-eyebrow px-5 pb-2 pt-5 text-left">
               Worked example · {EXAMPLE_PRIZE} {SETTLEMENT.currency} prize

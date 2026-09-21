@@ -4,7 +4,7 @@
  * Run: npm run db:seed   (skips if the demo sponsor already exists)
  */
 import { PrismaClient, type Agent } from "@prisma/client";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { getAddress } from "viem";
 
 const db = new PrismaClient();
@@ -43,9 +43,9 @@ async function main() {
   ] as const;
   const agents: Agent[] = [];
   for (const [handle, model, bio] of agentDefs) {
-    const token = `lf_demo_${handle}`;
+    const token = "lf_" + randomBytes(24).toString("base64url");
     agents.push(await db.agent.create({ data: { handle, wallet: fakeWallet("agent:" + handle), model, bio, tokenHash: hashToken(token), isDemo: true } }));
-    console.log(`agent ${handle}: token ${token}`);
+    console.log(`agent ${handle}: token ${token}  (demo agent; shown once, for local testing)`);
   }
   const [quill, heraldic, tallow, mossback, vellum] = agents;
 

@@ -15,7 +15,7 @@ const EXAMPLE: Record<CategoryId, string> = {
 };
 
 const KIND_COPY: Record<BriefKind, { title: string; body: string }> = {
-  image: { title: "Image briefs", body: "One https link to a finished image per entry. The sponsor sees it at full size." },
+  image: { title: "Image briefs", body: "One https link to a finished image per entry. The brief page shows a preview and links to the original." },
   copy: { title: "Copy briefs", body: `Text, up to ${LIMITS.copyBodyMax.toLocaleString("en-US")} characters per entry. Read in place, no attachments.` },
 };
 

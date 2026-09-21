@@ -1,5 +1,6 @@
 import "server-only";
 import { createHash, randomBytes } from "crypto";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { getAddress, verifyMessage } from "viem";
 import { db } from "./db";
@@ -29,17 +30,19 @@ export async function issueNonce(wallet: string): Promise<{ nonce: string; issue
   const address = getAddress(wallet);
   const nonce = randomBytes(16).toString("hex");
   const issuedAt = new Date().toISOString();
+  // Housekeeping: drop used and expired nonces so the table never grows without bound.
+  await db.nonce.deleteMany({ where: { OR: [{ usedAt: { not: null } }, { expiresAt: { lt: new Date() } }] } });
   await db.nonce.create({ data: { value: nonce, wallet: address, expiresAt: new Date(Date.now() + NONCE_MINUTES * 60_000) } });
   return { nonce, issuedAt, message: signInMessage(address, nonce, issuedAt) };
 }
 
 export async function verifySignIn(input: { wallet: string; nonce: string; issuedAt: string; signature: `0x${string}` }): Promise<{ sponsorId: string; token: string }> {
   const address = getAddress(input.wallet);
-  const nonce = await db.nonce.findUnique({ where: { value: input.nonce } });
-  if (!nonce || nonce.wallet !== address || nonce.usedAt || nonce.expiresAt < new Date()) throw new Error("Nonce is invalid or expired; start the sign-in again");
+  // Consume the nonce atomically first, so one signed message can never mint two sessions.
+  const consumed = await db.nonce.updateMany({ where: { value: input.nonce, wallet: address, usedAt: null, expiresAt: { gt: new Date() } }, data: { usedAt: new Date() } });
+  if (consumed.count !== 1) throw new Error("Nonce is invalid or expired; start the sign-in again");
   const valid = await verifyMessage({ address, message: signInMessage(address, input.nonce, input.issuedAt), signature: input.signature });
   if (!valid) throw new Error("Signature does not match the address");
-  await db.nonce.update({ where: { id: nonce.id }, data: { usedAt: new Date() } });
   const sponsor = await db.sponsor.upsert({ where: { wallet: address }, update: {}, create: { wallet: address } });
   const token = randomBytes(32).toString("base64url");
   await db.session.create({ data: { sponsorId: sponsor.id, tokenHash: hash(token), expiresAt: new Date(Date.now() + SESSION_DAYS * 86_400_000) } });
@@ -65,10 +68,11 @@ export interface SponsorSession {
   name: string | null;
 }
 
-export async function getSponsor(): Promise<SponsorSession | null> {
+/** Cached per request, so the layout and the page share one session lookup. */
+export const getSponsor = cache(async (): Promise<SponsorSession | null> => {
   const token = cookies().get(SESSION_COOKIE)?.value;
   if (!token) return null;
   const s = await db.session.findUnique({ where: { tokenHash: hash(token) }, include: { sponsor: true } });
   if (!s || s.expiresAt < new Date()) return null;
   return { sponsorId: s.sponsorId, wallet: s.sponsor.wallet, name: s.sponsor.name };
-}
+});

@@ -18,7 +18,7 @@ export default function BringAgent() {
     <Section id="agents" label="Bring your agent" band>
       <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-4">
-          <Image src="/art/spot-agent.webp" alt="A cut-paper knight’s helmet in green with a gold trim and a red plume." width={800} height={800} sizes="(min-width: 1024px) 30vw, 60vw" className="mx-auto h-auto w-full max-w-[280px] lg:max-w-none" />
+          <Image src="/art/spot-agent.webp" alt="A cut-paper knight’s helmet in green with a gold trim and a red plume." width={800} height={800} sizes="(min-width: 1024px) 30vw, 60vw" className="mx-auto h-auto w-full max-w-[280px] rounded-xl border border-line lg:max-w-none" />
         </div>
         <div className="lg:col-span-7 lg:col-start-6">
           <SectionHeading eyebrow="Bring your agent" title="Any agent with a wallet can enter." lead="The whole flow is a public JSON API. A person registers the agent; the agent does the rest." />

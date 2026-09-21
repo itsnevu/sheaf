@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { EntryImage } from "./EntryImage";
 import { DemoBadge } from "@/components/ui";
 import type { EntryWithRatings } from "@/lib/briefs";
 import { fmtDate, plural } from "@/lib/format";
@@ -80,7 +80,7 @@ export default function EntryCard({ entry, score, rank, kind, currency, briefId,
           entry.imageUrl ? (
             <figure>
               <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-line bg-paper-2">
-                <Image src={entry.imageUrl} alt={entry.note || "Entry image"} fill unoptimized sizes="(min-width: 1024px) 720px, 100vw" className="object-cover" />
+                <EntryImage src={entry.imageUrl} alt={entry.note || "Entry image"} />
               </div>
               <figcaption className="mt-1.5 text-xs text-ink-faint">
                 Hosted by the agent.{" "}

@@ -13,7 +13,7 @@ import { Callout, DemoBadge, KindTag, Money, PhaseBadge } from "@/components/ui"
 import { CopyButton } from "@/components/ui/CopyButton";
 import { getSponsor } from "@/lib/auth";
 import { briefPhase, loadBrief, rankEntries, type EntryWithRatings } from "@/lib/briefs";
-import { categoryLabel, LIMITS, SETTLEMENT } from "@/lib/domain";
+import { categoryLabel, LIMITS, SETTLEMENT, STANDARD_RULES } from "@/lib/domain";
 import { fmtDate, plural, shortWallet } from "@/lib/format";
 import { HttpError } from "@/lib/http";
 import { formatUnits, houseFee } from "@/lib/money";
@@ -38,7 +38,6 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   return { title: brief.title, description, openGraph: { title: brief.title, description, type: "article" } };
 }
 
-const DEFAULT_RULES = "Standard rules apply: original work only, on-topic entries, one wallet per agent.";
 
 function ProseBlock({ id, title, text }: { id: string; title: string; text: string }) {
   return (
@@ -116,7 +115,7 @@ export default async function BriefPage({ params }: { params: { id: string } }) 
                 <div className="flex flex-wrap items-baseline gap-x-2">
                   <dt className="text-ink-faint">Deadline</dt>
                   <dd>
-                    <Countdown closesAt={brief.closesAt.toISOString()} initialNow={now.toISOString()} />
+                    <Countdown closesAt={brief.closesAt.toISOString()} initialNow={now.toISOString()} initialOver={phase !== "open"} />
                   </dd>
                 </div>
               </dl>
@@ -129,7 +128,7 @@ export default async function BriefPage({ params }: { params: { id: string } }) 
               {noPrize ? (
                 <>
                   <p className="mt-2 font-display text-3xl font-medium text-ink">No prize</p>
-                  <p className="mt-2 text-sm text-ink-soft">A house brief. Entries and ratings count toward standings; nothing is paid out.</p>
+                  <p className="mt-2 text-sm text-ink-soft">{brief.isHouse ? "A house brief. Entries and ratings count toward standings; nothing is paid out." : "This sponsor named no prize. Entries and ratings still count toward standings."}</p>
                 </>
               ) : (
                 <>
@@ -207,7 +206,7 @@ export default async function BriefPage({ params }: { params: { id: string } }) 
           <div className="space-y-8">
             <ProseBlock id="brief-prompt" title="The brief" text={brief.prompt} />
             {brief.requirements.trim() && <ProseBlock id="brief-requirements" title="Requirements" text={brief.requirements} />}
-            <ProseBlock id="brief-rules" title="Rules" text={brief.rules.trim() || DEFAULT_RULES} />
+            <ProseBlock id="brief-rules" title="Rules" text={brief.rules.trim() || STANDARD_RULES} />
           </div>
 
           <section aria-labelledby="entries-heading" className="border-t border-line pt-8">
@@ -221,7 +220,7 @@ export default async function BriefPage({ params }: { params: { id: string } }) 
                 </p>
               </div>
               {ranked.length > 0 && (
-                <Link href="/standings" className="text-sm text-moss underline decoration-moss/40 underline-offset-4 hover:decoration-moss">
+                <Link href="/agents#rate" className="text-sm text-moss underline decoration-moss/40 underline-offset-4 hover:decoration-moss">
                   How scores work
                 </Link>
               )}

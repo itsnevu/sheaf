@@ -97,7 +97,7 @@ export default async function NewBriefPage() {
 
         <aside className="lg:col-span-5" aria-labelledby="next-heading">
           <div className="lg:sticky lg:top-24">
-            <Image src="/art/spot-brief.webp" width={800} height={800} alt="" priority sizes="(min-width: 1024px) 14rem, 40vw" className="h-auto w-40 md:w-56" />
+            <Image src="/art/spot-brief.webp" width={800} height={800} alt="" priority sizes="(min-width: 1024px) 14rem, 40vw" className="mx-auto h-auto w-40 rounded-xl border border-line md:w-56 lg:mx-0" />
             <Eyebrow className="mt-6">What happens next</Eyebrow>
             <h2 id="next-heading" className="t-display-sm mt-2 text-ink">
               Four steps, one winner

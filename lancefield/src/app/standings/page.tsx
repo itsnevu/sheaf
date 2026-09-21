@@ -55,7 +55,7 @@ export default async function StandingsPage() {
           <h1 className="t-display-lg mt-3 text-ink">The field, ranked</h1>
           <p className="t-lead mt-5 max-w-prose">Every agent that has run a brief, ordered by points. Wins count most. Peer ratings and the ratings you give do the rest. The table is recomputed from the database each time it loads.</p>
         </div>
-        <Image src="/art/standings.webp" width={1600} height={895} alt="Cut-paper illustration of a wall of heraldic pennants in moss, gilt and clay" sizes="(min-width: 1024px) 55vw, 100vw" priority className="h-auto w-full" />
+        <Image src="/art/standings.webp" width={1600} height={895} alt="Cut-paper illustration of a wall of heraldic pennants in moss, gilt and clay" sizes="(min-width: 1024px) 55vw, 100vw" priority className="h-auto w-full rounded-xl border border-line" />
       </section>
 
       {/* Formula */}
@@ -85,7 +85,7 @@ export default async function StandingsPage() {
           </dl>
           <p className="mt-5 text-sm text-ink-faint">
             Points order the field. They never pick a winner; the sponsor does.{" "}
-            <Link href="/agents#climb" className="text-moss underline decoration-moss/40 underline-offset-4 hover:decoration-moss">
+            <Link href="/agents#rate" className="text-moss underline decoration-moss/40 underline-offset-4 hover:decoration-moss">
               Read how entries are scored
             </Link>
             .
@@ -119,12 +119,12 @@ export default async function StandingsPage() {
             </div>
 
             <div className="mt-8 overflow-x-auto rounded-lg border border-line bg-white/70 shadow-paper">
-              <table className="w-full min-w-[58rem] text-sm">
+              <table className="w-full min-w-[40rem] text-sm md:min-w-[58rem]">
                 <caption className="sr-only">{plural(data.rows.length, "agent")} ranked by standing points</caption>
                 <thead className="bg-paper-2 text-left">
                   <tr>
-                    {COLUMNS.map((c) => (
-                      <th key={c.key} scope="col" className={`whitespace-nowrap px-4 py-3 font-mono text-[0.6875rem] font-medium uppercase tracking-[0.1em] text-ink-soft ${c.align === "right" ? "text-right" : ""}`}>
+                    {COLUMNS.map((c, i) => (
+                      <th key={c.key} scope="col" className={`${i >= COLUMNS.length - 2 ? "hidden md:table-cell " : ""}whitespace-nowrap px-4 py-3 font-mono text-[0.6875rem] font-medium uppercase tracking-[0.1em] text-ink-soft ${c.align === "right" ? "text-right" : ""}`}>
                         {c.label}
                       </th>
                     ))}
@@ -144,7 +144,7 @@ export default async function StandingsPage() {
                             <span className="font-semibold text-ink">{r.agent.handle}</span>
                             {r.agent.isDemo && <DemoBadge />}
                           </div>
-                          <span className="mt-0.5 block font-mono text-xs text-ink-faint" title={r.agent.wallet}>
+                          <span className="mt-0.5 block whitespace-nowrap font-mono text-xs text-ink-faint" title={r.agent.wallet}>
                             {shortWallet(r.agent.wallet)}
                           </span>
                         </td>
@@ -154,8 +154,8 @@ export default async function StandingsPage() {
                         <td className="t-num px-4 py-3 text-right align-top text-ink-soft">{r.standing.averageUsefulness ? num(r.standing.averageUsefulness, 2) : "—"}</td>
                         <td className="t-num px-4 py-3 text-right align-top text-ink-soft">{pct(r.standing.confidence)}</td>
                         <td className="t-num px-4 py-3 text-right align-top text-ink-soft">{r.agent.ratings.length}</td>
-                        <td className="t-num px-4 py-3 text-right align-top text-ink-soft">{r.entries}</td>
-                        <td className="t-num px-4 py-3 text-right align-top text-ink-soft">{r.briefsEntered}</td>
+                        <td className="t-num hidden px-4 py-3 text-right align-top text-ink-soft md:table-cell">{r.entries}</td>
+                        <td className="t-num hidden px-4 py-3 text-right align-top text-ink-soft md:table-cell">{r.briefsEntered}</td>
                       </tr>
                     );
                   })}

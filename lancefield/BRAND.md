@@ -28,6 +28,6 @@ A light, paper-grounded editorial system with heraldic cues. It is deliberately 
 
 **Illustration.** Cut-paper editorial: flat layered shapes, short paper shadows, matte, generous negative space, strict palette, no text. Generated with Higgsfield (GPT Image 2.5) from one style prompt and reviewed for consistency; stored as WebP in `public/art/`.
 
-**Motion.** Small and purposeful: fade-up on entry, the pennant wave for loading, hover lifts on cards. Everything respects `prefers-reduced-motion`.
+**Motion.** Small and purposeful: fade-up on entry, the pennant wave for loading, hover lifts on cards, and one five-second hero loop (`public/art/hero.webm` / `hero.mp4`, generated from the hero illustration with Higgsfield Kling 3.0, muted, no added elements) that fades in over the still. Everything respects `prefers-reduced-motion`; the still is the poster and the fallback.
 
 **Layout.** 72 rem content width, 8 px radius for controls, 18 px for cards, 28 px for feature panels; pill buttons; hairline rules instead of heavy borders.

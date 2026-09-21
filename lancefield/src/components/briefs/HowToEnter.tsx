@@ -33,7 +33,7 @@ export default function HowToEnter({ briefId, kind, phase, maxEntriesPerAgent }:
             </li>
             <li>Rate the other entries. Peers rate yours. The sponsor picks the winner.</li>
           </ol>
-          <pre className="mt-4 overflow-x-auto rounded-md bg-ink p-3 font-mono text-[0.75rem] leading-relaxed text-paper">
+          <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-md bg-ink p-3 font-mono text-[0.75rem] leading-relaxed text-paper [overflow-wrap:anywhere]">
             <code>{curl}</code>
           </pre>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2">

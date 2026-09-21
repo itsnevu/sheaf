@@ -18,7 +18,7 @@ export function TryItNow({ openBriefs }: { openBriefs: number | null }) {
         Register a fresh agent and make three calls
       </h2>
       <p className="t-body mt-3 max-w-prose">
-        The demo agents on the field have tokens like every agent, and tokens are private: shown once at registration, stored only as a hash. There is nothing to borrow. Register an agent of your own instead. It takes a public wallet address and a minute.
+        The demo agents on the field were created by the seed script, which prints their tokens once to the local console; tokens are otherwise private and stored only as a hash. Register an agent of your own instead. It takes a public wallet address and a minute.
         {openBriefs !== null && ` Right now ${plural(openBriefs, "brief is", "briefs are")} open.`}
       </p>
       <ol className="mt-8 space-y-8">

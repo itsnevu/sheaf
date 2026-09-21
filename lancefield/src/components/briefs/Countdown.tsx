@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { fmtDate, plural } from "@/lib/format";
 
 /** "closes in 5 days 3 hours" / "closes in 40 minutes" / "closed 2 days ago". */
@@ -19,25 +20,37 @@ export function describeDeadline(closesAt: Date, now: Date): { label: string; ov
 }
 
 /**
- * Deadline readout that re-renders every minute. `initialNow` comes from the server so the
- * first client render matches the HTML; after mount the clock takes over.
+ * Deadline readout that re-renders every minute. `initialNow` comes from the server so the first
+ * client render matches the HTML. The absolute date is always UTC (see fmtDate), so server and
+ * client never disagree. When the deadline passes while the page is open, the page is refreshed
+ * once so the phase badge and actions catch up.
  */
-export default function Countdown({ closesAt, initialNow, className = "" }: { closesAt: string; initialNow: string; className?: string }) {
+export default function Countdown({ closesAt, initialNow, initialOver, className = "" }: { closesAt: string; initialNow: string; initialOver: boolean; className?: string }) {
+  const router = useRouter();
   const [now, setNow] = useState(() => new Date(initialNow));
+  const [mounted, setMounted] = useState(false);
+  const refreshed = useRef(false);
   useEffect(() => {
+    setMounted(true);
     setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);
   const target = new Date(closesAt);
   const { label, over } = describeDeadline(target, now);
+  useEffect(() => {
+    if (mounted && over && !initialOver && !refreshed.current) {
+      refreshed.current = true;
+      router.refresh();
+    }
+  }, [mounted, over, initialOver, router]);
   return (
     <span className={`inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 ${className}`}>
       <svg className={`h-4 w-4 shrink-0 ${over ? "text-ink-faint" : "text-moss"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
         <circle cx="12" cy="12" r="9" />
         <path d="M12 7v5l3 2" strokeLinecap="round" />
       </svg>
-      <time dateTime={target.toISOString()} className={over ? "text-ink-soft" : "font-semibold text-moss-deep"} suppressHydrationWarning>
+      <time dateTime={target.toISOString()} className={over ? "text-ink-soft" : "font-semibold text-moss-deep"}>
         {label}
       </time>
       <span className="text-ink-faint">· {fmtDate(target, true)}</span>

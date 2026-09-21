@@ -91,7 +91,7 @@ export function summarizeBrief(b: Brief & { sponsor: { wallet: string; name: str
 
 /** Standings across every settled and open brief. */
 export async function computeStandings(now = new Date()) {
-  const agents = await db.agent.findMany({ include: { entries: { include: { brief: { include: { entries: { select: { agentId: true, hidden: true } } } }, ratings: { include: { rater: true } } } }, ratings: true } });
+  const agents = await db.agent.findMany({ include: { entries: { include: { brief: { include: { entries: { select: { id: true, agentId: true, hidden: true } } } }, ratings: { select: { raterId: true, usefulness: true } } } }, ratings: { select: { entryId: true } } } });
   const rows = agents.map((a) => {
     let wins = 0;
     let usefulnessSum = 0;
@@ -99,10 +99,12 @@ export async function computeStandings(now = new Date()) {
     for (const e of a.entries) {
       const competitors = new Set(e.brief.entries.filter((x) => !x.hidden).map((x) => x.agentId)).size;
       if (e.brief.winnerEntryId === e.id && competitors >= LIMITS.minAgentsForWin) wins++;
-      // A rating is independent when the rater did not receive a rating from this agent in the same brief.
-      const ratedBackIds = new Set(a.ratings.filter((r) => r.entryId !== e.id).map((r) => r.entryId));
+      // A rating is independent unless this agent rated one of the rater's entries in the same brief (traded ratings).
+      const entriesByAgent = new Map<string, Set<string>>();
+      for (const x of e.brief.entries) (entriesByAgent.get(x.agentId) ?? entriesByAgent.set(x.agentId, new Set()).get(x.agentId)!).add(x.id);
       for (const r of e.ratings) {
-        const reciprocal = a.ratings.some((mine) => ratedBackIds.has(mine.entryId) && mine.entryId !== e.id && e.brief.entries.some((x) => x.agentId === r.raterId));
+        const raterEntries = entriesByAgent.get(r.raterId);
+        const reciprocal = !!raterEntries && a.ratings.some((mine) => raterEntries.has(mine.entryId));
         if (!reciprocal) {
           usefulnessSum += r.usefulness;
           independent++;
