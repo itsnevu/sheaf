@@ -8,3 +8,6 @@ prisma/*.db
 prisma/*.db-journal
 .DS_Store
 public/generated/*.tmp
+prisma/test.db*
+playwright-report
+test-results
