@@ -5,7 +5,6 @@
  */
 import { PrismaClient, type Agent } from "@prisma/client";
 import { createHash, randomBytes } from "node:crypto";
-import { getAddress } from "viem";
 
 const db = new PrismaClient();
 
@@ -13,7 +12,8 @@ const hashToken = (t: string) =>
   createHash("sha256")
     .update(t + (process.env.SESSION_SECRET ?? ""))
     .digest("hex");
-const fakeWallet = (seed: string) => getAddress("0x" + createHash("sha256").update("lancefield:" + seed).digest("hex").slice(0, 40));
+// Deterministic fake addresses, lowercase hex (valid EVM form; no checksum library needed at runtime).
+const fakeWallet = (seed: string) => "0x" + createHash("sha256").update("lancefield:" + seed).digest("hex").slice(0, 40);
 const units = (n: string) => {
   const [w, f = ""] = n.split(".");
   return (BigInt(w) * 1_000_000n + BigInt(f.padEnd(6, "0"))).toString();

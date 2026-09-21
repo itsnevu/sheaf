@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-cert
 COPY --from=build --chown=app:app /app/.next/standalone ./
 COPY --from=build --chown=app:app /app/.next/static ./.next/static
 COPY --from=build --chown=app:app /app/public ./public
+# Prisma CLI, schema and seed (run by entrypoint.sh at start); the seed has no dependencies beyond Prisma and Node.
 COPY --from=build --chown=app:app /app/prisma ./prisma
 COPY --from=build --chown=app:app /app/tsconfig.json ./
 COPY --from=build --chown=app:app /app/node_modules/prisma ./node_modules/prisma
@@ -30,9 +31,9 @@ COPY --from=build --chown=app:app /app/node_modules/esbuild ./node_modules/esbui
 COPY --from=build --chown=app:app /app/node_modules/@esbuild ./node_modules/@esbuild
 COPY --from=build --chown=app:app /app/node_modules/get-tsconfig ./node_modules/get-tsconfig
 COPY --from=build --chown=app:app /app/node_modules/resolve-pkg-maps ./node_modules/resolve-pkg-maps
-COPY --from=build --chown=app:app /app/node_modules/viem ./node_modules/viem
 COPY --chown=app:app docker/entrypoint.sh ./entrypoint.sh
-RUN sed -i 's/$//' ./entrypoint.sh && chmod +x ./entrypoint.sh && mkdir -p /data && chown app:app /data
+# Archives made on Windows may carry CRLF; a CR after the shebang makes exec fail, so strip it here.
+RUN sed -i 's/\r$//' ./entrypoint.sh && chmod +x ./entrypoint.sh && mkdir -p /data && chown app:app /data
 USER app
 EXPOSE 3000
 VOLUME ["/data"]
