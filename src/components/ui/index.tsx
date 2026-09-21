@@ -121,11 +121,11 @@ export function Switch({ checked, onChange, label, help, disabled }: { checked: 
 }
 
 /* ───────────── Status badge ───────────── */
-export function StatusBadge({ status, tone, children, className = "" }: { status?: string | null; tone?: StatusTone; children?: ReactNode; className?: string }) {
+export function StatusBadge({ status, tone, children, className = "", testId }: { status?: string | null; tone?: StatusTone; children?: ReactNode; className?: string; testId?: string }) {
   const t = tone ?? statusTone(status);
   const label = children ?? statusLabel(status);
   return (
-    <span className={`badge badge-${t} ${className}`}>
+    <span className={`badge badge-${t} ${className}`} data-testid={testId}>
       <span className="badge-dot" aria-hidden="true" />
       {label}
     </span>

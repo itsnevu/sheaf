@@ -19,7 +19,9 @@
     "db:encrypt": "tsx scripts/encrypt-existing.ts",
     "db:migrate": "prisma migrate deploy && tsx scripts/db-harden.ts",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run typecheck && npm test"
+    "check": "npm run lint && npm run typecheck && npm test",
+    "db:provider": "node scripts/db-provider.mjs",
+    "start:standalone": "node .next/standalone/server.js"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

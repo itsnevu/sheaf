@@ -90,7 +90,7 @@ export default function BatchPage() {
         eyebrow={`Batch · ${batch.mode === "demo" ? "demo" : "real"} · ${batch.assetSymbol} on ${chainName(batch.destinationChainId)}`}
         title={
           <span className="inline-flex flex-wrap items-center gap-3">
-            {batch.name} <StatusBadge status={batch.status} />
+            {batch.name} <StatusBadge status={batch.status} testId="batch-status" />
           </span>
         }
         description={

@@ -1,0 +1,35 @@
+# Local production-like stack: Sheaf + PostgreSQL.
+# 1. Copy .env.example to .env and fill SESSION_SECRET, SHEAF_ENCRYPTION_KEY, WORKER_SECRET.
+# 2. Switch the Prisma provider to PostgreSQL:  npm run db:provider -- postgresql
+# 3. docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sheaf
+      POSTGRES_USER: sheaf
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sheaf-local-only}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sheaf -d sheaf"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://sheaf:${POSTGRES_PASSWORD:-sheaf-local-only}@db:5432/sheaf?schema=public
+      SHEAF_SEED_DEMO: ${SHEAF_SEED_DEMO:-0}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
