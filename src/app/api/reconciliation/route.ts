@@ -3,6 +3,12 @@ import { db } from "@/lib/db";
 import { handler, json, requireSession } from "@/lib/http";
 import { recipientDTO } from "@/lib/serialize";
 
+/** Upper bound on rows scanned for a free-text search (names and references are encrypted at rest). */
+const SEARCH_SCAN_LIMIT = 5000;
+
+const INCLUDE = { route: true, reconciliation: true, batch: { select: { name: true, id: true, mode: true, assetDecimals: true } }, attempts: { orderBy: { attemptNo: "desc" as const }, take: 1 } };
+const ORDER = [{ batch: { createdAt: "desc" as const } }, { rowNumber: "asc" as const }];
+
 export const GET = handler(async (req) => {
   const s = await requireSession("batch.view");
   const url = new URL(req.url);
@@ -18,22 +24,25 @@ export const GET = handler(async (req) => {
     ...(batchId ? { batchId } : {}),
     ...(status ? { status } : {}),
     ...(recon ? (recon === "UNRECONCILED" ? { OR: [{ reconciliation: null }, { reconciliation: { status: "UNRECONCILED" } }] } : { reconciliation: { status: recon } }) : {}),
-    ...(q
-      ? {
-          OR: [
-            { name: { contains: q } },
-            { address: { contains: q } },
-            { reference: { contains: q } },
-            { attempts: { some: { txHash: { contains: q } } } },
-            { batch: { name: { contains: q } } },
-          ],
-        }
-      : {}),
   };
-  const [total, rows] = await Promise.all([
-    db.batchRecipient.count({ where }),
-    db.batchRecipient.findMany({ where, orderBy: [{ batch: { createdAt: "desc" } }, { rowNumber: "asc" }], skip: (page - 1) * pageSize, take: pageSize, include: { route: true, reconciliation: true, batch: { select: { name: true, id: true, mode: true, assetDecimals: true } }, attempts: { orderBy: { attemptNo: "desc" }, take: 1 } } }),
-  ]);
+
+  let total: number;
+  let rows: Awaited<ReturnType<typeof db.batchRecipient.findMany<{ include: typeof INCLUDE }>>>;
+  if (q) {
+    // Names and references are encrypted at rest, so the text match runs after decryption.
+    const needle = q.toLowerCase();
+    const scanned = await db.batchRecipient.findMany({ where, orderBy: ORDER, take: SEARCH_SCAN_LIMIT, include: INCLUDE });
+    const matched = scanned.filter((r) =>
+      [r.name, r.reference, r.address, r.addressInput, r.batch.name, r.attempts[0]?.txHash].some((v) => v && v.toLowerCase().includes(needle)),
+    );
+    total = matched.length;
+    rows = matched.slice((page - 1) * pageSize, page * pageSize);
+  } else {
+    [total, rows] = await Promise.all([
+      db.batchRecipient.count({ where }),
+      db.batchRecipient.findMany({ where, orderBy: ORDER, skip: (page - 1) * pageSize, take: pageSize, include: INCLUDE }),
+    ]);
+  }
   return json({
     total,
     page,

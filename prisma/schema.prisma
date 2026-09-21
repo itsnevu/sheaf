@@ -274,8 +274,8 @@ model AuditEvent {
   createdAt      DateTime @default(now())
 
   organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  batch        PaymentBatch?   @relation(fields: [batchId], references: [id], onDelete: Cascade)
-  recipient    BatchRecipient? @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  batch        PaymentBatch?   @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  recipient    BatchRecipient? @relation(fields: [recipientId], references: [id], onDelete: SetNull)
 
   @@index([organizationId, createdAt])
   @@index([batchId, createdAt])

@@ -3,10 +3,10 @@
  * lifecycle stages so the dashboard is meaningful on first open. Every batch is mode "demo"
  * and every settlement reference is simulated. Run: npm run db:seed
  */
-import { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "../src/lib/db";
 import { createHash, randomBytes, scryptSync } from "node:crypto";
 
-const db = new PrismaClient();
+const db = createPrismaClient();
 
 function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");

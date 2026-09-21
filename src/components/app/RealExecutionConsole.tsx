@@ -8,7 +8,7 @@
 import { useMemo, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, createConfig, http, useAccount, useConnect, useDisconnect, useReadContract, useSendTransaction, useSwitchChain } from "wagmi";
-import { injected } from "wagmi/connectors";
+import { injected, walletConnect } from "wagmi/connectors";
 import { base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia, type Chain } from "wagmi/chains";
 import { erc20Abi, formatUnits as viemFormat } from "viem";
 import { Button, Money, StatusBadge } from "@/components/ui";
@@ -17,10 +17,11 @@ import { useToast } from "@/components/ui/Toast";
 import { chainName } from "@/lib/config";
 import type { BatchDetail } from "./useBatch";
 
+const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 const CHAINS: readonly [Chain, ...Chain[]] = [base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia];
 const config = createConfig({
   chains: CHAINS,
-  connectors: [injected()],
+  connectors: [injected(), ...(WC_PROJECT_ID ? [walletConnect({ projectId: WC_PROJECT_ID, showQrModal: true })] : [])],
   transports: Object.fromEntries(CHAINS.map((c) => [c.id, http(process.env[`NEXT_PUBLIC_RPC_URL_${c.id}`] || undefined)])) as Record<number, ReturnType<typeof http>>,
   ssr: false,
 });
@@ -102,9 +103,18 @@ function Console({ d, stage, onFund, onRefresh }: Props) {
             Disconnect
           </Button>
         ) : (
-          <Button size="sm" variant="primary" loading={connecting} onClick={() => connect({ connector: connectors[0] })} disabled={!connectors.length}>
-            Connect wallet
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {connectors.map((c, i) => (
+              <Button key={c.uid} size="sm" variant={i === 0 ? "primary" : "secondary"} loading={connecting} onClick={() => connect({ connector: c })}>
+                {c.id === "walletConnect" ? "WalletConnect" : "Connect wallet"}
+              </Button>
+            ))}
+            {!connectors.length && (
+              <Button size="sm" variant="primary" disabled>
+                No wallet found
+              </Button>
+            )}
+          </div>
         )}
       </div>
       {wrongChain && (

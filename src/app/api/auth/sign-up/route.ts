@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { createSession, hashPassword, setSessionCookie } from "@/lib/auth/session";
 import { fail, handler, json, readJson } from "@/lib/http";
+import { clientIp, rateLimit } from "@/lib/ratelimit";
 
 const Body = z.object({
   name: z.string().min(1).max(80),
@@ -16,6 +17,8 @@ function slugify(s: string) {
 }
 
 export const POST = handler(async (req) => {
+  const limit = rateLimit(`signup:ip:${clientIp(req)}`, { limit: 10, windowMs: 60 * 60_000 });
+  if (!limit.ok) return fail(429, "Too many sign-ups from this address. Try again later.", "RATE_LIMITED", { "retry-after": String(limit.retryAfterSec) });
   const body = Body.parse(await readJson(req));
   const email = body.email.toLowerCase().trim();
   if (await db.user.findUnique({ where: { email } })) return fail(409, "An account with this email already exists", "EMAIL_TAKEN");

@@ -10,11 +10,16 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:push": "prisma db push",
+    "db:push": "prisma db push && tsx scripts/db-harden.ts",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:harden": "tsx scripts/db-harden.ts",
+    "db:encrypt": "tsx scripts/encrypt-existing.ts",
+    "db:migrate": "prisma migrate deploy && tsx scripts/db-harden.ts",
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
