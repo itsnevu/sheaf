@@ -58,7 +58,7 @@ export default function WalletButton({ wallet, compact = false }: { wallet: stri
   if (wallet) {
     return (
       <div className="flex items-center gap-2">
-        <span className="hidden items-center gap-1.5 rounded-pill border border-line bg-white/60 px-3 py-1.5 font-mono text-xs text-ink-soft sm:inline-flex" title={wallet}>
+        <span className="hidden items-center gap-1.5 rounded-pill border border-line bg-paper-2 px-3 py-1.5 font-mono text-xs text-ink-soft sm:inline-flex" title={wallet}>
           <span className="h-1.5 w-1.5 rounded-full bg-moss" aria-hidden="true" />
           {shortWallet(wallet)}
         </span>

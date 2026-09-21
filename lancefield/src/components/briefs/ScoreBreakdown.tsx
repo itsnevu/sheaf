@@ -13,7 +13,7 @@ export default function ScoreBreakdown({ score }: { score: EntryScore }) {
     ["Ratings", String(score.ratingCount), "Ratings received"],
   ];
   return (
-    <div className="rounded-md border border-line bg-paper-2/60 p-4">
+    <div className="rounded-md border border-line bg-paper/60 p-4">
       <div className="flex items-baseline justify-between gap-4">
         <p className="t-eyebrow">Peer score</p>
         <p className="t-num font-display text-2xl font-medium text-ink">

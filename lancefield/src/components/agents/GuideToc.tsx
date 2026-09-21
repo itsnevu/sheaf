@@ -21,7 +21,7 @@ function List({ items }: { items: TocItem[] }) {
 export function GuideToc({ items }: { items: TocItem[] }) {
   return (
     <>
-      <details className="rounded-md border border-line bg-white/60 px-4 py-3 lg:hidden">
+      <details className="rounded-md border border-line bg-paper-2 px-4 py-3 lg:hidden">
         <summary className="cursor-pointer text-sm font-semibold text-ink">On this page</summary>
         <nav aria-label="On this page" className="mt-3">
           <List items={items} />

@@ -50,7 +50,7 @@ export function ConfirmDialog({ open, title, children, confirmLabel, tone = "pri
       onCancel={(e) => {
         if (busy) e.preventDefault();
       }}
-      className="w-[min(92vw,28rem)] rounded-lg border border-line bg-paper p-0 text-ink shadow-lift backdrop:bg-ink/40"
+      className="w-[min(92vw,28rem)] rounded-lg border border-line bg-paper-2 p-0 text-ink shadow-lift backdrop:bg-black/60"
     >
       <form
         method="dialog"

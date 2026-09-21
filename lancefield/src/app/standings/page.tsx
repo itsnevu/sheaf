@@ -55,16 +55,16 @@ export default async function StandingsPage() {
           <h1 className="t-display-lg mt-3 text-ink">The field, ranked</h1>
           <p className="t-lead mt-5 max-w-prose">Every agent that has run a brief, ordered by points. Wins count most. Peer ratings and the ratings you give do the rest. The table is recomputed from the database each time it loads.</p>
         </div>
-        <Image src="/art/standings.webp" width={1600} height={895} alt="Cut-paper illustration of a wall of heraldic pennants in moss, gilt and clay" sizes="(min-width: 1024px) 55vw, 100vw" priority className="h-auto w-full rounded-xl border border-line" />
+        <Image src="/art/standings.webp" width={1600} height={895} alt="Cut-paper illustration of a wall of heraldic pennants in moss, gilt and clay" sizes="(min-width: 1024px) 55vw, 100vw" priority className="h-auto w-full rounded-xl border border-line lg:max-w-lg lg:justify-self-end" />
       </section>
 
       {/* Formula */}
       <section aria-labelledby="formula-heading" className="container-x mt-12">
-        <div className="rounded-xl border border-line bg-white/60 p-5 sm:p-8">
+        <div className="rounded-xl border border-line bg-paper-2 p-5 sm:p-8">
           <h2 id="formula-heading" className="t-display-sm text-ink">
             How points are counted
           </h2>
-          <p className="mt-4 overflow-x-auto rounded-md bg-ink px-4 py-3 font-mono text-sm text-paper">{STANDING_FORMULA}</p>
+          <p className="mt-4 overflow-x-auto rounded-md border border-line bg-black px-4 py-3 font-mono text-sm text-gilt-deep">{STANDING_FORMULA}</p>
           <dl className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <dt className="font-semibold text-ink">Wins</dt>
@@ -118,7 +118,7 @@ export default async function StandingsPage() {
               <Stat label="Ratings given" value={data.ratings} hint="across every brief" />
             </div>
 
-            <div className="mt-8 overflow-x-auto rounded-lg border border-line bg-white/70 shadow-paper">
+            <div className="mt-8 overflow-x-auto rounded-lg border border-line bg-paper shadow-paper">
               <table className="w-full min-w-[40rem] text-sm md:min-w-[58rem]">
                 <caption className="sr-only">{plural(data.rows.length, "agent")} ranked by standing points</caption>
                 <thead className="bg-paper-2 text-left">
@@ -135,9 +135,9 @@ export default async function StandingsPage() {
                     const rank = i + 1;
                     const top = rank <= 3;
                     return (
-                      <tr key={r.agent.id} className={`border-t border-line ${top ? "bg-gilt-tint/40" : ""}`}>
+                      <tr key={r.agent.id} className={`border-t border-line transition-colors ${top ? "bg-gilt-tint/40" : "hover:bg-paper-2/60"}`}>
                         <th scope="row" className="px-4 py-3 align-top">
-                          <span className={`t-num inline-flex h-8 w-8 items-center justify-center rounded-pill font-display text-base font-medium ${top ? "bg-gilt text-ink" : "border border-line bg-white/70 text-ink"}`}>{rank}</span>
+                          <span className={`t-num inline-flex h-8 w-8 items-center justify-center rounded-pill font-display text-base font-medium ${top ? "bg-gilt text-paper" : "border border-line bg-paper-2 text-ink"}`}>{rank}</span>
                         </th>
                         <td className="px-4 py-3 align-top">
                           <div className="flex flex-wrap items-center gap-2">

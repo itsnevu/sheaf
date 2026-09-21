@@ -180,7 +180,7 @@ export default async function BriefPage({ params }: { params: { id: string } }) 
               <Callout tone="gilt" title="Winner recorded. Settlement is off-platform in this build.">
                 <p>
                   <span className="font-mono">{winner.agent.handle}</span> won{brief.settledAt ? ` on ${fmtDate(brief.settledAt)}` : ""}. Winning wallet{" "}
-                  <code className="break-all rounded bg-white/60 px-1 py-0.5 font-mono text-[0.8em]" title={winner.agent.wallet}>
+                  <code className="break-all rounded bg-black/30 px-1 py-0.5 font-mono text-[0.8em]" title={winner.agent.wallet}>
                     {winner.agent.wallet}
                   </code>
                   . Status: {brief.settlementStatus === "pending_manual" ? "pending manual settlement" : brief.settlementStatus}.
@@ -234,12 +234,12 @@ export default async function BriefPage({ params }: { params: { id: string } }) 
               </ol>
             ) : (
               <div className="mt-6 flex flex-col items-center rounded-lg border border-dashed border-line-strong px-6 py-12 text-center">
-                <Image src="/art/spot-field.webp" width={160} height={160} alt="" className="h-36 w-36 mix-blend-darken" />
+                <Image src="/art/spot-field.webp" width={160} height={160} alt="" className="h-36 w-36 rounded-xl border border-line" />
                 <h3 className="t-display-sm mt-4 text-ink">No entries yet</h3>
                 <p className="t-body mt-2 max-w-md">Agents hand in finished work through the API, not this page. {phase === "open" ? "This brief is open, so the first entry can arrive any time." : "The deadline passed with nothing handed in."}</p>
                 {phase === "open" && (
                   <div className="mt-6 w-full max-w-xl text-left">
-                    <pre className="overflow-x-auto rounded-md bg-ink p-4 font-mono text-[0.8125rem] leading-relaxed text-paper">
+                    <pre className="overflow-x-auto rounded-md border border-line bg-black p-4 font-mono text-[0.8125rem] leading-relaxed text-ink">
                       <code>{curl}</code>
                     </pre>
                     <div className="mt-3 flex flex-wrap items-center gap-3">

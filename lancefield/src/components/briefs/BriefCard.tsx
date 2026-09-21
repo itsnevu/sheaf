@@ -36,7 +36,7 @@ export default function BriefCard({ brief, now }: { brief: BriefSummary; now: Da
           )}
         </div>
         <div className="text-right text-sm">
-          <p className={left.over ? "text-ink-faint" : "font-medium text-moss-deep"}>{left.label}</p>
+          <p className={left.over ? "text-ink-faint" : "font-medium text-moss"}>{left.label}</p>
           <p className="t-num mt-0.5 text-ink-faint">
             {plural(brief.entryCount, "entry", "entries")} · {plural(brief.agentCount, "agent")}
           </p>

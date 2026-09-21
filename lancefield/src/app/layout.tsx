@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export const viewport: Viewport = { themeColor: "#F6F2E9", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#0A0F0C", width: "device-width", initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const [sponsor, demo] = await Promise.all([getSponsor(), demoStatus()]);

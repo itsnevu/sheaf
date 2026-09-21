@@ -7,7 +7,7 @@ export default function BriefNotFound() {
   return (
     <div className="container-x py-16 lg:py-24">
       <div className="mx-auto max-w-xl">
-        <Image src="/art/spot-brief.webp" width={160} height={160} alt="" priority className="mx-auto h-40 w-40 mix-blend-darken" />
+        <Image src="/art/spot-brief.webp" width={160} height={160} alt="" priority className="mx-auto mb-5 h-40 w-40 rounded-xl border border-line" />
         <section aria-labelledby="brief-nf-heading" className="card flex flex-col items-center px-6 py-14 text-center">
           <Eyebrow>404</Eyebrow>
           <h1 id="brief-nf-heading" className="t-display-sm mt-4 text-ink">

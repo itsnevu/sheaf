@@ -122,7 +122,7 @@ export default function BriefFilters({ filters, counts }: { filters: FilterState
           />
         </div>
 
-        <div role="group" aria-label="Kind" className="inline-flex w-fit rounded-pill border border-line bg-white/70 p-0.5">
+        <div role="group" aria-label="Kind" className="inline-flex w-fit rounded-pill border border-line bg-paper-2 p-0.5">
           {KINDS.map(([value, label]) => {
             const on = filters.kind === value;
             return (

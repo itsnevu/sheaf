@@ -4,8 +4,8 @@ import { Inline } from "./Inline";
 export function DataTable({ head, rows, caption, mono = [], minWidth = "min-w-[34rem]" }: { head: string[]; rows: string[][]; caption: string; mono?: number[]; minWidth?: string }) {
   return (
     <div className="mt-4">
-      <div className="overflow-x-auto rounded-md border border-line bg-white/60">
-        <table className={`!mt-0 w-full ${minWidth}`}>
+      <div className="overflow-x-auto rounded-md border border-line bg-paper">
+        <table className={`!mt-0 w-full [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-paper-2/60 ${minWidth}`}>
           <caption className="sr-only">{caption}</caption>
           <thead className="bg-paper-2">
             <tr>

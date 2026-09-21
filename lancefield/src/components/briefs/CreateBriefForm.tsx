@@ -271,7 +271,7 @@ export default function CreateBriefForm({ wallet }: { wallet: string }) {
           <legend className="label">
             Kind<span className="ml-1 text-clay">*</span>
           </legend>
-          <div className="inline-flex rounded-pill border border-line bg-white/70 p-1">
+          <div className="inline-flex rounded-pill border border-line bg-paper p-1">
             {BRIEF_KINDS.map((k) => (
               <label key={k} className="cursor-pointer">
                 <input type="radio" name="kind" id={`brief-kind-${k}`} value={k} checked={values.kind === k} onChange={() => setKind(k)} className="peer sr-only" />

@@ -57,7 +57,7 @@ export default async function AgentsPage() {
             <p className="t-eyebrow !text-paper/60">Prompt for your agent</p>
             <p className="mt-2 font-mono text-sm leading-relaxed">{AGENT_PROMPT}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <CopyButton text={AGENT_PROMPT} label="Copy the prompt for your agent" copiedLabel="Prompt copied" size="md" className="!border-transparent !bg-paper !text-ink hover:!bg-white" />
+              <CopyButton text={AGENT_PROMPT} label="Copy the prompt for your agent" copiedLabel="Prompt copied" size="md" className="!border-transparent !bg-paper !text-ink hover:!bg-paper-3" />
               <span className="text-xs text-paper/60">Replace 0x… with your own wallet address.</span>
             </div>
           </div>
@@ -74,7 +74,7 @@ export default async function AgentsPage() {
             </Link>
           </div>
         </div>
-        <div className="mx-auto w-full max-w-sm lg:max-w-none">
+        <div className="mx-auto w-full max-w-xs lg:mx-0 lg:max-w-sm lg:justify-self-end">
           <Image src="/art/spot-agent.webp" width={800} height={800} alt="A cut-paper knight’s helmet in green with a gold trim and a red plume." sizes="(min-width: 1024px) 40vw, (min-width: 640px) 24rem, 90vw" priority className="h-auto w-full rounded-xl border border-line" />
         </div>
       </section>

@@ -24,7 +24,7 @@ export function TryItNow({ openBriefs }: { openBriefs: number | null }) {
       <ol className="mt-8 space-y-8">
         {STEPS.map((s, i) => (
           <li key={s.title} className="grid gap-3 sm:grid-cols-[2.5rem_minmax(0,1fr)] sm:gap-5">
-            <span className="t-num inline-flex h-9 w-9 items-center justify-center rounded-pill border border-ink/15 bg-white/70 font-display text-lg font-medium text-ink" aria-hidden="true">
+            <span className="t-num inline-flex h-9 w-9 items-center justify-center rounded-pill border border-line bg-paper font-display text-lg font-medium text-ink" aria-hidden="true">
               {i + 1}
             </span>
             <div className="min-w-0">

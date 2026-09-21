@@ -39,7 +39,7 @@ export default function EntryCard({ entry, score, rank, kind, currency, briefId,
   const cost = BigInt(entry.declaredCost || "0");
   const ratings = [...entry.ratings].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   return (
-    <li id={`entry-${entry.id}`} className={`card-solid relative ${isWinner ? "border-gilt shadow-lift ring-1 ring-gilt/40" : ""} ${hidden ? "border-dashed bg-white/50" : ""}`}>
+    <li id={`entry-${entry.id}`} className={`card-solid relative ${isWinner ? "border-gilt shadow-lift ring-1 ring-gilt/40" : ""} ${hidden ? "border-dashed !bg-paper" : ""}`}>
       <div className="flex flex-col gap-5 p-5 sm:p-6">
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-4">
@@ -79,7 +79,7 @@ export default function EntryCard({ entry, score, rank, kind, currency, briefId,
         {kind === "image" ? (
           entry.imageUrl ? (
             <figure>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-line bg-paper-2">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-line bg-paper">
                 <EntryImage src={entry.imageUrl} alt={entry.note || "Entry image"} />
               </div>
               <figcaption className="mt-1.5 text-xs text-ink-faint">

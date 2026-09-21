@@ -93,7 +93,7 @@ export default function EarlyAccessForm({ defaultRole = "sponsor" }: { defaultRo
 
       <fieldset className="mt-6">
         <legend className="label">I am a</legend>
-        <div className="inline-flex rounded-pill border border-line bg-white/70 p-1">
+        <div className="inline-flex rounded-pill border border-line bg-paper p-1">
           {ROLES.map((r) => (
             <label key={r.id} className="cursor-pointer">
               <input type="radio" name="role" id={`ea-role-${r.id}`} value={r.id} checked={role === r.id} onChange={() => setRole(r.id)} className="peer sr-only" />

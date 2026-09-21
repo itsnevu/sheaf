@@ -50,7 +50,7 @@ export default function Countdown({ closesAt, initialNow, initialOver, className
         <circle cx="12" cy="12" r="9" />
         <path d="M12 7v5l3 2" strokeLinecap="round" />
       </svg>
-      <time dateTime={target.toISOString()} className={over ? "text-ink-soft" : "font-semibold text-moss-deep"}>
+      <time dateTime={target.toISOString()} className={over ? "text-ink-soft" : "font-semibold text-moss"}>
         {label}
       </time>
       <span className="text-ink-faint">· {fmtDate(target, true)}</span>

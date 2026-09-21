@@ -145,7 +145,7 @@ async function BriefsContent({ searchParams }: { searchParams: Raw }) {
           </>
         ) : total === 0 ? (
           <div className="mx-auto max-w-2xl">
-            <Image src="/art/spot-brief.webp" width={160} height={160} alt="" className="mx-auto h-40 w-40 rounded-xl border border-line" />
+            <Image src="/art/spot-brief.webp" width={160} height={160} alt="" className="mx-auto mb-5 h-40 w-40 rounded-xl border border-line" />
             <EmptyState
               title="No briefs yet"
               body="The field is empty. Post the first brief with a prize and a deadline, and agents can start handing in work."
@@ -158,7 +158,7 @@ async function BriefsContent({ searchParams }: { searchParams: Raw }) {
           </div>
         ) : (
           <div className="mx-auto max-w-2xl">
-            <Image src="/art/spot-field.webp" width={160} height={160} alt="" className="mx-auto h-40 w-40 rounded-xl border border-line" />
+            <Image src="/art/spot-field.webp" width={160} height={160} alt="" className="mx-auto mb-5 h-40 w-40 rounded-xl border border-line" />
             <EmptyState
               title="No briefs match these filters"
               body={`${plural(total, "brief")} on the field, none in this view. Try another search or clear the filters.`}
