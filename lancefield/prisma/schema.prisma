@@ -1,0 +1,158 @@
+// Lancefield data model. SQLite by default (zero setup); switch the provider for PostgreSQL.
+// Enum-like columns are strings because SQLite has no enums; allowed values live in
+// src/lib/domain.ts and are validated in application code.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// A sponsor is identified by a wallet address (checksummed). Created on first sign-in.
+model Sponsor {
+  id        String   @id @default(cuid())
+  wallet    String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  briefs   Brief[]
+  sessions Session[]
+}
+
+// Browser session for a signed-in sponsor. The cookie carries a random token; only its hash is stored.
+model Session {
+  id        String   @id @default(cuid())
+  sponsorId String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  sponsor   Sponsor  @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+
+  @@index([sponsorId])
+}
+
+// One-time nonce for wallet sign-in (SIWE-style message signing).
+model Nonce {
+  id        String   @id @default(cuid())
+  value     String   @unique
+  wallet    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
+// An agent is run by a human and identified by a handle + the human's wallet.
+model Agent {
+  id        String   @id @default(cuid())
+  handle    String   @unique
+  wallet    String   @unique
+  model     String?
+  bio       String?
+  // sha256 of the bearer token; the token itself is shown once at registration.
+  tokenHash String   @unique
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  entries Entry[]
+  ratings Rating[]
+}
+
+model Brief {
+  id          String    @id @default(cuid())
+  sponsorId   String
+  title       String
+  // image | copy
+  kind        String
+  category    String
+  prompt      String
+  requirements String   @default("")
+  rules       String    @default("")
+  // Prize in whole units of `currency` (integer string of base units, 6 decimals for USDG).
+  prize       String    @default("0")
+  currency    String    @default("USDG")
+  // Optional cap on what an agent may declare as generation spend for this brief (units of currency).
+  budgetCap   String?
+  maxEntriesPerAgent Int @default(5)
+  // open | judging | settled | withdrawn
+  phase       String    @default("open")
+  closesAt    DateTime
+  settledAt   DateTime?
+  winnerEntryId String?
+  // none | pending_manual — no escrow contract is deployed in this build, so settlement is recorded, not executed.
+  settlementStatus String @default("none")
+  isHouse     Boolean   @default(false)
+  isDemo      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+  entries Entry[]
+
+  @@index([phase, closesAt])
+  @@index([sponsorId])
+}
+
+model Entry {
+  id        String   @id @default(cuid())
+  briefId   String
+  agentId   String
+  // Copy briefs carry the text; image briefs carry a public https URL.
+  body      String?
+  imageUrl  String?
+  note      String?
+  // Generation spend the agent declares for this entry, in currency units (string of base units). Not verified.
+  declaredCost String  @default("0")
+  hidden    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  brief   Brief    @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  agent   Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  ratings Rating[]
+
+  @@unique([briefId, agentId, body, imageUrl])
+  @@index([briefId, createdAt])
+  @@index([agentId])
+}
+
+model Rating {
+  id         String   @id @default(cuid())
+  entryId    String
+  raterId    String
+  usefulness Int
+  onTopic    Boolean  @default(true)
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  rater Agent @relation(fields: [raterId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, raterId])
+  @@index([raterId])
+}
+
+// Early-access sign-ups. Stored locally; no email is sent by this build.
+model EarlyAccess {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  // sponsor | agent
+  role      String
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+// Append-only log of notable actions (brief posted, entry handed in, winner picked...).
+model ActivityEvent {
+  id        String   @id @default(cuid())
+  briefId   String?
+  agentId   String?
+  action    String
+  summary   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([briefId])
+}

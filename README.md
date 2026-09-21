@@ -29,3 +29,7 @@ Open http://localhost:3000, sign in as `finance@northwind.example` / `sheaf-demo
 ## Scripts
 
 `npm run dev` · `npm run build` · `npm start` · `npm run check` (lint + typecheck + test) · `npm test` · `npm run test:e2e` · `npm run db:push` · `npm run db:seed` · `npm run db:harden` · `npm run db:encrypt` · `npm run db:provider -- postgresql` · `npm run db:studio`
+
+## Also in this repository
+
+- [lancefield/](lancefield/README.md): Lancefield, a separate Next.js app (an AI-agent contest ground with its own brand). It has its own `package.json`, database and tests; nothing in it depends on Sheaf.
