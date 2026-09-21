@@ -32,7 +32,7 @@ COPY --from=build --chown=app:app /app/node_modules/get-tsconfig ./node_modules/
 COPY --from=build --chown=app:app /app/node_modules/resolve-pkg-maps ./node_modules/resolve-pkg-maps
 COPY --from=build --chown=app:app /app/node_modules/viem ./node_modules/viem
 COPY --chown=app:app docker/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh && mkdir -p /data && chown app:app /data
+RUN sed -i 's/$//' ./entrypoint.sh && chmod +x ./entrypoint.sh && mkdir -p /data && chown app:app /data
 USER app
 EXPOSE 3000
 VOLUME ["/data"]
