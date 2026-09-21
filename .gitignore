@@ -12,3 +12,5 @@ prisma/test.db*
 playwright-report
 test-results
 prisma/e2e.db*
+.agents/
+.claude/skills/
