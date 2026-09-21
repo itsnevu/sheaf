@@ -1,27 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
-import { existsSync } from "node:fs";
-import path from "node:path";
 import Carousel from "@/components/site/Carousel";
 import CopyLine from "@/components/site/CopyLine";
-import FeatureIcon from "@/components/site/FeatureIcons";
 import GlowButton from "@/components/site/GlowButton";
 import HeadlineBlock from "@/components/site/HeadlineBlock";
 import Scenes from "@/components/site/Scenes";
 import ScrollCue from "@/components/site/ScrollCue";
 import { ExecuteArt, ReviewArt, ValidateArt } from "@/components/site/StepArt";
-import { Mark } from "@/components/Logo";
 import { CSV_LIMITS } from "@/lib/csv/parse";
 import { executionMode } from "@/lib/config";
 
 const STATEMENTS = [
-  { head: "Upload one CSV. Not thirty transfers.", body: "name x address x amount x reference", badges: ["CSV", "Template", "Header aliases"] },
-  { head: "Every row checked. Nothing dropped.", body: "checksum x exact decimals x duplicates x asset", badges: ["Validate", "Fix in place"] },
-  { head: "One route per recipient. Fees shown.", body: "quote x estimate x readiness", badges: ["Route", "Fee estimate"] },
-  { head: "Approval bound to the exact set.", body: "hash of recipients x second person x void on edit", badges: ["Four eyes", "Hash-bound"] },
-  { head: "Executed one at a time. Tracked one at a time.", body: "idempotency key x bounded retries x no resend through unknown", badges: ["Queue", "Retries"] },
-  { head: "Reconciled, exported, audited.", body: "references x fees x timestamps x simulated flag", badges: ["Reconcile", "Export", "Audit"] },
+  { head: "Upload one CSV. Not thirty transfers.", body: "name x address x amount x reference", badges: ["CSV", "Template", "Header aliases"], art: "obj-csv" },
+  { head: "Every row checked. Nothing dropped.", body: "checksum x exact decimals x duplicates x asset", badges: ["Validate", "Fix in place"], art: "obj-check" },
+  { head: "One route per recipient. Fees shown.", body: "quote x estimate x readiness", badges: ["Route", "Fee estimate"], art: "obj-route" },
+  { head: "Approval bound to the exact set.", body: "hash of recipients x second person x void on edit", badges: ["Four eyes", "Hash-bound"], art: "obj-stamp" },
+  { head: "Executed one at a time. Tracked one at a time.", body: "idempotency key x bounded retries x no resend through unknown", badges: ["Queue", "Retries"], art: "obj-split" },
+  { head: "Reconciled, exported, audited.", body: "references x fees x timestamps x simulated flag", badges: ["Reconcile", "Export", "Audit"], art: "obj-audit" },
 ];
+
+const FEATURE_ART: Record<string, string> = { csv: "obj-csv", check: "obj-check", route: "obj-route", stamp: "obj-stamp", monitor: "obj-monitor", split: "obj-split", reconcile: "obj-scale", audit: "obj-audit" };
+const STACK_ART = ["obj-chain", "obj-coin", "obj-vault"];
 
 const FEATURES: Array<{ icon: "csv" | "check" | "route" | "stamp" | "monitor" | "split" | "reconcile" | "audit"; title: string; body: string }> = [
   { icon: "csv", title: "CSV payroll imports", body: "Template download, header aliases, files up to 10,000 rows parsed off the main thread so the page never freezes." },
@@ -68,8 +67,6 @@ function Badge({ children }: { children: React.ReactNode }) {
 
 export default function HomePage() {
   const mode = executionMode();
-  const hasHero = existsSync(path.join(process.cwd(), "public", "art", "hero.jpg"));
-  const hasFlow = existsSync(path.join(process.cwd(), "public", "art", "flow.jpg"));
 
   return (
     <>
@@ -102,16 +99,10 @@ export default function HomePage() {
             <Cross className="absolute -right-6 -top-6" />
             <Cross className="absolute -bottom-6 -left-6" />
             <Cross className="absolute -bottom-6 -right-6" />
-            {hasFlow ? (
-              <div className="relative aspect-square overflow-hidden rounded-[28px] border border-white/15 shadow-[0_0_120px_rgba(255,46,85,.25)]">
-                <Image src="/art/flow.jpg" alt="One large disc connected by fine lines to a grid of sixteen small tokens." fill priority sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
-                <span className="absolute bottom-4 left-5 n-label text-white/85">One treasury · every route tracked</span>
-              </div>
-            ) : (
-              <div className="flex aspect-square items-center justify-center rounded-[28px] border border-white/15">
-                <Mark size={160} inverted accent="#ff2e55" />
-              </div>
-            )}
+            <div className="n-float relative aspect-square">
+              <span className="absolute inset-[12%] rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,rgba(255,46,85,.45),rgba(104,82,253,.2)_55%,transparent_75%)] blur-2xl" aria-hidden="true" />
+              <Image src="/art/3d/mascot.webp" alt="Sheaf's courier: a small white robot holding a stack of cards bound with a pink band." width={900} height={900} priority sizes="(min-width: 1024px) 40vw, 90vw" className="relative w-full drop-shadow-[0_40px_80px_rgba(0,0,0,.5)]" />
+            </div>
           </div>
         </div>
         {/* marquee at the bottom of the hero */}
@@ -208,7 +199,10 @@ export default function HomePage() {
                   <Cross />
                   <Cross />
                 </div>
-                <FeatureIcon name={f.icon} />
+                <span className="relative flex h-[190px] w-[190px] items-center justify-center" aria-hidden="true">
+                  <span className="absolute inset-4 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,rgba(255,46,85,.35),transparent_70%)] blur-xl" />
+                  <Image src={`/art/3d/${FEATURE_ART[f.icon]}.webp`} alt="" width={900} height={900} sizes="190px" className="relative w-full transition-transform duration-500 group-hover:scale-105" />
+                </span>
                 <div className="flex w-full justify-between px-2">
                   <Cross />
                   <Cross />
@@ -222,13 +216,11 @@ export default function HomePage() {
       </section>
 
       {/* ───────── Image band + who / mission / rails ───────── */}
-      {hasHero && (
-        <section className="relative mt-24 h-[60vh] min-h-[420px] w-full overflow-hidden" aria-label="Visual identity">
-          <Image src="/art/hero.jpg" alt="Layered translucent charcoal glass sheets with one bright thread visible through the gaps." fill sizes="100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,8,22,.2),rgba(10,8,22,.85))]" />
-          <p className="absolute bottom-8 left-1/2 -translate-x-1/2 n-label text-white/85">Private externally · transparent internally</p>
-        </section>
-      )}
+      <section className="relative mt-24 h-[62vh] min-h-[440px] w-full overflow-hidden bg-black" aria-label="Visual identity">
+        <Image src="/art/3d/band.webp" alt="The Sheaf courier on a podium, surrounded by floating blank cards." fill sizes="100vw" className="object-cover object-center" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,8,22,.15),rgba(10,8,22,0)_35%,rgba(10,8,22,.9))]" />
+        <p className="absolute bottom-8 left-1/2 -translate-x-1/2 n-label text-white/85">Private externally · transparent internally</p>
+      </section>
       <HeadlineBlock
         title={
           <>
@@ -273,19 +265,17 @@ export default function HomePage() {
       />
       <section className="relative">
         <Carousel label="The stack" className="overflow-hidden">
-          {STACK.map(([label, text]) => (
+          {STACK.map(([label, text], i) => (
             <div key={label} className="n-stack">
               <p className="n-label flex items-center gap-2">
                 <span className="h-2 w-2 bg-white" aria-hidden="true" /> [ {label} ]
               </p>
-              <div className="relative mx-auto flex h-[200px] w-[200px] items-center justify-center">
+              <div className="relative mx-auto flex h-[220px] w-[220px] items-center justify-center">
                 <Cross className="absolute -left-4 -top-4" />
                 <Cross className="absolute -right-4 -top-4" />
                 <Cross className="absolute -bottom-4 -left-4" />
                 <Cross className="absolute -bottom-4 -right-4" />
-                <span className="flex h-[150px] w-[150px] items-center justify-center rounded-full border border-white/40 bg-[radial-gradient(60%_60%_at_40%_35%,rgba(255,255,255,.35),rgba(255,255,255,.05))]">
-                  <Mark size={72} inverted accent="#ff2e55" />
-                </span>
+                <Image src={`/art/3d/${STACK_ART[i]}.webp`} alt="" width={900} height={900} sizes="220px" className="w-full drop-shadow-[0_20px_40px_rgba(0,0,0,.35)]" />
               </div>
               <p className="flex items-start gap-x-4 text-[15px] leading-relaxed text-white/95 lg:text-base">
                 <Cross className="mt-1 shrink-0" />

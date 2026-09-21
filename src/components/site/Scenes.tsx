@@ -1,9 +1,19 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef } from "react";
+import StageMascot from "./StageMascot";
+
+export interface Scene {
+  head: string;
+  body: string;
+  badges?: string[];
+  /** Object image under /art/3d, shown on the opposite side of the text. */
+  art?: string;
+}
 
 /** Violet stage with white bars: full-viewport statements that fade in as they enter, alternating sides. */
-export default function Scenes({ items }: { items: Array<{ head: string; body: string; badges?: string[] }> }) {
+export default function Scenes({ items }: { items: Scene[] }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = ref.current;
@@ -24,6 +34,7 @@ export default function Scenes({ items }: { items: Array<{ head: string; body: s
   }, []);
   return (
     <div ref={ref} className="n-stage" aria-label="What Sheaf does, in six statements">
+      <StageMascot />
       {items.map((it, i) => (
         <section key={it.head} className="n-scene">
           <div className="n-scene-text w-full md:w-1/2 md:px-8">
@@ -45,6 +56,11 @@ export default function Scenes({ items }: { items: Array<{ head: string; body: s
               — {String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")} —
             </p>
           </div>
+          {it.art && (
+            <div className={`n-float pointer-events-none absolute hidden w-[min(30vw,340px)] md:block ${i % 2 === 0 ? "right-[8vw]" : "left-[8vw]"}`} style={{ animationDelay: `${(i % 3) * -1.3}s` }} aria-hidden="true">
+              <Image src={`/art/3d/${it.art}.webp`} alt="" width={900} height={900} sizes="30vw" className="w-full" />
+            </div>
+          )}
         </section>
       ))}
     </div>

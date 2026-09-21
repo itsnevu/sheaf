@@ -396,7 +396,8 @@
   background:
     radial-gradient(45% 30% at 30% 40%, rgba(255, 46, 85, 0.75) 0%, rgba(255, 46, 85, 0) 70%),
     linear-gradient(180deg, #4d40b8 0%, #5d4fd1 50%, #4d40b8 100%);
-  overflow: hidden;
+  /* clip, not hidden: hidden would turn the stage into a scroll container and break the sticky mascot */
+  overflow: clip;
 }
 .n-stage::before {
   content: "";
@@ -667,4 +668,26 @@
   height: 96px;
   background: repeating-linear-gradient(180deg, var(--n-accent) 0 6px, transparent 6px 12px);
   opacity: 0.7;
+}
+
+/* ── 3D objects: rendered on a solid navy plate, blended so the plate disappears ── */
+.n-blend {
+  mix-blend-mode: lighten;
+}
+.n-float {
+  animation: n-float 6s ease-in-out infinite;
+}
+@keyframes n-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-18px) rotate(2deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-float {
+    animation: none;
+  }
 }
