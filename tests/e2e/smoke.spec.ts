@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { privateKeyToAccount } from "viem/accounts";
 import { signIn } from "./helpers";
+
+const WALLET = privateKeyToAccount("0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318");
 
 test.describe("public site and auth", () => {
   test("marketing pages render without console errors", async ({ page }) => {
@@ -26,7 +29,7 @@ test.describe("public site and auth", () => {
     await expect(page).toHaveURL(/sign-in/);
   });
 
-  test("rejects a wrong password and signs in a finance admin", async ({ page, isMobile }) => {
+  test("rejects a wrong password and signs in a finance admin", async ({ page }) => {
     await page.goto("/sign-in");
     await page.getByLabel("Email").fill("finance@northwind.example");
     await page.getByLabel("Password").fill("nope");
@@ -34,8 +37,31 @@ test.describe("public site and auth", () => {
     await expect(page.getByText(/incorrect/i)).toBeVisible();
     await signIn(page, "finance");
     await expect(page.getByRole("status")).toContainText(/demo/i);
-    if (isMobile) await page.getByRole("button", { name: "Open navigation" }).click();
+    // The application menu sits behind the red mark on every viewport.
+    await page.getByRole("button", { name: "Open navigation" }).click();
     await expect(page.getByRole("navigation", { name: "Application" })).toBeVisible();
+  });
+
+  test("signs in with an injected wallet and lands in a fresh workspace", async ({ page }) => {
+    await page.exposeFunction("__sheafSign", async (hexMessage: string) => WALLET.signMessage({ message: { raw: hexMessage as `0x${string}` } }));
+    await page.addInitScript((address) => {
+      const listeners: Record<string, Array<(...a: unknown[]) => void>> = {};
+      (window as unknown as { ethereum: unknown }).ethereum = {
+        isMetaMask: true,
+        request: async ({ method, params }: { method: string; params?: unknown[] }) => {
+          if (method === "eth_requestAccounts" || method === "eth_accounts") return [address];
+          if (method === "eth_chainId") return "0x2105";
+          if (method === "personal_sign") return (window as unknown as { __sheafSign: (m: string) => Promise<string> }).__sheafSign(String(params?.[0]));
+          throw new Error(`unsupported ${method}`);
+        },
+        on: (e: string, fn: (...a: unknown[]) => void) => ((listeners[e] ??= []).push(fn), undefined),
+        removeListener: () => undefined,
+      };
+    }, WALLET.address);
+    await page.goto("/sign-in");
+    await page.getByTestId("wallet-signin").click();
+    await expect(page).toHaveURL(/\/app/, { timeout: 15_000 });
+    await expect(page.getByRole("status")).toContainText(/Workspace 0x/i);
   });
 
   test("viewer is read-only with redacted addresses", async ({ page }) => {

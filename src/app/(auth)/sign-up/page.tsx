@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import WalletSignIn from "@/components/auth/WalletSignIn";
 import { Button, Input } from "@/components/ui";
 import { api } from "@/lib/client";
 
@@ -31,6 +32,10 @@ export default function SignUpPage() {
   return (
     <>
       <h1 className="title-1">Start a workspace</h1>
+      <div className="mt-6">
+        <WalletSignIn />
+      </div>
+      <p className="eyebrow mt-8">or with email</p>
       <p className="mt-2 text-[0.9375rem] text-ink-soft">You become the Owner and can invite finance admins, approvers and viewers from Settings.</p>
       <form onSubmit={submit} className="mt-8 space-y-4" noValidate>
         <Input label="Organisation name" required value={f.organization} onChange={set("organization")} />

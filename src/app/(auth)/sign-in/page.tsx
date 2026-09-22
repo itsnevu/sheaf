@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
+import WalletSignIn from "@/components/auth/WalletSignIn";
 import { Button, Input } from "@/components/ui";
 import { api } from "@/lib/client";
 
@@ -37,8 +38,12 @@ function SignInForm() {
   return (
     <>
       <h1 className="title-1">Sign in</h1>
-      <p className="mt-2 text-[0.9375rem] text-ink-soft">Use your workspace credentials.</p>
-      <form onSubmit={submit} className="mt-8 space-y-4" noValidate>
+      <p className="mt-2 text-[0.9375rem] text-ink-soft">Sign a message with your wallet, or use workspace credentials.</p>
+      <div className="mt-6">
+        <WalletSignIn next={params.get("next") || "/app"} />
+      </div>
+      <p className="eyebrow mt-8">or with email</p>
+      <form onSubmit={submit} className="mt-3 space-y-4" noValidate>
         <Input label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         <Input label="Password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} error={error} />
         <Button type="submit" variant="primary" size="lg" className="w-full" loading={busy}>

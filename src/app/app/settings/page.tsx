@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/app/PageHeader";
+import WalletSettings from "@/components/app/WalletSettings";
 import { useMe } from "@/components/app/AppShell";
 import { Button, Dialog, Input, Select, Skeleton, Switch, StatusBadge } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
@@ -119,6 +120,8 @@ export default function SettingsPage() {
           </Button>
         </div>
       )}
+
+      <WalletSettings />
 
       <section className="card mt-8">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
