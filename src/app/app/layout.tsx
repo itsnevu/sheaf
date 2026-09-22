@@ -4,6 +4,8 @@ import AppShell from "@/components/app/AppShell";
 import { getSession } from "@/lib/auth/session";
 import { capabilitiesFor } from "@/lib/auth/permissions";
 import { DEMO_BANNER, executionMode } from "@/lib/config";
+import "@/styles/print.css";
+import "@/styles/sheet.css";
 
 export const dynamic = "force-dynamic";
 

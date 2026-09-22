@@ -1,4 +1,3 @@
-@import "../styles/night.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,19 +6,19 @@
    Sheaf design tokens. Source of truth alongside tailwind.config.ts.
    ───────────────────────────────────────────────────────────────────────── */
 :root {
-  --canvas: #f6f5f1;
+  --canvas: #ffffff;
   --surface: #ffffff;
-  --field: #efeeea;
-  --line: #e3e1db;
-  --ink: #141518;
-  --ink-soft: #585b63;
-  --ink-faint: #8b8e96;
-  --on-ink: #f7f6f2;
-  --veil: #1d7a6f;
-  --veil-deep: #155e56;
-  --veil-tint: #e2f0ec;
-  --shadow-raised: 0 1px 2px rgba(20, 21, 24, 0.05), 0 6px 16px -8px rgba(20, 21, 24, 0.14);
-  --shadow-lifted: 0 2px 4px rgba(20, 21, 24, 0.05), 0 16px 32px -12px rgba(20, 21, 24, 0.24);
+  --field: #f2f2f2;
+  --line: #d9d9d9;
+  --ink: #1f1f1f;
+  --ink-soft: #4a4a4a;
+  --ink-faint: #9a9a9a;
+  --on-ink: #ffffff;
+  --veil: #ff0000;
+  --veil-deep: #cc0000;
+  --veil-tint: #ffe9e9;
+  --shadow-raised: none;
+  --shadow-lifted: none;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --header-h: 64px;
 }
@@ -30,17 +29,17 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-canvas text-ink font-sans antialiased;
-    font-feature-settings: "cv11", "ss01", "calt";
+    @apply bg-canvas text-ink font-mono antialiased;
+    font-size: 14px;
   }
   ::selection {
     background: var(--ink);
     color: var(--on-ink);
   }
   :focus-visible {
-    outline: 2px solid var(--veil);
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline: 1px solid var(--ink);
+    outline-offset: 3px;
+    border-radius: 0;
   }
   h1,
   h2,
@@ -67,22 +66,22 @@
 @layer components {
   /* Type scale */
   .display-1 {
-    @apply font-display font-medium tracking-[-0.035em] leading-[0.98];
+    @apply font-mono font-normal tracking-[0] leading-[1.1] uppercase;
     font-size: clamp(2.5rem, 5.6vw, 4.75rem);
   }
   .display-2 {
-    @apply font-display font-medium tracking-[-0.025em] leading-[1.05];
+    @apply font-mono font-normal tracking-[0] leading-[1.15] uppercase;
     font-size: clamp(1.875rem, 3.2vw, 3rem);
   }
   .title-1 {
-    @apply font-display font-medium tracking-[-0.02em] leading-[1.1];
+    @apply font-mono font-normal tracking-[0.02em] leading-[1.2] uppercase;
     font-size: clamp(1.5rem, 2.2vw, 2.125rem);
   }
   .title-2 {
-    @apply font-display font-medium tracking-[-0.015em] leading-[1.15] text-[1.25rem];
+    @apply font-mono font-normal tracking-[0.02em] leading-[1.2] text-[1rem] uppercase;
   }
   .title-3 {
-    @apply font-sans font-semibold tracking-[-0.01em] text-[1rem];
+    @apply font-mono font-bold tracking-[0.02em] text-[0.9375rem];
   }
   .lede {
     @apply text-ink-soft text-[1.0625rem] leading-[1.6] md:text-[1.125rem];
@@ -96,14 +95,14 @@
 
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap select-none transition-[background-color,color,box-shadow,transform] duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-none font-normal uppercase whitespace-nowrap select-none transition-[background-color,color,transform] duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
     min-height: 2.5rem;
     padding: 0 1.125rem;
-    font-size: 0.9375rem;
-    letter-spacing: -0.01em;
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
   }
   .btn:active:not(:disabled) {
-    transform: scale(0.98);
+    transform: translateY(1px);
   }
   .btn-lg {
     min-height: 3rem;
@@ -116,10 +115,10 @@
     font-size: 0.8125rem;
   }
   .btn-primary {
-    @apply bg-ink text-on-ink;
+    @apply bg-ink text-on-ink border border-ink;
   }
   .btn-primary:hover:not(:disabled) {
-    background: #2a2c33;
+    @apply bg-veil border-veil;
   }
   .btn-accent {
     @apply bg-veil text-white;
@@ -128,13 +127,13 @@
     @apply bg-veil-deep;
   }
   .btn-secondary {
-    @apply bg-surface text-ink border border-line shadow-raised;
+    @apply bg-surface text-ink border border-ink;
   }
   .btn-secondary:hover:not(:disabled) {
-    @apply border-line-strong;
+    @apply bg-field;
   }
   .btn-ghost {
-    @apply bg-transparent text-ink-soft;
+    @apply bg-transparent text-ink-soft border border-transparent;
   }
   .btn-ghost:hover:not(:disabled) {
     @apply bg-field text-ink;
@@ -148,17 +147,17 @@
 
   /* Inputs */
   .label {
-    @apply block text-[0.8125rem] font-medium text-ink-soft mb-1.5;
+    @apply block text-[0.6875rem] uppercase tracking-[0.12em] text-ink-soft mb-1.5;
   }
   .input {
-    @apply w-full rounded-[10px] bg-surface border border-line px-3.5 text-[0.9375rem] text-ink placeholder:text-ink-faint transition-[border-color,box-shadow] duration-150;
+    @apply w-full rounded-none bg-surface border border-ink px-3.5 text-[0.875rem] text-ink placeholder:text-ink-faint transition-[border-color] duration-150;
     min-height: 2.625rem;
   }
   .input:hover {
-    @apply border-line-strong;
+    @apply border-ink;
   }
   .input:focus {
-    @apply border-veil shadow-focus outline-none;
+    @apply border-veil outline-none;
   }
   .input[aria-invalid="true"] {
     @apply border-danger;
@@ -180,13 +179,13 @@
 
   /* Surfaces */
   .card {
-    @apply bg-surface border border-line rounded-card shadow-raised;
+    @apply bg-surface border border-ink rounded-none;
   }
   .panel {
-    @apply bg-surface border border-line rounded-panel shadow-raised;
+    @apply bg-surface border border-ink rounded-none;
   }
   .inset {
-    @apply bg-field rounded-[10px] shadow-inset;
+    @apply bg-field rounded-none;
   }
 
   /* Tables */
@@ -194,7 +193,7 @@
     @apply w-full text-[0.875rem] border-collapse;
   }
   .table th {
-    @apply text-left font-medium text-ink-faint text-[0.75rem] uppercase tracking-[0.06em] py-2.5 px-3 border-b border-line whitespace-nowrap;
+    @apply text-left font-normal text-ink-faint text-[0.6875rem] uppercase tracking-[0.12em] py-2.5 px-3 border-b border-ink whitespace-nowrap;
   }
   .table td {
     @apply py-3 px-3 border-b border-line align-middle;
@@ -212,10 +211,10 @@
 
   /* Badges */
   .badge {
-    @apply inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 text-[0.75rem] font-medium whitespace-nowrap border;
+    @apply inline-flex items-center gap-1.5 rounded-none px-2 py-0.5 text-[0.6875rem] uppercase tracking-[0.08em] font-normal whitespace-nowrap border;
   }
   .badge-neutral {
-    @apply bg-field text-ink-soft border-transparent;
+    @apply bg-transparent text-ink-soft border-ink;
   }
   .badge-info {
     @apply bg-info-tint text-info border-transparent;
@@ -241,7 +240,7 @@
 
   /* Skeleton */
   .skeleton {
-    @apply rounded-md bg-field;
+    @apply rounded-none bg-field;
     background-image: linear-gradient(90deg, #efeeea 0%, #f7f6f2 50%, #efeeea 100%);
     background-size: 200% 100%;
     @apply animate-shimmer;

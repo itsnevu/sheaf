@@ -4,6 +4,7 @@ import { pixel } from "@/components/print/fonts";
 import PrintNav from "@/components/print/PrintNav";
 import { getSession } from "@/lib/auth/session";
 import "@/styles/print.css";
+import "@/styles/sheet.css";
 
 /* The home page is an instrument: Space Mono on the device, a pixel face on the paper. */
 const spaceMono = Space_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "700"], display: "swap" });

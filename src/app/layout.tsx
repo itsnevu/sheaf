@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Inter, Space_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { ensureWorker } from "@/lib/worker/boot";
 
 const inter = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
 const display = Bricolage_Grotesque({ variable: "--font-display", subsets: ["latin"], weight: ["400", "500", "600"], display: "swap" });
-const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "500"], display: "swap" });
+const mono = Space_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "700"], display: "swap" });
 
 const TITLE = "Sheaf";
 const DESCRIPTION =

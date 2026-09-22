@@ -1,0 +1,268 @@
+/* The fiche viewer: chalk-grey bezel, blackish body, square glass screen, knobs and sliders. */
+.f-sizer {
+  --blackish: #1e1e1e;
+  --chalk: #dcddde;
+  --radius: 10px;
+  --radius-minor: 5px;
+  --panel: 80px;
+  display: flex;
+  height: 100dvh;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  user-select: none;
+}
+.f-scaler {
+  position: relative;
+  flex: 0 0 auto;
+}
+.f-app {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 878px;
+  height: 878px;
+  box-sizing: border-box;
+  border: 11px solid var(--chalk);
+  border-radius: var(--radius);
+  background: var(--chalk);
+  filter: drop-shadow(3px 3px 0.3rem rgba(0, 0, 0, 0.5));
+  transform-origin: top left;
+}
+.f-container {
+  background: var(--blackish);
+  display: flex;
+  border: 11px solid var(--blackish);
+  border-radius: var(--radius);
+}
+.f-fiche {
+  display: flex;
+  flex-direction: column;
+}
+.f-screen {
+  position: relative;
+  width: 776px;
+  height: 776px;
+  background: var(--blackish);
+  border-top: 8px solid var(--chalk);
+  border-left: 8px solid var(--chalk);
+  border-right: 2px solid var(--blackish);
+  border-bottom: 2px solid var(--blackish);
+  overflow: hidden;
+}
+.f-screen canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.f-glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 90px;
+  box-shadow:
+    inset 0 0 0 40px #0b0d0c,
+    inset 0 0 120px 40px rgba(0, 0, 0, 0.9),
+    inset 0 -60px 120px rgba(0, 0, 0, 0.35);
+  background: radial-gradient(ellipse 60% 40% at 50% 8%, rgba(255, 255, 255, 0.12), transparent 60%);
+}
+.f-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.f-bottom {
+  display: flex;
+  height: var(--panel);
+  background: var(--blackish);
+}
+.f-logo {
+  position: relative;
+  width: 132px;
+  background: var(--chalk);
+  border-radius: var(--radius-minor);
+  border-top-left-radius: 0;
+  margin-right: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6f7173;
+  overflow: hidden;
+}
+.f-logo-disc {
+  position: absolute;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f6f6f6, #cfd0d2 70%, #b9babc);
+  top: -6px;
+}
+.f-logo-word {
+  position: relative;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #8a8c8e;
+  mix-blend-mode: multiply;
+}
+.f-logo-sub {
+  position: relative;
+  font-size: 6px;
+  letter-spacing: 0.18em;
+  color: #9a9c9e;
+}
+.f-buttonrow {
+  display: flex;
+  align-items: center;
+  background: var(--chalk);
+  border-top-left-radius: var(--radius-minor);
+  border-bottom-left-radius: var(--radius-minor);
+  width: 100%;
+  flex-direction: row-reverse;
+}
+.f-spinners {
+  display: flex;
+  margin-right: 40px;
+  gap: 40px;
+}
+.f-labelcol {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+.f-labelcol p {
+  margin: 0;
+  font-size: 12px;
+  color: #1e1e1e;
+}
+.f-knob {
+  cursor: ns-resize;
+  touch-action: none;
+  filter: drop-shadow(2px 2px 0.1rem rgba(0, 0, 0, 0.5));
+}
+.f-knob:focus-visible {
+  outline: 2px solid #e5262b;
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+.f-right {
+  display: flex;
+  flex-direction: column;
+  background: var(--blackish);
+  width: var(--panel);
+  border-radius: 0 0 var(--radius) 0;
+  margin-left: -0.5px;
+}
+.f-topfill {
+  background: var(--chalk);
+  border-radius: var(--radius);
+  border-top-left-radius: 0;
+  height: 142px;
+}
+.f-bottomfill {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--chalk);
+  border-radius: var(--radius);
+  border-bottom-left-radius: 0;
+  width: var(--panel);
+  height: 100%;
+  margin-top: 2px;
+}
+.f-rangewrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24px;
+  flex: 1;
+}
+.f-range {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.f-range p {
+  margin: 14px 0 8px;
+  font-size: 12px;
+  color: #1e1e1e;
+}
+.f-range-track {
+  position: relative;
+  width: 44px;
+  height: 207px;
+  cursor: ns-resize;
+  touch-action: none;
+}
+.f-range-track:focus-visible {
+  outline: 2px solid #e5262b;
+  outline-offset: 3px;
+}
+.f-range-tick {
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: #414042;
+  width: 16px;
+  text-align: right;
+}
+.f-range-tick::after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  background: #414042;
+}
+.f-range-line {
+  position: absolute;
+  left: 31px;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: #292728;
+  border-radius: 2px;
+}
+.f-range-thumb {
+  position: absolute;
+  left: 24px;
+  width: 17px;
+  height: 17px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #5a5a5c, #2a2a2a);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+}
+.f-filter {
+  position: relative;
+  margin-bottom: 12px;
+}
+.f-numbers {
+  position: absolute;
+  pointer-events: none;
+  width: 96px;
+  height: 96px;
+  left: -17px;
+  top: -17px;
+}
+.f-note {
+  position: fixed;
+  right: 16px;
+  bottom: 14px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #9a9a9a;
+}
+@media only screen and (max-width: 768px) {
+  .f-note {
+    display: none;
+  }
+}

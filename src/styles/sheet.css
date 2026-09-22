@@ -1,0 +1,130 @@
+/* Index-style text pages, the sign-in box and the application sheet. */
+.x-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 120px 24px 140px;
+}
+.x-col {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #1f1f1f;
+}
+.x-title {
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0 0 28px;
+  color: #9a9a9a;
+}
+.x-lead {
+  margin: 0 0 40px;
+}
+.x-section {
+  margin: 0 0 32px;
+}
+.x-h2 {
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0 0 12px;
+}
+.x-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #1f1f1f;
+}
+.x-list li {
+  padding: 12px 20px;
+  border-top: 1px solid #e3e3e3;
+}
+.x-list li:first-child {
+  border-top: 0;
+}
+.x-contact {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  font-size: 15px;
+  z-index: 50;
+}
+.x-contact a {
+  color: #1f1f1f;
+  text-decoration: none;
+}
+.x-contact a:hover {
+  text-decoration: underline;
+}
+.x-box {
+  width: min(420px, 100%);
+  margin: 0 auto;
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+  padding: 28px 24px;
+}
+.x-app {
+  padding: 96px 24px 120px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.x-status {
+  position: fixed;
+  right: 16px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #9a9a9a;
+  max-width: 60vw;
+  text-align: right;
+  z-index: 50;
+  pointer-events: none;
+}
+.x-status-demo {
+  color: #ff0000;
+}
+.x-status-real {
+  color: #1f1f1f;
+}
+.p-menu-action {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 20px;
+  border: 0;
+  background: transparent;
+  color: #1f1f1f;
+  font: inherit;
+  cursor: pointer;
+}
+.p-menu-action:hover {
+  background: #f2f2f2;
+}
+@media only screen and (max-width: 768px) {
+  .x-page {
+    padding-top: 96px;
+  }
+  .x-contact {
+    position: static;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 48px;
+  }
+  .x-status {
+    position: static;
+    max-width: none;
+    align-items: flex-start;
+    text-align: left;
+    padding: 0 24px 24px;
+  }
+  .x-app {
+    padding-top: 80px;
+  }
+}
