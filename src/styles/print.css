@@ -1,0 +1,352 @@
+/* The print page: a white sheet, a red mark top-left, a small grey printer and a black roll. */
+.site-print {
+  --p-body: #e6e7e8;
+  --p-line: #d1d3d4;
+  --p-dark: #414042;
+  --p-dial: #bcbec0;
+  --p-btn: hsl(210, 3%, 75%);
+  --p-red: #ff0000;
+  position: relative;
+  min-height: 100vh;
+  background: #ffffff;
+  color: #1f1f1f;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  overflow-x: clip;
+}
+
+/* Corner mark (hamburger) and menu */
+.p-nav {
+  position: fixed;
+  left: 16px;
+  top: 16px;
+  z-index: 300;
+}
+.p-burger {
+  position: relative;
+  display: block;
+  width: 70px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.p-burger span {
+  position: absolute;
+  left: 0;
+  width: 70px;
+  height: 8px;
+  background: var(--p-red);
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 200ms ease;
+  transform-origin: 50% 50%;
+}
+.p-burger span:nth-child(1) {
+  top: 0;
+}
+.p-burger span:nth-child(2) {
+  top: 18px;
+}
+.p-burger span:nth-child(3) {
+  top: 36px;
+}
+.p-burger[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(18px) rotate(-22deg);
+}
+.p-burger[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-18px) rotate(22deg);
+}
+.p-menu {
+  position: absolute;
+  left: 0;
+  top: 66px;
+  min-width: 142px;
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+  padding: 10px 0;
+  font-size: 15px;
+  line-height: 1;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    visibility 0s linear 160ms;
+}
+.p-menu[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition-delay: 0s;
+}
+.p-menu a,
+.p-menu span {
+  display: block;
+  padding: 12px 20px;
+  color: #1f1f1f;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.p-menu a:hover {
+  background: #f2f2f2;
+}
+.p-menu .is-current {
+  color: #9a9a9a;
+  pointer-events: none;
+}
+
+/* The roll */
+.p-stage {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 40vh;
+}
+.p-paper {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(640px, 92vw);
+  transform: translateX(-50%);
+  background: #000000;
+  filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.2));
+  overflow: hidden;
+}
+.p-paper canvas {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.p-paper[data-empty="true"] {
+  height: 0;
+}
+.p-strip-link {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  cursor: pointer;
+}
+.p-strip-link:focus-visible {
+  outline: 2px solid #ff2e55;
+  outline-offset: -2px;
+}
+
+/* The printer widget, drawn to the reference's dimensions */
+.p-widget {
+  position: fixed;
+  left: 10%;
+  top: calc(50% - 71px);
+  width: 203px;
+  height: 142px;
+  cursor: grab;
+  z-index: 100;
+  filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.2));
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.p-widget[data-dragging="true"] {
+  cursor: grabbing;
+}
+.p-widget-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.p-print-btn {
+  position: absolute;
+  left: 25px;
+  top: 48px;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  background: var(--p-btn);
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.p-print-btn:hover {
+  background: hsl(210, 3%, 70%);
+}
+.p-print-btn:active,
+.p-print-btn[data-busy="true"] {
+  background: hsl(210, 3%, 65%);
+}
+.p-print-btn svg {
+  width: 31px;
+  height: 32px;
+}
+.p-blends {
+  position: absolute;
+  left: -10px;
+  top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  z-index: -1;
+}
+.p-blend {
+  position: relative;
+  width: 10px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.p-blend::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 36px;
+  background: #d8d9da;
+  border: 1px solid var(--p-dark);
+  transition: left 0.1s ease-in-out;
+}
+.p-blend:hover::before {
+  left: 3px;
+}
+.p-blend:focus-visible::before {
+  outline: 2px solid #ff2e55;
+}
+.p-scrollers {
+  position: absolute;
+  left: 120px;
+  top: 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+.p-scroller {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 47px;
+  height: 29px;
+  background: var(--p-dial);
+  border: 1.5px solid var(--p-dark);
+  border-radius: 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 18px;
+  overflow: hidden;
+  user-select: none;
+  cursor: pointer;
+  color: #1f1f1f;
+}
+.p-scroller:focus-visible {
+  outline: 2px solid #ff2e55;
+}
+.p-scroller-options {
+  display: flex;
+  flex-direction: row;
+  transition: transform 160ms ease-out;
+}
+.p-scroller-option {
+  flex: 0 0 auto;
+  text-align: center;
+}
+.p-scroller-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 50% at center, #ffffff 25%, #a8a8a8 100%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.p-dial-label {
+  position: absolute;
+  left: 176px;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  color: var(--p-dark);
+  writing-mode: vertical-rl;
+  pointer-events: none;
+}
+
+/* Context menu */
+.p-context {
+  position: fixed;
+  width: 100px;
+  visibility: hidden;
+  background: #1f1f1f;
+  border: 1px solid #e3e3e3;
+  font-family: sans-serif;
+  font-size: 13px;
+  color: #e3e3e3;
+  filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.2));
+  z-index: 200;
+  user-select: none;
+  text-align: center;
+}
+.p-context[data-open="true"] {
+  visibility: visible;
+}
+.p-context button {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.p-context button:hover {
+  background: #363635;
+}
+
+/* Status line for screen readers and the honest mode note */
+.p-note {
+  position: fixed;
+  right: 16px;
+  bottom: 14px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #9a9a9a;
+  z-index: 50;
+}
+.p-note a {
+  color: #1f1f1f;
+  text-decoration: none;
+}
+.p-note a:hover {
+  text-decoration: underline;
+}
+
+@media only screen and (max-width: 768px) {
+  .p-widget {
+    transform: scale(0.8);
+    transform-origin: 0 0;
+    left: 6%;
+    top: auto;
+    bottom: 24px;
+  }
+  .p-paper {
+    top: 76px;
+    width: 92vw;
+  }
+  .p-stage {
+    padding-bottom: 60vh;
+  }
+  .p-nav {
+    left: 12px;
+    top: 12px;
+  }
+  .p-note {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .p-burger span,
+  .p-menu,
+  .p-scroller-options,
+  .p-blend::before {
+    transition: none;
+  }
+}

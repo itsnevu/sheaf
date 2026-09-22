@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { Mark } from "@/components/Logo";
 
 const NAV = [
-  { href: "/#how-it-works", label: "How it works" },
-  { href: "/#features", label: "Under the hood" },
+  { href: "/", label: "Home" },
+  
   { href: "/security", label: "Security" },
   { href: "/docs", label: "Docs" },
 ];

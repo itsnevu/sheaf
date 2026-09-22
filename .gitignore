@@ -14,3 +14,4 @@ test-results
 prisma/e2e.db*
 .agents/
 .claude/skills/
+.firecrawl/
