@@ -15,8 +15,19 @@ const NAV = [
 export default function SiteHeader({ signedIn, mode }: { signedIn: boolean; mode: "demo" | "real" }) {
   const [open, setOpen] = useState(false);
   const [strip, setStrip] = useState(true);
+  const [hidden, setHidden] = useState(false);
   const path = usePathname();
   useEffect(() => setOpen(false), [path]);
+  useEffect(() => {
+    let last = window.scrollY;
+    const on = () => {
+      const y = window.scrollY;
+      setHidden(y > last && y > 240 && !open);
+      last = y;
+    };
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, [open]);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -25,7 +36,7 @@ export default function SiteHeader({ signedIn, mode }: { signedIn: boolean; mode
   }, [open]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header className={`n-header-anim fixed inset-x-0 top-0 z-50 ${hidden ? "n-header-hide" : ""}`}>
       {strip && (
         <div className="n-strip" role="status">
           <div className="relative flex items-center justify-center px-10 py-[6px]">

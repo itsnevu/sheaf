@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Anek_Latin, Space_Mono } from "next/font/google";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
-import PointerGlow from "@/components/site/PointerGlow";
+import Effects from "@/components/site/Effects";
 import { getSession } from "@/lib/auth/session";
 import { executionMode } from "@/lib/config";
 
@@ -21,7 +21,8 @@ export default async function MarketingLayout({ children }: { children: ReactNod
       <SiteHeader signedIn={!!session} mode={executionMode()} />
       <main id="main">{children}</main>
       <SiteFooter />
-      <PointerGlow />
+      <Effects />
+      <div className="n-grain" aria-hidden="true" />
     </div>
   );
 }

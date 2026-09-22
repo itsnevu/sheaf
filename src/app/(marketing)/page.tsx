@@ -6,6 +6,8 @@ import GlowButton from "@/components/site/GlowButton";
 import HeadlineBlock from "@/components/site/HeadlineBlock";
 import Scenes from "@/components/site/Scenes";
 import ScrollCue from "@/components/site/ScrollCue";
+import MascotSlot from "@/components/site/MascotSlot";
+import { Reveal, Words } from "@/components/site/Effects";
 import { ExecuteArt, ReviewArt, ValidateArt } from "@/components/site/StepArt";
 import { CSV_LIMITS } from "@/lib/csv/parse";
 import { executionMode } from "@/lib/config";
@@ -73,7 +75,7 @@ export default function HomePage() {
       <ScrollCue />
 
       {/* ───────── Hero: statement left, artwork right ───────── */}
-      <section className="relative flex min-h-[100vh] w-full flex-col justify-center overflow-hidden px-4 pb-28 pt-32 md:px-16 lg:px-[8vw]">
+      <section className="n-spot relative flex min-h-[100vh] w-full flex-col justify-center overflow-hidden px-4 pb-28 pt-32 md:px-16 lg:px-[8vw]">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
           <div className="flex max-w-[720px] flex-col gap-y-6">
             <p className="flex flex-wrap gap-x-6 gap-y-2">
@@ -81,15 +83,15 @@ export default function HomePage() {
               <Badge>USDC · USDT · ETH</Badge>
             </p>
             <h1 className="n-lead text-white">
-              Don&rsquo;t re-key thirty transfers.
+              <Words text="Don’t re-key thirty transfers." />
               <br />
-              <span className="text-[var(--n-accent)]">Control one batch.</span>
+              <Words text="Control one batch." delay={320} className="n-shimmer" />
             </h1>
             <p className="n-mono-line">validate x route x approve x execute x reconcile</p>
             <p className="n-body max-w-[560px]">Sheaf lets finance teams prepare, approve, coordinate and reconcile many digital-asset payouts from one place. Every recipient is validated, routed, tracked and reconciled on its own. Private externally, transparent internally.</p>
             <div className="flex flex-row flex-wrap items-center gap-5">
-              <GlowButton href="/sign-up">Open app</GlowButton>
-              <GlowButton href="/#how-it-works" ghost>
+              <GlowButton href="/sign-up" className="n-magnet">Open app</GlowButton>
+              <GlowButton href="/#how-it-works" ghost className="n-magnet">
                 How it works
               </GlowButton>
             </div>
@@ -99,9 +101,11 @@ export default function HomePage() {
             <Cross className="absolute -right-6 -top-6" />
             <Cross className="absolute -bottom-6 -left-6" />
             <Cross className="absolute -bottom-6 -right-6" />
-            <div className="n-float relative aspect-square">
+            <div className="relative aspect-square">
+              <span className="n-orbit" aria-hidden="true" />
+              <span className="n-orbit n-orbit-2" aria-hidden="true" />
               <span className="absolute inset-[12%] rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,rgba(255,46,85,.45),rgba(104,82,253,.2)_55%,transparent_75%)] blur-2xl" aria-hidden="true" />
-              <Image src="/art/3d/mascot.webp" alt="Sheaf's courier: a small white robot holding a stack of cards bound with a pink band." width={900} height={900} priority sizes="(min-width: 1024px) 40vw, 90vw" className="relative w-full drop-shadow-[0_40px_80px_rgba(0,0,0,.5)]" />
+              <MascotSlot />
             </div>
           </div>
         </div>
@@ -129,7 +133,7 @@ export default function HomePage() {
             <Cross />
             <Cross />
           </span>
-          <p className="max-w-[720px] text-center text-[15px] leading-relaxed text-white md:text-base">Most payout tools ask you to trust a button. Sheaf asks for a CSV, shows you every row, every route and every fee, waits for a second person to approve the exact set, and then executes one payment at a time with a record of everything.</p>
+          <Reveal as="p" className="max-w-[720px] text-center text-[15px] leading-relaxed text-white md:text-base">Most payout tools ask you to trust a button. Sheaf asks for a CSV, shows you every row, every route and every fee, waits for a second person to approve the exact set, and then executes one payment at a time with a record of everything.</Reveal>
           <span className="n-cross-col shrink-0" aria-hidden="true">
             <Cross />
             <Cross />
@@ -146,7 +150,7 @@ export default function HomePage() {
           { h: ["Execute", "One payment at a time"], p: "Funding is confirmed, then each payment becomes its own job with an idempotency key. Failures are isolated and classified; retries are explicit and never sent while a previous attempt is pending or unknown. Results land in reconciliation with references, fees and an export.", cta: ["/docs#execution", "Execution and retries"], badges: ["Idempotent", "Retries", "Export"], art: <ExecuteArt />, flip: false },
         ].map((row) => (
           <div key={row.h[0]} className="flex w-full flex-col-reverse gap-y-8 md:flex-row md:items-center md:gap-x-[4vw]">
-            <div className={`z-[1] flex flex-1 shrink-0 flex-col gap-y-7 ${row.flip ? "md:order-2" : ""}`}>
+            <Reveal className={`z-[1] flex flex-1 shrink-0 flex-col gap-y-7 ${row.flip ? "md:order-2" : ""}`}>
               <h2 className="n-h2 text-center md:text-left">
                 {row.h[0]}
                 <br />
@@ -163,8 +167,8 @@ export default function HomePage() {
                   <Badge key={b}>{b}</Badge>
                 ))}
               </p>
-            </div>
-            <div className={`relative w-full flex-1 ${row.flip ? "md:order-1" : ""}`}>
+            </Reveal>
+            <div className={`n-tilt relative w-full flex-1 ${row.flip ? "md:order-1" : ""}`} data-parallax="0.08">
               <Cross className="absolute -left-5 -top-5" />
               <Cross className="absolute -right-5 -top-5" />
               <Cross className="absolute -bottom-5 -left-5" />
@@ -193,7 +197,7 @@ export default function HomePage() {
         <div className="mx-auto w-full md:max-w-[calc(90vw-6rem)] lg:max-w-[calc(90vw-12rem)]">
           <Carousel label="Features">
             {FEATURES.map((f) => (
-              <Link key={f.title} href="/app" className="n-glow n-feat group">
+              <Link key={f.title} href="/app" className="n-glow n-feat n-tilt group">
                 <h3 className="n-h3 min-h-[3.3em]">{f.title}</h3>
                 <div className="flex w-full justify-between px-2">
                   <Cross />

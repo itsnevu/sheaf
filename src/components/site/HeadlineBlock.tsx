@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Reveal } from "./Effects";
 
 function CrossColumn() {
   return (
@@ -16,10 +17,10 @@ export default function HeadlineBlock({ title, children, id, className = "" }: {
     <section id={id} className={`scroll-mt-24 px-4 py-20 md:py-28 ${className}`}>
       <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-8 md:flex-row">
         <CrossColumn />
-        <div className="flex w-full flex-col items-center gap-y-6 text-center">
+        <Reveal className="flex w-full flex-col items-center gap-y-6 text-center">
           <h2 className="n-h2 max-w-[22ch]">{title}</h2>
           {children && <div className="n-body max-w-[76vw] lg:max-w-[52vw]">{children}</div>}
-        </div>
+        </Reveal>
         <CrossColumn />
       </div>
     </section>

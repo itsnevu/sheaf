@@ -691,3 +691,186 @@
     animation: none;
   }
 }
+
+/* ── Effects layer ─────────────────────────────────────────────────────── */
+/* Words rise one after another (hero headline). */
+.n-words > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.6em) rotate(2deg);
+  animation: n-word-in 0.7s var(--n-ease-out) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes n-word-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Reveal on scroll. */
+.n-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s var(--n-ease-out),
+    transform 0.8s var(--n-ease-out);
+  transition-delay: var(--d, 0ms);
+}
+.n-reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+/* Cards tilt toward the pointer; buttons pull toward it. */
+.n-tilt {
+  transition: transform 0.35s var(--n-ease-out);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.n-magnet {
+  transition: transform 0.4s var(--n-ease-out);
+}
+/* Hero spotlight follows the pointer. */
+.n-spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(38% 38% at calc(var(--mx, 0.7) * 100%) calc(var(--my, 0.4) * 100%), rgba(255, 46, 85, 0.22) 0%, rgba(104, 82, 253, 0.12) 40%, transparent 70%);
+  transition: background 0.2s;
+}
+/* Film grain over the whole site, animated. */
+.n-grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: n-grain 0.6s steps(4) infinite;
+}
+@keyframes n-grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3%, 2%);
+  }
+  50% {
+    transform: translate(2%, -3%);
+  }
+  75% {
+    transform: translate(-1%, -1%);
+  }
+  100% {
+    transform: translate(3%, 1%);
+  }
+}
+/* Stage bars slide slowly; streaks breathe. */
+.n-stage::before {
+  animation: n-bars 14s linear infinite;
+}
+@keyframes n-bars {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 44px 0;
+  }
+}
+.n-stage::after {
+  animation: n-breathe 9s ease-in-out infinite;
+}
+@keyframes n-breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(2%);
+  }
+}
+/* Header slides away when scrolling down, back on scrolling up. */
+.n-header-hide {
+  transform: translateY(-100%);
+}
+header.n-header-anim {
+  transition: transform 0.45s var(--n-ease-out);
+}
+/* Orbit ring behind the hero mascot. */
+.n-orbit {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  animation: n-spin 40s linear infinite;
+  pointer-events: none;
+}
+.n-orbit::before,
+.n-orbit::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--n-accent);
+  box-shadow: 0 0 18px var(--n-accent);
+  top: -5px;
+  left: 50%;
+}
+.n-orbit::after {
+  background: var(--n-violet);
+  box-shadow: 0 0 18px var(--n-violet);
+  top: auto;
+  bottom: -5px;
+}
+.n-orbit-2 {
+  inset: -4%;
+  animation-direction: reverse;
+  animation-duration: 55s;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+@keyframes n-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Gradient text sweep on the accent word. */
+.n-shimmer > span {
+  background: linear-gradient(90deg, #ff2e55 0%, #ff8fa8 35%, #ff2e55 55%, #ff3ddb 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* keep the word-rise animation and add the sweep */
+  animation:
+    n-word-in 0.7s var(--n-ease-out) forwards,
+    n-shimmer 6s linear infinite;
+  animation-delay: var(--d, 0ms), 0ms;
+}
+@keyframes n-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-words > span,
+  .n-reveal {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .n-grain,
+  .n-orbit,
+  .n-shimmer,
+  .n-stage::before,
+  .n-stage::after {
+    animation: none;
+  }
+  .n-tilt,
+  .n-magnet {
+    transform: none !important;
+  }
+}
