@@ -118,7 +118,8 @@ function WidgetBody() {
   );
 }
 
-export default function Printer({ pixelFont, autoPrint = true }: { pixelFont: string; autoPrint?: boolean }) {
+/** Nothing prints until the power button is pressed, exactly like the reference instrument. */
+export default function Printer({ pixelFont }: { pixelFont: string }) {
   const router = useRouter();
   const click = useClicks();
   const [seriesIdx, setSeriesIdx] = useState(0);
@@ -209,16 +210,6 @@ export default function Printer({ pixelFont, autoPrint = true }: { pixelFont: st
     const { series: s, work } = findWork(seriesIdx, workIdx);
     void print(work ?? missingWork(s, WORK_NUMBERS[workIdx]!));
   };
-
-  useEffect(() => {
-    if (!autoPrint) return;
-    const t = setTimeout(() => {
-      const { work } = findWork(0, 0);
-      if (work) void print(work);
-    }, 700);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Dragging the printer around the sheet.
   const onWidgetPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
