@@ -296,6 +296,7 @@ export default function Printer({ pixelFont, autoPrint = true }: { pixelFont: st
           ref={paperRef}
           className="p-paper"
           data-empty={empty}
+          data-busy={busy}
           aria-label="Printed roll"
           onContextMenu={(e) => {
             if (empty) return;
@@ -303,6 +304,7 @@ export default function Printer({ pixelFont, autoPrint = true }: { pixelFont: st
             setCtxMenu({ x: e.clientX, y: e.clientY });
           }}
         >
+          <span className="p-head" aria-hidden="true" />
           <canvas ref={canvasRef} width={LOGICAL_WIDTH} height={0} role="img" aria-label={strips.length ? `Printed: ${strips.map((s) => `${s.code} ${s.title}`).join("; ")}` : "Nothing printed yet"} />
           {strips.map((s) =>
             s.href ? (
@@ -312,16 +314,17 @@ export default function Printer({ pixelFont, autoPrint = true }: { pixelFont: st
         </div>
       </div>
 
-      <div ref={widgetRef} className="p-widget" data-dragging={dragging} onPointerDown={onWidgetPointerDown} onPointerMove={onWidgetPointerMove} onPointerUp={onWidgetPointerUp} onPointerCancel={onWidgetPointerUp} role="group" aria-label="Printer">
+      <div ref={widgetRef} className="p-widget" data-dragging={dragging} data-busy={busy} onPointerDown={onWidgetPointerDown} onPointerMove={onWidgetPointerMove} onPointerUp={onWidgetPointerUp} onPointerCancel={onWidgetPointerUp} role="group" aria-label="Printer">
         <WidgetBody />
+        <span className="p-led" data-busy={busy} style={{ background: INKS[inkIdx], color: INKS[inkIdx] }} aria-hidden="true" />
         <div className="p-blends">
           <button type="button" className="p-blend" aria-label="Ink up" onClick={() => { click("dial"); setInkIdx((i) => (i + 1) % INKS.length); setStatus(`Ink ${(inkIdx + 1) % INKS.length + 1} of ${INKS.length}`); }} />
           <button type="button" className="p-blend" aria-label="Ink down" onClick={() => { click("dial"); setInkIdx((i) => (i - 1 + INKS.length) % INKS.length); }} />
         </div>
         <button type="button" className="p-print-btn" data-busy={busy} aria-label={`Print ${series.letter}-${WORK_NUMBERS[workIdx]}`} onClick={printSelected} disabled={busy}>
           <svg viewBox="0 0 31 32" fill="none" aria-hidden="true">
-            <path d="M15.4 0v15.5" stroke="#f1f2f2" strokeWidth="1.2" />
-            <path d="M14.5 1.6C6.8 2.1 0.5 8.6 0.5 16.4c0 8.2 6.7 14.9 14.9 14.9s14.9-6.7 14.9-14.9c0-7.8-6.3-14.3-14.1-14.8" stroke="#f1f2f2" strokeWidth="1.2" />
+            <path d="M15.4 0v15.5" stroke={INKS[inkIdx]} strokeWidth="1.2" />
+            <path d="M14.5 1.6C6.8 2.1 0.5 8.6 0.5 16.4c0 8.2 6.7 14.9 14.9 14.9s14.9-6.7 14.9-14.9c0-7.8-6.3-14.3-14.1-14.8" stroke={INKS[inkIdx]} strokeWidth="1.2" />
           </svg>
         </button>
         <div className="p-scrollers">

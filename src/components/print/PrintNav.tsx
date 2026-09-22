@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ITEMS = [
@@ -17,6 +17,23 @@ const ITEMS = [
 export default function PrintNav({ signedIn = false }: { signedIn?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  useEffect(() => {
+    document.querySelector(".site-print")?.classList.remove("is-leaving");
+  }, [pathname]);
+  const leave = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    setOpen(false);
+    const site = document.querySelector(".site-print");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!site || reduced) {
+      router.push(href);
+      return;
+    }
+    site.classList.add("is-leaving");
+    window.setTimeout(() => router.push(href), 170);
+  };
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -37,13 +54,13 @@ export default function PrintNav({ signedIn = false }: { signedIn?: boolean }) {
         <span />
       </button>
       <nav id="p-menu" className="p-menu" data-open={open} aria-label="Primary">
-        {items.map((i) =>
+        {items.map((i, idx) =>
           pathname === i.href ? (
-            <span key={i.href} className="is-current" aria-current="page">
+            <span key={i.href} className="is-current" aria-current="page" style={{ "--i": idx } as React.CSSProperties}>
               {i.label}
             </span>
           ) : (
-            <Link key={i.href} href={i.href} onClick={() => setOpen(false)}>
+            <Link key={i.href} href={i.href} onClick={(e) => leave(e, i.href)} style={{ "--i": idx } as React.CSSProperties}>
               {i.label}
             </Link>
           ),
