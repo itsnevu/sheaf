@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import HomeDeck from "@/components/print/HomeDeck";
 import Printer from "@/components/print/Printer";
 import { pixel } from "@/components/print/fonts";
 
@@ -12,6 +13,7 @@ export default function HomePage() {
     <>
       <h1 className="sr-only">Sheaf. The private execution desk for Robinhood Chain.</h1>
       <Printer pixelFont={pixel.style.fontFamily} />
+      <HomeDeck />
     </>
   );
 }

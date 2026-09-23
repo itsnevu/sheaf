@@ -1,0 +1,744 @@
+/* The bench under the instruments (every print page) and the index around the printer (home). */
+
+/* ---------- Bench ---------- */
+.bd {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  color: #1f1f1f;
+}
+.bd-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, #ececec 1px, transparent 1px),
+    linear-gradient(to bottom, #ececec 1px, transparent 1px),
+    linear-gradient(to right, #f6f6f6 1px, transparent 1px),
+    linear-gradient(to bottom, #f6f6f6 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  background-position: 10px 10px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 45%, #000 55%, rgba(0, 0, 0, 0.35) 100%);
+  mask-image: radial-gradient(ellipse at 50% 45%, #000 55%, rgba(0, 0, 0, 0.35) 100%);
+}
+.bd-ruler {
+  position: absolute;
+  background-color: #ffffff;
+}
+.bd-ruler-x {
+  left: 10px;
+  right: 0;
+  top: 0;
+  height: 10px;
+  border-bottom: 1px solid #d9d9d9;
+  background-image:
+    linear-gradient(to right, #1f1f1f 1px, transparent 1px),
+    linear-gradient(to right, #9a9a9a 1px, transparent 1px);
+  background-size: 120px 10px, 24px 4px;
+  background-repeat: repeat-x;
+  background-position: 0 0, 0 0;
+}
+.bd-ruler-y {
+  left: 0;
+  top: 10px;
+  bottom: 0;
+  width: 10px;
+  border-right: 1px solid #d9d9d9;
+  background-image:
+    linear-gradient(to bottom, #1f1f1f 1px, transparent 1px),
+    linear-gradient(to bottom, #9a9a9a 1px, transparent 1px);
+  background-size: 10px 120px, 4px 24px;
+  background-repeat: repeat-y;
+  background-position: 0 0, 0 0;
+}
+.bd-crop {
+  position: absolute;
+  color: #bdbdbd;
+}
+.bd-crop.tl {
+  display: none;
+}
+.bd-crop.tr {
+  right: 18px;
+  top: 118px;
+}
+.bd-crop.bl {
+  left: 22px;
+  bottom: 64px;
+}
+.bd-crop.br {
+  right: 18px;
+  bottom: 64px;
+}
+.bd-plate {
+  position: absolute;
+  right: 20px;
+  top: 22px;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0;
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+.bd-plate > div {
+  display: contents;
+}
+.bd-plate dt,
+.bd-plate dd {
+  padding: 5px 8px;
+  border-bottom: 1px solid #e3e3e3;
+}
+.bd-plate > div:last-child dt,
+.bd-plate > div:last-child dd {
+  border-bottom: 0;
+}
+.bd-plate dt {
+  color: #9a9a9a;
+  border-right: 1px solid #e3e3e3;
+}
+.bd-plate dd {
+  margin: 0;
+  color: #1f1f1f;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.bd-clock::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  background: #ff0000;
+  vertical-align: 1px;
+  animation: bd-blink 1s steps(2, start) infinite;
+}
+.bd-sheet {
+  position: absolute;
+  left: 22px;
+  bottom: 14px;
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #9a9a9a;
+}
+.bd-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  background: #1f1f1f;
+  vertical-align: 1px;
+}
+/* The instruments sit above the bench. */
+.site-print > #main {
+  position: relative;
+  z-index: 1;
+}
+@keyframes bd-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* ---------- Home: cover sheet ---------- */
+.h-cover {
+  position: absolute;
+  left: 50%;
+  top: 104px;
+  width: min(640px, 92vw);
+  transform: translateX(-50%);
+  z-index: 1;
+  padding-bottom: 120px;
+  transition: opacity 260ms ease, transform 260ms ease, visibility 0s linear 0s;
+}
+.site-print:has(.p-paper[data-empty="false"]) .h-cover,
+.site-print:has(.p-paper[data-busy="true"]) .h-cover {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -14px);
+  transition: opacity 200ms ease, transform 200ms ease, visibility 0s linear 200ms;
+}
+.h-eyebrow {
+  margin: 0 0 18px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #9a9a9a;
+}
+.h-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.h-title {
+  margin: 0;
+  font-size: clamp(32px, 4.4vw, 62px);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+.h-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.3px #1f1f1f;
+}
+.h-red {
+  color: #ff0000;
+  -webkit-text-stroke: 0;
+}
+.h-pin {
+  position: relative;
+  flex: none;
+  margin: 6px 0 0;
+  width: 168px;
+  padding: 10px 10px 8px;
+  background: #ffffff;
+  border: 1px solid #1f1f1f;
+  transform: rotate(3deg);
+  box-shadow: 4px 5px 0 #1f1f1f;
+}
+.h-pin img {
+  display: block;
+  width: 146px;
+  height: auto;
+  margin: 0 auto;
+}
+.h-pin figcaption {
+  margin-top: 6px;
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  color: #4a4a4a;
+  border-top: 1px dashed #bdbdbd;
+  padding-top: 6px;
+}
+.h-tape {
+  position: absolute;
+  width: 54px;
+  height: 16px;
+  background: rgba(255, 0, 0, 0.18);
+  border-left: 1px dashed rgba(255, 0, 0, 0.45);
+  border-right: 1px dashed rgba(255, 0, 0, 0.45);
+}
+.h-tape-a {
+  left: -16px;
+  top: -6px;
+  transform: rotate(-32deg);
+}
+.h-tape-b {
+  right: -16px;
+  top: -6px;
+  transform: rotate(28deg);
+}
+.h-lede {
+  margin: 22px 0 0;
+  max-width: 540px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #4a4a4a;
+}
+.h-block {
+  margin-top: 34px;
+}
+.h-label {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #1f1f1f;
+}
+.h-label span:last-child:not(:first-child) {
+  color: #9a9a9a;
+}
+.h-flow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+}
+.h-flow li {
+  position: relative;
+  padding: 10px 8px 11px;
+  border-right: 1px solid #1f1f1f;
+  transition: background 200ms ease, color 200ms ease;
+}
+.h-flow li:last-child {
+  border-right: 0;
+}
+.h-flow li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  background: #ffffff;
+  border-top: 1px solid #1f1f1f;
+  border-right: 1px solid #1f1f1f;
+  transform: rotate(45deg);
+  z-index: 1;
+}
+.h-flow li[data-done="true"] {
+  background: #f2f2f2;
+}
+.h-flow li[data-on="true"] {
+  background: #1f1f1f;
+  color: #ffffff;
+}
+.h-flow li[data-on="true"]::after {
+  background: #1f1f1f;
+}
+.h-flow-n {
+  display: block;
+  font-size: 10px;
+  color: #9a9a9a;
+}
+.h-flow li[data-on="true"] .h-flow-n {
+  color: #ff0000;
+}
+.h-flow-s {
+  display: block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.h-ops {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #1f1f1f;
+  border-left: 1px solid #1f1f1f;
+  background: #ffffff;
+}
+.h-ops li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "kind code" "line line" "ct ct";
+  gap: 6px 10px;
+  padding: 12px 12px 12px;
+  border-right: 1px solid #1f1f1f;
+  border-bottom: 1px solid #1f1f1f;
+  transition: background 150ms ease;
+}
+.h-ops li:hover {
+  background: #ffe9e9;
+}
+.h-op-code {
+  grid-area: code;
+  font-size: 10px;
+  color: #9a9a9a;
+}
+.h-op-kind {
+  grid-area: kind;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.h-op-kind::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  background: #ff0000;
+  vertical-align: 1px;
+}
+.h-op-line {
+  grid-area: line;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #4a4a4a;
+}
+.h-op-ct {
+  grid-area: ct;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #1f1f1f;
+  border-top: 1px dashed #d9d9d9;
+  padding-top: 6px;
+}
+.h-vis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+}
+.h-vis > div {
+  padding: 12px;
+}
+.h-vis > div + div {
+  border-left: 1px solid #1f1f1f;
+  background: #1f1f1f;
+  color: #ffffff;
+}
+.h-vis > div + div .h-label {
+  color: #ffffff;
+}
+.h-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11.5px;
+  line-height: 1.9;
+}
+.h-list li::before {
+  content: "+ ";
+  color: #9a9a9a;
+}
+.h-list-x li::before {
+  content: "× ";
+  color: #ff0000;
+}
+
+/* ---------- Home: around the printer ---------- */
+.h-spec,
+.h-hint {
+  position: fixed;
+  left: 10%;
+  margin: 0;
+  z-index: 2;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+  color: #9a9a9a;
+  transition: opacity 200ms ease;
+}
+.h-spec {
+  top: calc(50% - 142px);
+  padding-left: 10px;
+  border-left: 2px solid #ff0000;
+}
+.h-spec b {
+  color: #1f1f1f;
+}
+.h-hint {
+  top: calc(50% + 90px);
+  color: #1f1f1f;
+  font-weight: 700;
+}
+.h-hint-arrow {
+  display: inline-block;
+  color: #ff0000;
+  animation: h-nudge 1.2s ease-in-out infinite;
+}
+.site-print:has(.p-paper[data-empty="false"]) .h-hint,
+.site-print:has(.p-paper[data-busy="true"]) .h-hint {
+  opacity: 0;
+}
+@keyframes h-nudge {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.h-log {
+  position: fixed;
+  right: 20px;
+  top: 150px;
+  width: 262px;
+  z-index: 2;
+  background: #ffffff;
+  border: 1px solid #1f1f1f;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.h-log-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 8px 10px;
+  background: #1f1f1f;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.h-demo {
+  padding: 0 5px;
+  background: #ff0000;
+  color: #ffffff;
+}
+.h-log ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h-log li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 8px;
+  padding: 8px 10px;
+  border-bottom: 1px dashed #d9d9d9;
+}
+.h-log li[data-new="true"] {
+  animation: h-in 600ms ease;
+}
+@keyframes h-in {
+  from {
+    background: #ffe9e9;
+  }
+}
+.h-log-n {
+  font-weight: 700;
+}
+.h-log-st {
+  justify-self: end;
+  padding: 0 4px;
+  border: 1px solid #1f1f1f;
+  font-size: 9px;
+}
+.h-log-st[data-st="EXECUTED"] {
+  background: #1f1f1f;
+  color: #ffffff;
+}
+.h-log-st[data-st="RECONCILED"] {
+  border-color: #1f7a4d;
+  color: #1f7a4d;
+}
+.h-log-to,
+.h-log-amt {
+  white-space: nowrap;
+}
+.h-log-to {
+  color: #4a4a4a;
+}
+.h-log-amt {
+  justify-self: end;
+  font-variant-numeric: tabular-nums;
+}
+.h-log-foot {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 9px;
+  line-height: 1.6;
+  color: #9a9a9a;
+}
+
+.h-tape-run {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: #1f1f1f;
+  color: #ffffff;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}
+.h-tape-run::before {
+  content: "DEMO LEGS";
+  position: relative;
+  z-index: 1;
+  flex: none;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: #ff0000;
+  font-weight: 700;
+}
+.h-tape-track {
+  display: flex;
+  flex: none;
+  white-space: nowrap;
+  animation: h-run 60s linear infinite;
+}
+.h-tape-track span {
+  padding: 0 18px;
+}
+.h-tape-track b {
+  color: #ff0000;
+}
+.h-tape-track i {
+  font-style: normal;
+  color: #4a4a4a;
+  margin-left: 18px;
+}
+@keyframes h-run {
+  to {
+    transform: translateX(-50%);
+  }
+}
+/* The foot tape takes the bottom edge on the home page. */
+.site-print:has(.h-tape-run) .bd-sheet {
+  bottom: 40px;
+}
+.site-print:has(.h-tape-run) .p-note {
+  bottom: 40px;
+}
+
+@media (max-width: 1240px) {
+  .h-log {
+    display: none;
+  }
+}
+@media (max-width: 1100px) {
+  .h-spec,
+  .h-hint {
+    display: none;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .bd-plate {
+    right: 12px;
+    top: 12px;
+    font-size: 9px;
+  }
+  .bd-plate > div:nth-child(2),
+  .bd-plate > div:nth-child(3) {
+    display: none;
+  }
+  .bd-sheet,
+  .bd-crop,
+  .h-tape-run {
+    display: none;
+  }
+  .h-cover {
+    top: 88px;
+    padding-bottom: 180px;
+  }
+  .h-head {
+    flex-direction: column;
+  }
+  .h-pin {
+    align-self: flex-end;
+    margin-top: -8px;
+    width: 140px;
+  }
+  .h-pin img {
+    width: 118px;
+  }
+  .h-flow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .h-flow li:nth-child(3) {
+    border-right: 0;
+  }
+  .h-flow li:nth-child(-n + 3) {
+    border-bottom: 1px solid #1f1f1f;
+  }
+  .h-flow li:nth-child(3)::after {
+    display: none;
+  }
+  .h-ops,
+  .h-vis {
+    grid-template-columns: 1fr;
+  }
+  .h-vis > div + div {
+    border-left: 0;
+    border-top: 1px solid #1f1f1f;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bd-clock::before,
+  .h-hint-arrow,
+  .h-tape-track,
+  .h-log li[data-new="true"] {
+    animation: none;
+  }
+}
+
+/* ---------- Other sheets: index card and stamp ---------- */
+.bd-card {
+  position: absolute;
+  left: 34px;
+  top: 50%;
+  width: 212px;
+  transform: translateY(-50%) rotate(-1.5deg);
+  background: #ffffff;
+  border: 1px solid #1f1f1f;
+  box-shadow: 4px 5px 0 #1f1f1f;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 21px, #f1d5d5 21px 22px);
+  background-position: 0 30px;
+}
+.bd-card-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 8px 10px;
+  background: #1f1f1f;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.bd-card ol {
+  margin: 0;
+  padding: 6px 10px;
+  list-style: none;
+}
+.bd-card li {
+  line-height: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bd-card li span {
+  color: #9a9a9a;
+  margin-right: 6px;
+}
+.bd-card-sheets li[data-on="true"] {
+  font-weight: 700;
+}
+.bd-card-sheets li[data-on="true"] span {
+  color: #ff0000;
+}
+.bd-card-sheets li[data-on="true"]::after {
+  content: " ◀";
+  color: #ff0000;
+}
+.bd-card-sub {
+  margin: 0;
+  padding: 6px 10px 0;
+  border-top: 1px solid #1f1f1f;
+  color: #9a9a9a;
+  letter-spacing: 0.12em;
+}
+.bd-card-foot {
+  margin: 0;
+  padding: 8px 10px;
+  border-top: 1px dashed #bdbdbd;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.bd-stamp {
+  position: absolute;
+  right: 44px;
+  bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border: 3px double rgba(255, 0, 0, 0.75);
+  color: rgba(255, 0, 0, 0.8);
+  transform: rotate(-9deg);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+}
+.bd-stamp b {
+  font-size: 15px;
+  letter-spacing: 0.16em;
+}
+@media (max-width: 1240px) {
+  .bd-card,
+  .bd-stamp {
+    display: none;
+  }
+}
