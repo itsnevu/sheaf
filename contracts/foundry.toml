@@ -1,0 +1,42 @@
+# SheafBatchPayer: Foundry project. Dependencies are pinned in soldeer.lock (versions and
+# checksums) and restored with `forge soldeer install`; nothing under dependencies/ is committed.
+[profile.default]
+src = "src"
+out = "out"
+test = "test"
+script = "script"
+libs = ["dependencies"]
+solc_version = "0.8.28"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 10000
+# Reproducible bytecode: no metadata hash, so the CREATE2 address depends only on the code.
+bytecode_hash = "none"
+cbor_metadata = false
+remappings = [
+  "@openzeppelin/contracts/=dependencies/@openzeppelin-contracts-5.4.0/",
+  "forge-std/=dependencies/forge-std-1.11.0/src/",
+]
+# The deploy script writes deployments/<chainId>.json (or $SHEAF_DEPLOYMENTS_OUT) for the app.
+fs_permissions = [{ access = "read-write", path = "../deployments" }]
+
+[fuzz]
+runs = 1000
+seed = "0x5eaf"
+
+[invariant]
+runs = 256
+depth = 64
+fail_on_revert = true
+
+[dependencies]
+"@openzeppelin-contracts" = "5.4.0"
+forge-std = "1.11.0"
+
+[soldeer]
+remappings_generate = false
+remappings_regenerate = false
+
+[lint]
+# Test helpers cast freely on purpose; the contract under src/ is linted.
+ignore = ["test/**/*.sol"]
