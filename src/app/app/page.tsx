@@ -47,6 +47,21 @@ export default function OverviewPage() {
               </div>
             ))}
       </section>
+      {d && d.stats.totalLegs > 0 && (
+        <div className="ov-bar" role="img" aria-label={`Legs: ${d.stats.completed} completed, ${d.stats.pending} pending, ${d.stats.failed} failed of ${d.stats.totalLegs}`}>
+          <div className="ov-bar-track">
+            <span className="ov-bar-seg" data-k="completed" style={{ width: `${(d.stats.completed / d.stats.totalLegs) * 100}%` }} />
+            <span className="ov-bar-seg" data-k="pending" style={{ width: `${(d.stats.pending / d.stats.totalLegs) * 100}%` }} />
+            <span className="ov-bar-seg" data-k="failed" style={{ width: `${(d.stats.failed / d.stats.totalLegs) * 100}%` }} />
+          </div>
+          <p className="ov-bar-legend">
+            <span data-k="completed">COMPLETED {d.stats.completed}</span>
+            <span data-k="pending">PENDING {d.stats.pending}</span>
+            <span data-k="failed">FAILED {d.stats.failed}</span>
+            <span>{d.stats.totalLegs} LEGS · {Math.round((d.stats.completed / d.stats.totalLegs) * 100)}% SETTLED{d.mode === "demo" ? " · DEMO" : ""}</span>
+          </p>
+        </div>
+      )}
       {q.isError && (
         <p className="mt-3 error-text" role="alert">
           {(q.error as Error).message}

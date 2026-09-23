@@ -4,14 +4,24 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import WalletSignIn from "@/components/auth/WalletSignIn";
+import { Mark } from "@/components/Logo";
 import { Button, Input } from "@/components/ui";
 import { api } from "@/lib/client";
+
+/** The four seeded roles of the demo desk, with what each may do. */
+const ROLES: Array<{ who: string; role: string; code: string; can: string }> = [
+  { who: "owner", role: "OWNER", code: "R1", can: "Everything: roles, caps, funding, approval, withdrawal." },
+  { who: "desk", role: "DESK OPERATOR", code: "R2", can: "Prepare, fund, execute, retry, reconcile, export." },
+  { who: "approver", role: "APPROVER", code: "R3", can: "Approve what someone else prepared. Export." },
+  { who: "viewer", role: "VIEWER", code: "R4", can: "Read only. Addresses are redacted." },
+];
 
 function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [picked, setPicked] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -33,10 +43,39 @@ function SignInForm() {
   const demo = (who: string) => {
     setEmail(`${who}@halden.example`);
     setPassword("sheaf-demo-2026");
+    setPicked(who);
   };
+  const badge = ROLES.find((r) => r.who === picked);
 
   return (
     <>
+      <aside className="x-badge" aria-label="Demo desk access badge">
+        <p className="x-badge-head"><span>ACCESS BADGE</span><span>HALDEN DESK · DEMO</span></p>
+        <div className="x-badge-id">
+          <span className="x-badge-photo"><Mark size={44} inverted /></span>
+          <dl>
+            <div><dt>HOLDER</dt><dd>{badge ? `${badge.who}@halden.example` : "— pick a role —"}</dd></div>
+            <div><dt>ROLE</dt><dd>{badge?.role ?? "—"}</dd></div>
+            <div><dt>DESK</dt><dd>SH-4663 · HALDEN</dd></div>
+          </dl>
+        </div>
+        <p className="x-badge-sub">ROLES ON THIS DESK</p>
+        <ol className="x-badge-roles">
+          {ROLES.map((r) => (
+            <li key={r.who} data-on={picked === r.who}>
+              <button type="button" onClick={() => demo(r.who)} aria-pressed={picked === r.who}>
+                <span className="x-badge-code">{r.code}</span>
+                <span className="x-badge-role">{r.role}</span>
+                <span className="x-badge-can">{r.can}</span>
+                <span className="x-badge-use">USE</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+        <div className="x-badge-bar" aria-hidden="true" />
+        <p className="x-badge-foot">EVERYTHING ON THE DEMO DESK IS SIMULATED AND LABELLED AS SUCH. NO FUNDS MOVE.</p>
+      </aside>
+      <div className="x-box">
       <h1 className="title-1">Sign in</h1>
       <p className="mt-2 text-[0.9375rem] text-ink-soft">Sign a message with your wallet, or use desk credentials.</p>
       <div className="mt-6">
@@ -67,6 +106,7 @@ function SignInForm() {
           Start a desk
         </Link>
       </p>
+      </div>
     </>
   );
 }

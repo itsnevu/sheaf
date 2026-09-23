@@ -30,7 +30,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <>
+    <div className="x-box">
       <h1 className="title-1">Start a desk</h1>
       <div className="mt-6">
         <WalletSignIn />
@@ -57,6 +57,6 @@ export default function SignUpPage() {
           Sign in
         </Link>
       </p>
-    </>
+    </div>
   );
 }

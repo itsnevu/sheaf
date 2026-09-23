@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import Backdrop from "@/components/print/Backdrop";
 import type { Capability } from "@/lib/auth/permissions";
 import { statusLabel } from "@/lib/domain/states";
 import { api } from "@/lib/client";
@@ -61,6 +62,7 @@ export default function AppShell({ user, capabilities, mode, demoBanner, childre
   return (
     <Ctx.Provider value={value}>
       <div className="site-print">
+        <Backdrop variant="desk" mode={mode} role={statusLabel(user.role)} />
         <div className="p-nav">
           <button type="button" className="p-burger" aria-expanded={open} aria-controls="app-nav" aria-label={open ? "Close navigation" : "Open navigation"} onClick={() => setOpen((o) => !o)}>
             <span />

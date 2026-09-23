@@ -160,3 +160,307 @@
     padding-top: 80px;
   }
 }
+
+/* ---------- Numbered index sheets, the protection table and the colophon ---------- */
+.x-numbered {
+  counter-reset: sec;
+}
+.x-numbered .x-section {
+  position: relative;
+  counter-increment: sec;
+}
+.x-numbered .x-h2::before {
+  content: "§" counter(sec, decimal-leading-zero);
+  position: absolute;
+  left: -64px;
+  top: 2px;
+  width: 48px;
+  text-align: right;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #ff0000;
+}
+.x-table {
+  width: 100%;
+  border: 1px solid #1f1f1f;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.x-table th,
+.x-table td {
+  padding: 10px 14px;
+  border-top: 1px solid #e3e3e3;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+}
+.x-table thead th {
+  border-top: 0;
+  border-bottom: 1px solid #1f1f1f;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+}
+.x-table tbody tr:hover {
+  background: #f7f7f7;
+}
+.x-stamp {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 1px solid #1f1f1f;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.x-stamp[data-public="true"] {
+  border-color: #ff0000;
+  color: #ff0000;
+}
+.x-colophon dl {
+  margin: 0;
+  border: 1px solid #1f1f1f;
+  font-size: 13px;
+}
+.x-colophon dl > div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid #e3e3e3;
+}
+.x-colophon dl > div:first-child {
+  border-top: 0;
+}
+.x-colophon dt {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  padding-top: 2px;
+}
+.x-colophon dd {
+  margin: 0;
+}
+
+/* ---------- Sign in: the access badge beside the form ---------- */
+.x-auth {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px;
+}
+.x-auth > .x-box {
+  margin: 0;
+}
+.x-badge {
+  width: min(360px, 100%);
+  background: #ffffff;
+  border: 1px solid #1f1f1f;
+  box-shadow: 5px 6px 0 #1f1f1f;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.x-badge-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 8px 12px;
+  background: #1f1f1f;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.x-badge-id {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #1f1f1f;
+}
+.x-badge-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: #1f1f1f;
+}
+.x-badge-id dl {
+  margin: 0;
+  align-self: center;
+}
+.x-badge-id dl > div {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 8px;
+  line-height: 1.6;
+}
+.x-badge-id dt {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: #9a9a9a;
+  padding-top: 2px;
+}
+.x-badge-id dd {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.x-badge-sub {
+  margin: 0;
+  padding: 8px 12px 0;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: #9a9a9a;
+}
+.x-badge-roles {
+  margin: 0;
+  padding: 6px 0 0;
+  list-style: none;
+}
+.x-badge-roles button {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  grid-template-areas: "code role use" "code can use";
+  gap: 2px 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-top: 1px dashed #e3e3e3;
+  background: transparent;
+  color: #1f1f1f;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.x-badge-roles button:hover,
+.x-badge-roles li[data-on="true"] button {
+  background: #ffe9e9;
+}
+.x-badge-roles li[data-on="true"] button {
+  box-shadow: inset 4px 0 0 #ff0000;
+}
+.x-badge-code {
+  grid-area: code;
+  color: #ff0000;
+  font-weight: 700;
+}
+.x-badge-role {
+  grid-area: role;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.x-badge-can {
+  grid-area: can;
+  color: #4a4a4a;
+  line-height: 1.45;
+}
+.x-badge-use {
+  grid-area: use;
+  align-self: center;
+  padding: 3px 8px;
+  border: 1px solid #1f1f1f;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+.x-badge-roles button:hover .x-badge-use,
+.x-badge-roles li[data-on="true"] .x-badge-use {
+  background: #1f1f1f;
+  color: #ffffff;
+}
+.x-badge-bar {
+  height: 28px;
+  margin: 10px 12px 0;
+  background: repeating-linear-gradient(to right, #1f1f1f 0 2px, transparent 2px 4px, #1f1f1f 4px 5px, transparent 5px 9px, #1f1f1f 9px 12px, transparent 12px 14px);
+}
+.x-badge-foot {
+  margin: 0;
+  padding: 8px 12px 10px;
+  font-size: 9px;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  color: #9a9a9a;
+}
+
+/* ---------- Desk: page codes and the leg status bar ---------- */
+.ph-code {
+  color: #ff0000;
+}
+.ov-bar {
+  margin-top: 12px;
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+  padding: 10px 12px;
+}
+.ov-bar-track {
+  display: flex;
+  height: 10px;
+  background: #f2f2f2;
+  overflow: hidden;
+}
+.ov-bar-seg {
+  display: block;
+  height: 100%;
+  transition: width 400ms ease;
+}
+.ov-bar-seg[data-k="completed"] {
+  background: #1f1f1f;
+}
+.ov-bar-seg[data-k="pending"] {
+  background: #ff0000;
+}
+.ov-bar-seg[data-k="failed"] {
+  background: repeating-linear-gradient(135deg, #b42318 0 3px, #ffffff 3px 6px);
+}
+.ov-bar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 8px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #9a9a9a;
+}
+.ov-bar-legend span::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  vertical-align: 0;
+  background: #d9d9d9;
+}
+.ov-bar-legend span[data-k="completed"]::before {
+  background: #1f1f1f;
+}
+.ov-bar-legend span[data-k="pending"]::before {
+  background: #ff0000;
+}
+.ov-bar-legend span[data-k="failed"]::before {
+  background: repeating-linear-gradient(135deg, #b42318 0 2px, #ffffff 2px 4px);
+}
+.ov-bar-legend span:last-child::before {
+  display: none;
+}
+.ov-bar-legend span:last-child {
+  margin-left: auto;
+  color: #1f1f1f;
+}
+@media only screen and (max-width: 768px) {
+  .x-numbered .x-h2::before {
+    position: static;
+    display: block;
+    width: auto;
+    text-align: left;
+    margin-bottom: 2px;
+  }
+  .x-badge {
+    box-shadow: 3px 4px 0 #1f1f1f;
+  }
+}

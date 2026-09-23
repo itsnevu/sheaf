@@ -9,11 +9,21 @@ const SECTIONS: [string, string[]][] = [
   ["__Retention", ["Records are kept until deleted by an organisation owner or the operator.", "Audit events are append-only by application design.", "What has been written to Robinhood Chain cannot be deleted by anyone."]],
 ];
 
+/** Each kind of record, how it is protected at rest, and how long it lives. Stamps, not prose. */
+const PROTECTION: Array<[string, string, string]> = [
+  ["Labels, memos, CSV originals", "ENCRYPTED AT REST", "Until deleted by an owner or operator"],
+  ["Passwords", "SCRYPT HASH", "Never stored in clear"],
+  ["Session tokens", "HASHED", "Until sign-out or expiry"],
+  ["Unrevealed plan legs", "SALTED · NOT PUBLISHED", "Until executed or the plan is cancelled"],
+  ["Audit events", "APPEND-ONLY", "Never edited, never deleted by the app"],
+  ["Writes to Robinhood Chain", "PUBLIC · PERMANENT", "Cannot be deleted by anyone"],
+];
+
 /** The index look: a white sheet, the mark top-left, a mono column of text, contact bottom-right. */
 export default function PrivacyPage() {
   return (
     <div className="x-page">
-      <div className="x-col">
+      <div className="x-col x-numbered">
         <h1 className="x-title">PRIV_### · Privacy notice</h1>
         <p className="x-lead">What this software stores. This notice describes the data the Sheaf desk stores when you use it, and what it writes to Robinhood Chain. It is a factual description of the software, not legal advice, and the organisation operating an instance is responsible for its own policies.</p>
         {SECTIONS.map(([title, items]) => (
@@ -26,6 +36,36 @@ export default function PrivacyPage() {
             </ul>
           </section>
         ))}
+        <section className="x-section">
+          <h2 className="x-h2">__Protection and retention</h2>
+          <table className="x-table">
+            <thead>
+              <tr>
+                <th scope="col">Record</th>
+                <th scope="col">At rest</th>
+                <th scope="col">Lives</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PROTECTION.map(([what, how, how_long]) => (
+                <tr key={what}>
+                  <th scope="row">{what}</th>
+                  <td><span className="x-stamp" data-public={how.startsWith("PUBLIC")}>{how}</span></td>
+                  <td>{how_long}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+        <section className="x-section x-colophon">
+          <h2 className="x-h2">__Colophon</h2>
+          <dl>
+            <div><dt>Sheet</dt><dd>PRIV_001 · Rev 2026.09</dd></div>
+            <div><dt>Applies to</dt><dd>This software as built. It changes when the software does.</dd></div>
+            <div><dt>Source</dt><dd>docs/security/privacy-threat-model.md in the repository</dd></div>
+            <div><dt>Contact</dt><dd>The organisation operating this instance</dd></div>
+          </dl>
+        </section>
       </div>
       <div className="x-contact">
         <a href="/security">security</a>

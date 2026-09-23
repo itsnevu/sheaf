@@ -302,6 +302,19 @@ export default function Reader({ rolls = ROLLS, typeFont, labelFont }: { rolls?:
   }, [sound, roll, typeFont]);
 
   const go = useCallback((delta: number) => setIdx((i) => (i + delta + rolls.length) % rolls.length), [rolls.length]);
+
+  // The index card in the margin follows the open roll (`sheaf:roll`) and can open one (`sheaf:roll:set`).
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("sheaf:roll", { detail: idx }));
+  }, [idx]);
+  useEffect(() => {
+    const on = (e: Event) => {
+      const i = (e as CustomEvent<number>).detail;
+      if (Number.isInteger(i)) setIdx(((i % rolls.length) + rolls.length) % rolls.length);
+    };
+    window.addEventListener("sheaf:roll:set", on);
+    return () => window.removeEventListener("sheaf:roll:set", on);
+  }, [rolls.length]);
   const nudge = useCallback((delta: number) => setSpeed((s) => Math.max(-5, Math.min(5, s + delta))), []);
 
   // Keyboard: arrows change roll and speed, space toggles auto play.

@@ -6,6 +6,7 @@ import { capabilitiesFor } from "@/lib/auth/permissions";
 import { DEMO_BANNER, executionMode } from "@/lib/config";
 import "@/styles/print.css";
 import "@/styles/sheet.css";
+import "@/styles/deck.css";
 
 export const dynamic = "force-dynamic";
 

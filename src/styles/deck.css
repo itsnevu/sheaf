@@ -4,9 +4,30 @@
 .bd {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
   color: #1f1f1f;
+}
+.site-print:has(> .bd) {
+  background: transparent;
+}
+/* Plate, sheet label, index card and stamp float above the instruments; only the card takes clicks. */
+.bd-over {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  color: #1f1f1f;
+}
+.bd-sheet {
+  padding: 3px 6px 3px 4px;
+  background: rgba(255, 255, 255, 0.92);
+}
+.bd[data-variant="desk"] .bd-grid {
+  opacity: 0.55;
+}
+.bd-plate dd[data-mode="real"] {
+  color: #ff0000;
 }
 .bd-grid {
   position: absolute;
@@ -131,11 +152,6 @@
   margin-right: 8px;
   background: #1f1f1f;
   vertical-align: 1px;
-}
-/* The instruments sit above the bench. */
-.site-print > #main {
-  position: relative;
-  z-index: 1;
 }
 @keyframes bd-blink {
   to {
@@ -741,4 +757,376 @@
   .bd-stamp {
     display: none;
   }
+}
+
+/* ---------- Home: live diagram, series card, counters, calls ---------- */
+.h-sim {
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+  overflow-x: auto;
+}
+.h-sim svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 560px;
+  font-family: inherit;
+}
+.h-demo {
+  display: inline-block;
+  padding: 0 5px;
+  background: #ff0000;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 700;
+}
+.h-label i.h-demo {
+  margin-right: 6px;
+  font-size: 9px;
+  vertical-align: 1px;
+}
+.h-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.h-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid #1f1f1f;
+  background: #ffffff;
+  color: #1f1f1f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+.h-btn:hover {
+  box-shadow: 3px 3px 0 #ff0000;
+}
+.h-btn-primary {
+  background: #1f1f1f;
+  color: #ffffff;
+}
+.h-btn-primary:hover {
+  background: #ff0000;
+  box-shadow: none;
+}
+.h-cta-note {
+  flex-basis: 100%;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #9a9a9a;
+}
+.h-series {
+  position: fixed;
+  left: 10%;
+  top: calc(50% + 122px);
+  width: 203px;
+  z-index: 2;
+  background: #ffffff;
+  border: 1px solid #1f1f1f;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+.h-series-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 6px 10px;
+  border-bottom: 1px solid #1f1f1f;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.h-series ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h-series button {
+  display: block;
+  width: 100%;
+  padding: 5px 10px;
+  border: 0;
+  background: transparent;
+  color: #1f1f1f;
+  font: inherit;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.h-series button span {
+  display: inline-block;
+  width: 14px;
+  color: #ff0000;
+  font-weight: 700;
+}
+.h-series button:hover,
+.h-series button:focus-visible {
+  background: #1f1f1f;
+  color: #ffffff;
+  outline: none;
+}
+.h-odos {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid #1f1f1f;
+  background: #f2f2f2;
+}
+.h-odo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.h-odo-label {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: #9a9a9a;
+}
+.h-odo-digits {
+  display: inline-flex;
+  gap: 1px;
+}
+.h-odo-digits b {
+  display: inline-block;
+  width: 11px;
+  padding: 2px 0;
+  background: #1f1f1f;
+  color: #ffffff;
+  font-size: 10px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.h-odo-digits b:last-child {
+  background: #ff0000;
+}
+
+/* ---------- Margins: glossary (docs), observer matrix and words (security) ---------- */
+.mg {
+  position: fixed;
+  z-index: 2;
+  background: #ffffff;
+  border: 1px solid #1f1f1f;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #1f1f1f;
+}
+.mg-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  background: #1f1f1f;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.mg-sub {
+  margin: 0;
+  padding: 6px 10px 0;
+  border-top: 1px solid #1f1f1f;
+  color: #9a9a9a;
+  letter-spacing: 0.12em;
+}
+.mg-foot {
+  margin: 0;
+  padding: 8px 10px;
+  border-top: 1px dashed #bdbdbd;
+  font-size: 8.5px;
+  line-height: 1.6;
+  color: #9a9a9a;
+  letter-spacing: 0.08em;
+}
+.mg-gloss {
+  right: 20px;
+  top: 150px;
+  width: 262px;
+}
+.mg-gloss dl {
+  margin: 0;
+  padding: 4px 0;
+}
+.mg-gloss dl > div {
+  padding: 5px 10px;
+  border-bottom: 1px dashed #e3e3e3;
+}
+.mg-gloss dl > div:last-child {
+  border-bottom: 0;
+}
+.mg-gloss dt {
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.mg-gloss dt::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  background: #ff0000;
+  vertical-align: 1px;
+}
+.mg-gloss dd {
+  margin: 2px 0 0;
+  line-height: 1.5;
+  color: #4a4a4a;
+}
+.mg-csv {
+  margin: 6px 10px 8px;
+  padding: 8px;
+  background: #1f1f1f;
+  color: #9fe7b4;
+  font-size: 9px;
+  line-height: 1.6;
+  white-space: pre;
+  overflow: hidden;
+}
+.mg-matrix {
+  right: 20px;
+  top: 150px;
+  width: 300px;
+}
+.mg-matrix table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.mg-matrix th,
+.mg-matrix td {
+  padding: 5px 4px;
+  border-bottom: 1px dashed #e3e3e3;
+  text-align: center;
+  font-weight: 400;
+}
+.mg-matrix thead th {
+  padding: 6px 4px;
+  border-bottom: 1px solid #1f1f1f;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: #9a9a9a;
+}
+.mg-matrix th[scope="row"],
+.mg-matrix thead th:first-child {
+  padding-left: 10px;
+  text-align: left;
+}
+.mg-matrix th[scope="row"] {
+  line-height: 1.3;
+}
+.mg-matrix th[scope="row"] small {
+  display: block;
+  font-size: 8px;
+  color: #9a9a9a;
+}
+.mg-matrix td {
+  font-size: 11px;
+}
+.mg-matrix td[data-v="●"] {
+  color: #1f1f1f;
+}
+.mg-matrix td[data-v="◐"] {
+  color: #ff0000;
+}
+.mg-matrix td[data-v="○"] {
+  color: #bdbdbd;
+}
+.mg-matrix tbody tr:hover {
+  background: #ffe9e9;
+}
+.mg-words {
+  left: 34px;
+  bottom: 60px;
+  width: 212px;
+  transform: rotate(1.5deg);
+  box-shadow: 4px 5px 0 #1f1f1f;
+}
+.mg-words ul {
+  margin: 0;
+  padding: 6px 10px;
+  list-style: none;
+}
+.mg-words li {
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.mg-words s {
+  text-decoration: line-through;
+  text-decoration-color: #ff0000;
+  text-decoration-thickness: 2px;
+}
+.site-print:has(.mg-words) .bd-crop.bl {
+  display: none;
+}
+.bd-card,
+.bd-card * {
+  pointer-events: auto;
+}
+.bd-card a,
+.bd-card button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.bd-card a:hover,
+.bd-card button:hover,
+.bd-card a:focus-visible,
+.bd-card button:focus-visible {
+  color: #ff0000;
+  outline: none;
+}
+.bd-card-list li[data-on="true"] {
+  font-weight: 700;
+}
+.bd-card-list li[data-on="true"] span {
+  color: #ff0000;
+}
+@media (max-width: 1240px) {
+  .mg {
+    display: none;
+  }
+}
+@media (max-width: 1100px), (max-height: 760px) {
+  .h-series {
+    display: none;
+  }
+}
+@media (max-height: 700px) {
+  .mg-gloss,
+  .mg-matrix {
+    display: none;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .h-sim svg {
+    min-width: 540px;
+  }
+}
+/* On the docs sheet the glossary takes the right margin, so the stamp moves under the index card. */
+.site-print:has(.mg-gloss) .bd-stamp {
+  right: auto;
+  left: 44px;
+  bottom: 60px;
 }

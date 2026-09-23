@@ -229,6 +229,26 @@ export default function Printer({ pixelFont }: { pixelFont: string }) {
     void print(work ?? missingWork(s, WORK_NUMBERS[workIdx]!));
   };
 
+  // The series card beside the printer asks for a print by series letter (`sheaf:print`).
+  const printAt = useRef<(s: number, w: number) => void>(() => {});
+  printAt.current = (s, w) => {
+    const si = wrapSeries(s);
+    const wi = wrapWork(w);
+    setSeriesIdx(si);
+    setWorkIdx(wi);
+    click("dial");
+    const { series: ss, work } = findWork(si, wi);
+    void print(work ?? missingWork(ss, WORK_NUMBERS[wi]!));
+  };
+  useEffect(() => {
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<{ series: number; work?: number }>).detail;
+      printAt.current(d.series, d.work ?? 0);
+    };
+    window.addEventListener("sheaf:print", on);
+    return () => window.removeEventListener("sheaf:print", on);
+  }, []);
+
   // Dragging the printer around the sheet.
   const onWidgetPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
