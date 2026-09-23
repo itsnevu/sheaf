@@ -1,11 +1,12 @@
 import { expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
 export const PASSWORD = "sheaf-demo-2026";
-export type Who = "owner" | "finance" | "approver" | "viewer";
+/** Seeded Halden Desk users: owner, desk operator (FINANCE_ADMIN), approver, viewer. */
+export type Who = "owner" | "desk" | "approver" | "viewer";
 
 export async function signIn(page: Page, who: Who) {
   await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(`${who}@northwind.example`);
+  await page.getByLabel("Email").fill(`${who}@halden.example`);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((u) => u.pathname === "/app" || u.pathname.startsWith("/app/"));
@@ -25,8 +26,9 @@ export const OK_ADDRESSES = [
   "0x3333333333333333333333333333333333333333",
 ];
 
-export function csv(rows: Array<{ name: string; address: string; amount: string; reference?: string }>) {
-  return Buffer.from("name,address,amount,asset,reference\n" + rows.map((r) => `${r.name},${r.address},${r.amount},USDC,${r.reference ?? ""}`).join("\n") + "\n");
+/** Leg CSV: label,address,asset,amount,not_before,memo (USDG). */
+export function csv(rows: Array<{ name: string; address: string; amount: string; reference?: string; notBefore?: string }>) {
+  return Buffer.from("label,address,asset,amount,not_before,memo\n" + rows.map((r) => `${r.name},${r.address},USDG,${r.amount},${r.notBefore ?? ""},${r.reference ?? ""}`).join("\n") + "\n");
 }
 
 export async function expectStatus(page: Page, text: string | RegExp) {

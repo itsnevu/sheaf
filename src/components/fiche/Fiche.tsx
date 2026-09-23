@@ -108,7 +108,7 @@ function Knob({ label, value, min, max, step, onChange, labelFont, size = 48, di
           <g fill="#8c8e90">
             {Array.from({ length: 24 }, (_, i) => {
               const a = (i / 24) * Math.PI * 2;
-              return <rect key={i} x={15 + Math.cos(a) * 13 - 0.35} y={15 + Math.sin(a) * 13 - 0.35} width="0.7" height="0.7" />;
+              return <rect key={i} x={(15 + Math.cos(a) * 13 - 0.35).toFixed(3)} y={(15 + Math.sin(a) * 13 - 0.35).toFixed(3)} width="0.7" height="0.7" />;
             })}
           </g>
           <g className="f-knob-ind" style={{ transform: `rotate(${angle}deg)`, transformOrigin: "50% 50%", transformBox: "view-box" }}>
@@ -483,7 +483,7 @@ export default function Fiche({ labelFont, textFont }: { labelFont: string; text
                       {Array.from({ length: 12 }, (_, i) => {
                         const a = ((i / 12) * 270 - 225) * (Math.PI / 180);
                         return (
-                          <text key={i} x={50 + Math.cos(a) * 44} y={50 + Math.sin(a) * 44 + 3} textAnchor="middle" fontSize="8" fill={i === filter ? "#e5262b" : "#414042"} fontWeight={i === filter ? 700 : 400} style={{ fontFamily: labelFont }}>
+                          <text key={i} x={(50 + Math.cos(a) * 44).toFixed(3)} y={(50 + Math.sin(a) * 44 + 3).toFixed(3)} textAnchor="middle" fontSize="8" fill={i === filter ? "#e5262b" : "#414042"} fontWeight={i === filter ? 700 : 400} style={{ fontFamily: labelFont }}>
                             {i}
                           </text>
                         );

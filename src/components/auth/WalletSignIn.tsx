@@ -92,7 +92,7 @@ export default function WalletSignIn({ mode = "signin", next = "/app", onLinked 
           {error}
         </p>
       )}
-      {mode === "signin" && eth && <p className="help">You sign a message, not a transaction. First sign-in creates a workspace owned by the wallet.</p>}
+      {mode === "signin" && eth && <p className="help">You sign a message, not a transaction. First sign-in creates a desk owned by the wallet.</p>}
     </div>
   );
 }

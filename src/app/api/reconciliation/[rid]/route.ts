@@ -12,12 +12,12 @@ export const PATCH = handler<Ctx>(async (req, { params }) => {
   const s = await requireSession("reconciliation.edit");
   const body = Body.parse(await readJson(req));
   const r = await db.batchRecipient.findFirst({ where: { id: params.rid, batch: { organizationId: s.organizationId } }, include: { attempts: { orderBy: { attemptNo: "desc" }, take: 1 } } });
-  if (!r) return fail(404, "Payment not found");
+  if (!r) return fail(404, "Leg not found");
   const rec = await db.reconciliationRecord.upsert({
     where: { recipientId: r.id },
     update: { status: body.status, note: body.note ?? undefined, reconciledById: s.userId, reconciledAt: new Date() },
     create: { recipientId: r.id, batchId: r.batchId, organizationId: s.organizationId, status: body.status, note: body.note ?? null, txHash: r.attempts[0]?.txHash ?? null, reconciledById: s.userId, reconciledAt: new Date() },
   });
-  await audit({ organizationId: s.organizationId, batchId: r.batchId, recipientId: r.id, actorId: s.userId, actorEmail: s.email, action: "reconciliation.updated", summary: `Row ${r.rowNumber} marked ${body.status.toLowerCase()}${body.note ? `: ${body.note}` : ""}` });
+  await audit({ organizationId: s.organizationId, batchId: r.batchId, recipientId: r.id, actorId: s.userId, actorEmail: s.email, action: "reconciliation.updated", summary: `Leg ${r.rowNumber} marked ${body.status.toLowerCase()}${body.note ? `: ${body.note}` : ""}` });
   return json({ reconciliation: { status: rec.status, note: rec.note, reconciledAt: rec.reconciledAt?.toISOString() ?? null } });
 });

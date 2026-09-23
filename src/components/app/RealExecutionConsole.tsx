@@ -2,14 +2,15 @@
 
 /**
  * Real-mode wallet console. Loaded only in real mode (dynamic import) so wagmi/viem stay out
- * of the demo bundle. The treasury wallet signs each route step here; the server records the
- * hash and polls the provider. The server never holds a key.
+ * of the demo bundle. The desk wallet signs each leg's route steps here; the server records the
+ * hash and polls the provider. The server never holds a key. The desk contracts in contracts/
+ * are not called from here yet: legs are plain Relay routes into Robinhood Chain.
  */
 import { useMemo, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, createConfig, http, useAccount, useConnect, useDisconnect, useReadContract, useSendTransaction, useSwitchChain } from "wagmi";
 import { injected, walletConnect } from "wagmi/connectors";
-import { base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia, type Chain } from "wagmi/chains";
+import { robinhood, base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia, type Chain } from "wagmi/chains";
 import { erc20Abi, formatUnits as viemFormat } from "viem";
 import { Button, Money, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/client";
@@ -18,7 +19,7 @@ import { chainName } from "@/lib/config";
 import type { BatchDetail } from "./useBatch";
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
-const CHAINS: readonly [Chain, ...Chain[]] = [base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia];
+const CHAINS: readonly [Chain, ...Chain[]] = [robinhood, base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia];
 const config = createConfig({
   chains: CHAINS,
   connectors: [injected(), ...(WC_PROJECT_ID ? [walletConnect({ projectId: WC_PROJECT_ID, showQrModal: true })] : [])],
@@ -69,7 +70,7 @@ function Console({ d, stage, onFund, onRefresh }: Props) {
         if (step.kind !== "transaction" || !step.to) continue;
         const hash = await sendTransactionAsync({ to: step.to as `0x${string}`, data: (step.data ?? "0x") as `0x${string}`, value: BigInt(step.value ?? "0"), chainId: step.chainId });
         await api(`/api/batches/${batch.id}/recipients/${next.id}/attempts`, { method: "POST", json: { txHash: hash, stepId: step.id } });
-        toast(`Signed ${step.id} for row ${next.rowNumber}`, { tone: "success", detail: hash });
+        toast(`Signed ${step.id} for leg ${next.rowNumber}`, { tone: "success", detail: hash });
         // Only the final (deposit/send) step is tracked as the attempt; approvals precede it.
         if (step.id === "send" || step.id === "deposit") break;
       }
@@ -95,7 +96,7 @@ function Console({ d, stage, onFund, onRefresh }: Props) {
               <span className="ml-2 text-ink-faint">· {chainId ? chainName(chainId) : "?"}</span>
             </>
           ) : (
-            <span className="text-ink-soft">Connect the treasury wallet (browser extension) to continue.</span>
+            <span className="text-ink-soft">Connect the desk wallet (browser extension) to continue.</span>
           )}
         </div>
         {isConnected ? (
@@ -119,7 +120,7 @@ function Console({ d, stage, onFund, onRefresh }: Props) {
       </div>
       {wrongChain && (
         <div className="mt-3 flex items-center justify-between gap-3 rounded-card border border-warning/30 bg-warning-tint p-3 text-[0.875rem] text-warning">
-          <span>Wallet is on {chainName(chainId!)}; this batch funds from {chainName(batch.originChainId)}.</span>
+          <span>Wallet is on {chainName(chainId!)}; this operation funds from {chainName(batch.originChainId)}.</span>
           <Button size="sm" variant="secondary" onClick={() => switchChain({ chainId: batch.originChainId })}>
             Switch network
           </Button>
@@ -151,10 +152,10 @@ function Console({ d, stage, onFund, onRefresh }: Props) {
       {stage === "sign" && isConnected && !wrongChain && (
         <div className="mt-4">
           <p className="text-[0.875rem] text-ink-soft">
-            {queue.length} payment(s) awaiting signature{next ? `; next is row ${next.rowNumber} (${next.name})` : queue.length ? "; the next one is scheduled for later (spacing)" : "."}
+            {queue.length} leg(s) awaiting signature{next ? `; next is leg ${next.rowNumber} (${next.name})` : queue.length ? "; the next one is scheduled for later (not-before or spacing)" : "."}
           </p>
           <Button variant="accent" className="mt-3" disabled={!next || sending || !!busyId} loading={sending || !!busyId} onClick={signNext}>
-            Sign next payment
+            Sign next leg
           </Button>
         </div>
       )}

@@ -21,10 +21,10 @@ async function expectHttp(p: Promise<unknown>, status: number, code?: string) {
   throw new Error(`expected HTTP ${status}`);
 }
 
-/** Drive a batch to ROUTES_PREPARED with three valid recipients. */
+/** Drive an operation to ROUTES_PREPARED with three valid legs. */
 async function preparedBatch(fourEyes = true) {
   const ctx = await makeOrg({ requireFourEyes: fourEyes });
-  const batch = await createBatch(ctx.finance, { name: "Sept payroll" });
+  const batch = await createBatch(ctx.finance, { name: "Q4 plan", kind: "ACCUMULATE" });
   const summary = await importCsv(ctx.finance, batch.id, { fileName: "sept.csv", text: csvOf([1, 2, 3].map((i) => ({ name: `C${i}`, address: ADDR(i), amount: `${i}0.50`, reference: `INV-${i}` }))) });
   expect(summary.validCount).toBe(3);
   await requestRoutePreparation(ctx.finance, batch.id);
@@ -34,16 +34,41 @@ async function preparedBatch(fourEyes = true) {
   return { ...ctx, batch };
 }
 
-describe("batch lifecycle", () => {
+describe("operation lifecycle", () => {
   it("creates in the server mode and records an audit event", async () => {
     const { finance } = await makeOrg();
     const b = await createBatch(finance, { name: "  Test  ", reference: " R1 ", jitterMaxSeconds: 99_999 });
     expect(b.name).toBe("Test");
     expect(b.reference).toBe("R1");
     expect(b.mode).toBe("demo");
+    expect(b.kind).toBe("ACCUMULATE"); // default kind
+    expect(b.assetSymbol).toBe("USDG");
+    expect(b.destinationChainId).toBe(4663);
     expect(b.status).toBe("DRAFT");
     expect(b.jitterMaxSeconds).toBe(1800); // clamped to the bound
-    expect(await auditActions(b.id)).toEqual(["batch.created"]);
+    expect(await auditActions(b.id)).toEqual(["operation.created"]);
+  });
+
+  it("stores the operation kind and falls back to ACCUMULATE for unknown kinds", async () => {
+    const { finance } = await makeOrg();
+    for (const kind of ["CLAIM", "OTC", "TREASURY"]) expect((await createBatch(finance, { name: kind, kind })).kind).toBe(kind);
+    expect((await createBatch(finance, { name: "x", kind: "PAYROLL" })).kind).toBe("ACCUMULATE");
+  });
+
+  it("imports not_before and memo on each leg", async () => {
+    const { finance } = await makeOrg();
+    const b = await createBatch(finance, { name: "B", kind: "ACCUMULATE" });
+    const s = await importCsv(finance, b.id, { fileName: "x.csv", text: csvOf([{ name: "T1", address: ADDR(1), amount: "10", notBefore: "2030-01-01T09:00:00Z", reference: "memo 1" }, { name: "T2", address: ADDR(2), amount: "10", notBefore: "soon" }]) });
+    expect(s.validCount).toBe(1);
+    expect(s.rows[1].errors[0].code).toBe("NOT_BEFORE_INVALID");
+    const rows = await db.batchRecipient.findMany({ where: { batchId: b.id }, orderBy: { rowNumber: "asc" } });
+    expect(rows[0].notBefore?.toISOString()).toBe("2030-01-01T09:00:00.000Z");
+    expect(rows[0].reference).toBe("memo 1");
+    const fixed = await updateRecipient(finance, b.id, rows[1].id, { notBefore: "2030-01-02T09:00:00Z" });
+    expect(fixed.valid).toBe(true);
+    expect(fixed.notBefore?.toISOString()).toBe("2030-01-02T09:00:00.000Z");
+    const cleared = await updateRecipient(finance, b.id, rows[1].id, { notBefore: null });
+    expect(cleared.notBefore).toBeNull();
   });
 
   it("imports a CSV, keeps invalid rows, and computes totals", async () => {
@@ -114,7 +139,7 @@ describe("batch lifecycle", () => {
 describe("approval", () => {
   it("enforces four-eyes and binds to the recipient-set hash", async () => {
     const { batch, finance, approver, owner } = await preparedBatch();
-    // Finance admin edited last: four-eyes blocks them even though owners may approve.
+    // The desk operator edited last: four-eyes blocks them even though owners may approve.
     await expectHttp(approveBatch(finance, batch.id), 409, "FOUR_EYES");
     const approval = await approveBatch(approver, batch.id, "Looks right");
     const b = await db.paymentBatch.findUniqueOrThrow({ where: { id: batch.id } });
@@ -134,7 +159,7 @@ describe("approval", () => {
     expect(await status(batch.id)).toBe("VALIDATED"); // route dropped, so not even ROUTES_PREPARED
     const a = await db.approval.findFirstOrThrow({ where: { batchId: batch.id } });
     expect(a.status).toBe("INVALIDATED");
-    expect(a.invalidatedReason).toContain("row 1 changed");
+    expect(a.invalidatedReason).toContain("Leg 1 changed");
   });
 
   it("can be revoked and approved again after re-preparing", async () => {
@@ -171,7 +196,24 @@ describe("funding and execution", () => {
     expect(await startExecution(finance, batch.id)).toEqual({ started: false, reason: "already executing" });
     expect(await db.job.count({ where: { batchId: batch.id, type: "execute_route" } })).toBe(3);
     const actions = await auditActions(batch.id);
-    expect(actions.slice(-3)).toEqual(["batch.approved", "funding.recorded", "execution.started"]);
+    expect(actions.slice(-3)).toEqual(["operation.approved", "funding.recorded", "execution.started"]);
+  });
+
+  it("never schedules a leg before its not_before time", async () => {
+    const ctx = await makeOrg();
+    const batch = await createBatch(ctx.finance, { name: "Plan", kind: "ACCUMULATE" });
+    const later = "2030-06-01T09:00:00Z";
+    await importCsv(ctx.finance, batch.id, { fileName: "p.csv", text: csvOf([{ name: "Now", address: ADDR(1), amount: "1" }, { name: "Later", address: ADDR(2), amount: "1", notBefore: later }]) });
+    await requestRoutePreparation(ctx.finance, batch.id);
+    await prepareRoutes(await db.job.findFirstOrThrow({ where: { batchId: batch.id, type: "prepare_routes" } }));
+    await approveBatch(ctx.approver, batch.id);
+    await fundBatch(ctx.finance, batch.id, {});
+    await startExecution(ctx.finance, batch.id);
+    const rows = await db.batchRecipient.findMany({ where: { batchId: batch.id }, orderBy: { rowNumber: "asc" } });
+    expect(rows[0].scheduledFor!.getTime()).toBeLessThanOrEqual(Date.now() + 1000);
+    expect(rows[1].scheduledFor!.toISOString()).toBe("2030-06-01T09:00:00.000Z");
+    const job = await db.job.findFirstOrThrow({ where: { batchId: batch.id, recipientId: rows[1].id, type: "execute_route" } });
+    expect(job.runAt.toISOString()).toBe("2030-06-01T09:00:00.000Z");
   });
 
   it("refuses execution when the approval no longer matches", async () => {
@@ -201,7 +243,7 @@ describe("funding and execution", () => {
     await expectHttp(importCsv(finance, batch.id, { fileName: "y.csv", text: csvOf([]) }), 409);
   });
 
-  it("retry is refused unless the payment is retry-eligible", async () => {
+  it("retry is refused unless the leg is retry-eligible", async () => {
     const { batch, finance } = await preparedBatch();
     const row = await db.batchRecipient.findFirstOrThrow({ where: { batchId: batch.id } });
     await expectHttp(retryPayment(finance, row.id), 409);
@@ -216,7 +258,7 @@ describe("funding and execution", () => {
     expect(await db.job.count({ where: { batchId: batch.id, status: "QUEUED" } })).toBe(0);
   });
 
-  it("isolates organisations", async () => {
+  it("isolates desks", async () => {
     const { batch } = await preparedBatch();
     const other = await makeOrg();
     await expectHttp(approveBatch(other.approver, batch.id), 404, "NOT_FOUND");

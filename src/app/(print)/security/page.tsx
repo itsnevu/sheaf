@@ -5,7 +5,7 @@ import "@/styles/fiche.css";
 
 export const metadata: Metadata = {
   title: "Security · Sheaf",
-  description: "Honest scope: what Sheaf protects and what it cannot. Who can see what, what is implemented and tested, what is not, and the on-chain reality.",
+  description: "Honest scope: what Sheaf protects on Robinhood Chain and what it cannot. Who can see what on-chain and off-chain, what is implemented and tested, what is not, and the on-chain reality.",
 };
 
 export default function SecurityPage() {

@@ -12,6 +12,8 @@ import { LOGICAL_WIDTH, renderWork } from "./render";
  * the print. Sounds are synthesised, tiny, and only after the first click.
  */
 const INKS = ["#f1f2f2", "#ff2e55", "#7c6cff"];
+/** The roll keeps this many prints; the oldest is torn off when a new one arrives. */
+const MAX_PRINTS = 8;
 const OPTION_W = { series: 22, work: 27.6 };
 
 function useClicks() {
@@ -135,6 +137,7 @@ export default function Printer({ pixelFont }: { pixelFont: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rollRef = useRef<HTMLCanvasElement | null>(null); // full roll at logical resolution
   const printedRef = useRef<Work[]>([]);
+  const heightsRef = useRef<number[]>([]); // logical height of each strip on the roll, oldest first
   const widgetRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
   const reducedMotion = useRef(false);
@@ -162,14 +165,22 @@ export default function Printer({ pixelFont }: { pixelFont: string }) {
       }
       const { canvas: strip, height } = await renderWork(work, ink, pixelFont);
       const roll = rollRef.current ?? document.createElement("canvas");
-      const prevH = rollRef.current ? roll.height : 0;
+      let prevH = rollRef.current ? roll.height : 0;
       if (!rollRef.current) {
         roll.width = LOGICAL_WIDTH;
         roll.height = 0;
         rollRef.current = roll;
       }
-      // Grow the roll, keeping what was already printed.
-      const keep = prevH > 0 ? roll.getContext("2d")!.getImageData(0, 0, roll.width, prevH) : null;
+      // Tear off the oldest print when the roll is full, so the canvas never grows without bound.
+      let dropH = 0;
+      if (printedRef.current.length >= MAX_PRINTS) {
+        dropH = heightsRef.current.shift() ?? 0;
+        printedRef.current.shift();
+      }
+      // Grow the roll, keeping what was already printed (minus the torn-off strip).
+      const keepH = prevH - dropH;
+      const keep = keepH > 0 ? roll.getContext("2d")!.getImageData(0, dropH, roll.width, keepH) : null;
+      prevH = keepH;
       roll.height = prevH + height;
       const rctx = roll.getContext("2d")!;
       rctx.fillStyle = "#000";
@@ -177,12 +188,19 @@ export default function Printer({ pixelFont }: { pixelFont: string }) {
       if (keep) rctx.putImageData(keep, 0, 0);
       rctx.drawImage(strip, 0, prevH);
       printedRef.current.push(work);
+      heightsRef.current.push(height);
+      if (dropH) setStrips((s) => s.slice(1).map((x) => ({ ...x, top: x.top - dropH })));
       setEmpty(false);
 
       const out = canvasRef.current!;
       out.width = LOGICAL_WIDTH;
       const octx = out.getContext("2d")!;
       octx.imageSmoothingEnabled = false;
+      if (dropH) {
+        out.height = prevH;
+        octx.imageSmoothingEnabled = false;
+        if (prevH > 0) octx.drawImage(roll, 0, 0, roll.width, prevH, 0, 0, roll.width, prevH);
+      }
       const total = roll.height;
       const step = reducedMotion.current ? total : 4;
       let shown = prevH;

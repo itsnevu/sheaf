@@ -2,41 +2,59 @@ import { checkEvmAddress } from "@/lib/address";
 import { MoneyError, parseAmount } from "@/lib/money";
 import { CSV_LIMITS, parseCsv } from "./parse";
 
+/**
+ * Leg CSV format: `label,address,asset,amount,not_before,memo`.
+ *  - label      required, shown to operators only (encrypted at rest)
+ *  - address    required, EVM address of the leg's destination
+ *  - asset      optional, defaults to the operation's settlement asset (USDG)
+ *  - amount     required, decimal in whole units of the asset
+ *  - not_before optional ISO 8601 datetime; the leg is not executed before it
+ *  - memo       optional free text (encrypted at rest, exported, never sent on-chain)
+ */
+
 export interface RowIssue {
   code: string;
   message: string;
-  field?: "name" | "address" | "amount" | "asset" | "reference" | "row";
+  field?: "label" | "address" | "amount" | "asset" | "not_before" | "memo" | "row";
 }
 
 export interface ValidatedRow {
   rowNumber: number; // 1-based data row (excluding header)
   line: number; // source line number
+  /** The leg label (stored as BatchRecipient.name). */
   name: string;
   addressInput: string;
   address: string | null;
   amountInput: string;
   amount: string | null; // base units
   assetSymbol: string;
+  notBeforeInput: string;
+  /** ISO datetime when valid, else null. */
+  notBefore: string | null;
+  /** The memo (stored as BatchRecipient.reference). */
   reference: string | null;
   valid: boolean;
   errors: RowIssue[];
   warnings: RowIssue[];
 }
 
+export type RequiredColumn = "label" | "address" | "amount";
+export type OptionalColumn = "asset" | "not_before" | "memo";
+export type LegColumn = RequiredColumn | OptionalColumn;
+export const LEG_COLUMNS: LegColumn[] = ["label", "address", "asset", "amount", "not_before", "memo"];
+export const LEG_CSV_HEADER = LEG_COLUMNS.join(",");
+
 export interface ValidationSummary {
   ok: boolean;
   fileErrors: RowIssue[];
   header: string[];
-  columns: Record<RequiredColumn | OptionalColumn, number | null>;
+  columns: Record<LegColumn, number | null>;
   rows: ValidatedRow[];
   validCount: number;
   invalidCount: number;
   totalAmount: string; // base units, valid rows only
   duplicateAddresses: number;
 }
-
-export type RequiredColumn = "name" | "address" | "amount";
-export type OptionalColumn = "asset" | "reference";
 
 export interface ValidationOptions {
   assetSymbol: string;
@@ -48,12 +66,13 @@ export interface ValidationOptions {
   largeAmountWarn?: bigint;
 }
 
-const HEADER_ALIASES: Record<RequiredColumn | OptionalColumn, string[]> = {
-  name: ["name", "contractor", "contractor name", "recipient", "recipient name", "payee", "full name", "employee"],
+const HEADER_ALIASES: Record<LegColumn, string[]> = {
+  label: ["label", "leg", "leg label", "name", "recipient", "counterparty", "payee"],
   address: ["address", "wallet", "wallet address", "recipient address", "wallet_address", "to", "destination", "evm address"],
-  amount: ["amount", "payment", "payment amount", "value", "total", "pay", "usd", "usdc"],
-  asset: ["asset", "currency", "token", "symbol", "coin"],
-  reference: ["reference", "ref", "internal reference", "memo", "note", "invoice", "invoice id", "id"],
+  amount: ["amount", "value", "total", "usdg"],
+  asset: ["asset", "currency", "token", "symbol"],
+  not_before: ["not before", "notbefore", "not_before", "earliest", "execute after"],
+  memo: ["memo", "reference", "ref", "note", "internal reference"],
 };
 
 function normHeader(h: string): string {
@@ -65,22 +84,25 @@ function normHeader(h: string): string {
     .trim();
 }
 
-export function mapColumns(header: string[]): Record<RequiredColumn | OptionalColumn, number | null> {
+export function mapColumns(header: string[]): Record<LegColumn, number | null> {
   const normalized = header.map(normHeader);
-  const out: Record<RequiredColumn | OptionalColumn, number | null> = {
-    name: null,
-    address: null,
-    amount: null,
-    asset: null,
-    reference: null,
-  };
-  for (const key of Object.keys(HEADER_ALIASES) as Array<RequiredColumn | OptionalColumn>) {
+  const out: Record<LegColumn, number | null> = { label: null, address: null, amount: null, asset: null, not_before: null, memo: null };
+  for (const key of LEG_COLUMNS) {
     const aliases = HEADER_ALIASES[key];
     let idx = normalized.findIndex((h) => aliases.includes(h));
     if (idx === -1) idx = normalized.findIndex((h) => aliases.some((a) => h.includes(a)));
     if (idx !== -1 && !Object.values(out).includes(idx)) out[key] = idx;
   }
   return out;
+}
+
+/** Parses an ISO 8601 datetime (or a plain date) into an ISO string; null when invalid. */
+export function parseNotBefore(input: string): string | null {
+  const s = input.trim();
+  if (!s) return null;
+  if (!/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(s)) return null;
+  const d = new Date(s.includes("T") || s.includes(" ") ? s.replace(" ", "T") : `${s}T00:00:00Z`);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 export function validateCsvText(text: string, opts: ValidationOptions): ValidationSummary {
@@ -90,20 +112,20 @@ export function validateCsvText(text: string, opts: ValidationOptions): Validati
   }
   const parsed = parseCsv(text);
   const columns = mapColumns(parsed.header);
-  const missing = (["name", "address", "amount"] as RequiredColumn[]).filter((c) => columns[c] === null);
+  const missing = (["label", "address", "amount"] as RequiredColumn[]).filter((c) => columns[c] === null);
   if (parsed.header.length === 0) {
     fileErrors.push({ code: "HEADER_MISSING", message: "The first line must be a header row" });
   } else if (missing.length) {
     fileErrors.push({
       code: "COLUMNS_MISSING",
-      message: `Missing required column${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}. Found: ${parsed.header.join(", ") || "none"}`,
+      message: `Missing required column${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}. Expected ${LEG_CSV_HEADER}. Found: ${parsed.header.join(", ") || "none"}`,
     });
   }
   if (parsed.header.length > CSV_LIMITS.maxColumns) {
     fileErrors.push({ code: "TOO_MANY_COLUMNS", message: `More than ${CSV_LIMITS.maxColumns} columns` });
   }
   if (parsed.rows.length === 0 && fileErrors.length === 0) {
-    fileErrors.push({ code: "NO_ROWS", message: "The file has a header but no recipient rows" });
+    fileErrors.push({ code: "NO_ROWS", message: "The file has a header but no leg rows" });
   }
   const maxRows = opts.maxRows ?? CSV_LIMITS.maxRows;
   if (parsed.rows.length > maxRows) {
@@ -118,23 +140,24 @@ export function validateCsvText(text: string, opts: ValidationOptions): Validati
   let duplicates = 0;
 
   parsed.rows.forEach((cells, i) => {
-    const get = (c: RequiredColumn | OptionalColumn) => {
+    const get = (c: LegColumn) => {
       const idx = columns[c];
       return idx === null ? "" : (cells[idx] ?? "").trim();
     };
     const errors: RowIssue[] = [];
     const warnings: RowIssue[] = [];
-    const name = get("name");
+    const name = get("label");
     const addressInput = get("address");
     const amountInput = get("amount");
     const assetInput = get("asset");
-    const reference = get("reference") || null;
+    const notBeforeInput = get("not_before");
+    const reference = get("memo") || null;
 
     if (cells.length > parsed.header.length) {
       errors.push({ code: "ROW_EXTRA_CELLS", message: `Row has ${cells.length} cells but the header has ${parsed.header.length}`, field: "row" });
     }
-    if (!name) errors.push({ code: "NAME_EMPTY", message: "Contractor name is empty", field: "name" });
-    else if (name.length > 120) errors.push({ code: "NAME_TOO_LONG", message: "Name is longer than 120 characters", field: "name" });
+    if (!name) errors.push({ code: "LABEL_EMPTY", message: "Leg label is empty", field: "label" });
+    else if (name.length > 120) errors.push({ code: "LABEL_TOO_LONG", message: "Label is longer than 120 characters", field: "label" });
 
     let address: string | null = null;
     const ac = checkEvmAddress(addressInput);
@@ -161,18 +184,25 @@ export function validateCsvText(text: string, opts: ValidationOptions): Validati
     if (assetInput) {
       const up = assetInput.toUpperCase();
       if (!accepted.has(up)) {
-        errors.push({ code: "ASSET_UNSUPPORTED", message: `Asset "${assetInput}" is not supported for this batch (expected ${opts.assetSymbol})`, field: "asset" });
+        errors.push({ code: "ASSET_UNSUPPORTED", message: `Asset "${assetInput}" is not supported for this operation (expected ${opts.assetSymbol})`, field: "asset" });
       } else {
         assetSymbol = up;
       }
     }
+
+    let notBefore: string | null = null;
+    if (notBeforeInput) {
+      notBefore = parseNotBefore(notBeforeInput);
+      if (!notBefore) errors.push({ code: "NOT_BEFORE_INVALID", message: `not_before "${notBeforeInput}" is not an ISO 8601 datetime (e.g. 2026-10-01T09:00:00Z)`, field: "not_before" });
+    }
+    if (reference && reference.length > 200) errors.push({ code: "MEMO_TOO_LONG", message: "Memo is longer than 200 characters", field: "memo" });
 
     if (address) {
       const key = address.toLowerCase();
       const first = seen.get(key);
       if (first !== undefined) {
         duplicates++;
-        errors.push({ code: "DUPLICATE_ADDRESS", message: `Same wallet as row ${first}. Merge or remove one of them`, field: "address" });
+        errors.push({ code: "DUPLICATE_ADDRESS", message: `Same address as leg ${first}. Merge or remove one of them`, field: "address" });
       } else {
         seen.set(key, i + 1);
       }
@@ -189,6 +219,8 @@ export function validateCsvText(text: string, opts: ValidationOptions): Validati
       amountInput,
       amount,
       assetSymbol,
+      notBeforeInput,
+      notBefore,
       reference,
       valid,
       errors,
@@ -215,7 +247,7 @@ function emptySummary(fileErrors: RowIssue[]): ValidationSummary {
     ok: false,
     fileErrors,
     header: [],
-    columns: { name: null, address: null, amount: null, asset: null, reference: null },
+    columns: { label: null, address: null, amount: null, asset: null, not_before: null, memo: null },
     rows: [],
     validCount: 0,
     invalidCount: 0,
@@ -225,11 +257,11 @@ function emptySummary(fileErrors: RowIssue[]): ValidationSummary {
 }
 
 /** The downloadable template. Kept here so the API route and the docs share one source. */
-export function csvTemplate(assetSymbol = "USDC"): string {
+export function csvTemplate(assetSymbol = "USDG"): string {
   return [
-    "name,address,amount,asset,reference",
-    `Ada Okafor,0x1b3f9c2a8e4d6f7a9b0c1d2e3f4a5b6c7d8e9f0a,1250.00,${assetSymbol},INV-2026-0912`,
-    `Mateo Ruiz,0x9f0e1d2c3b4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e,980.50,${assetSymbol},INV-2026-0913`,
-    `Priya Natarajan,0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d,2100.00,${assetSymbol},`,
+    LEG_CSV_HEADER,
+    `Tranche 1,0x1b3f9c2a8e4d6f7a9b0c1d2e3f4a5b6c7d8e9f0a,${assetSymbol},1250.00,2026-10-01T09:00:00Z,fresh recipient A`,
+    `Tranche 2,0x9f0e1d2c3b4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e,${assetSymbol},980.50,2026-10-02T09:00:00Z,fresh recipient B`,
+    `Tranche 3,0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d,${assetSymbol},2100.00,,`,
   ].join("\n");
 }

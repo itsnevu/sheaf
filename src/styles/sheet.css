@@ -112,7 +112,11 @@
   color: #9a9a9a;
   max-width: 60vw;
   text-align: right;
-  z-index: 50;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #d9d9d9;
+  pointer-events: none;
+  z-index: 250;
   pointer-events: none;
 }
 .x-status-demo {

@@ -9,7 +9,7 @@ describe("capability matrix", () => {
   it("owner has every capability", () => {
     expect(ALL.every((c) => can("OWNER", c))).toBe(true);
   });
-  it("separates duties between finance admin and approver", () => {
+  it("separates duties between desk operator and approver", () => {
     expect(can("FINANCE_ADMIN", "batch.approve")).toBe(false);
     expect(can("FINANCE_ADMIN", "batch.fund")).toBe(true);
     expect(can("FINANCE_ADMIN", "batch.execute")).toBe(true);
@@ -19,7 +19,7 @@ describe("capability matrix", () => {
     expect(can("APPROVER", "batch.edit")).toBe(false);
     expect(can("APPROVER", "csv.viewOriginal")).toBe(false);
   });
-  it("finance admin cannot manage the organization", () => {
+  it("desk operator cannot manage the desk", () => {
     expect(can("FINANCE_ADMIN", "settings.edit")).toBe(false);
     expect(can("FINANCE_ADMIN", "members.manage")).toBe(false);
   });

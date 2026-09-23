@@ -56,7 +56,7 @@ export default function SettingsPage() {
       <PageHeader title="Settings" description={`${s.organization.name} · ${canEdit ? "changes are logged in the activity feed" : "read-only for your role"}`} />
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="card p-6 space-y-5">
-          <h2 className="title-2">Organisation</h2>
+          <h2 className="title-2">Desk</h2>
           <Input label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={!canEdit} />
           <div>
             <div className="label">Execution mode</div>
@@ -69,8 +69,8 @@ export default function SettingsPage() {
         </section>
 
         <section className="card p-6 space-y-5">
-          <h2 className="title-2">Treasury and network</h2>
-          <Input label="Treasury wallet address" value={form.treasuryAddress ?? ""} onChange={(e) => setForm({ ...form, treasuryAddress: e.target.value })} disabled={!canEdit} placeholder="0x…" spellCheck={false} className="font-mono" help={s.mode === "real" ? "Required in real mode: only this wallet may fund and sign batches." : "Optional in demo mode; used as the simulated sender."} />
+          <h2 className="title-2">Desk wallet and network</h2>
+          <Input label="Desk wallet address" value={form.treasuryAddress ?? ""} onChange={(e) => setForm({ ...form, treasuryAddress: e.target.value })} disabled={!canEdit} placeholder="0x…" spellCheck={false} className="font-mono" help={s.mode === "real" ? "Required in real mode: only this wallet may fund and sign operations. It owns the funds; it is never the destination of a leg." : "Optional in demo mode; used as the simulated sender."} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Select label="Funding network (origin)" value={form.originChainId} onChange={(e) => setForm({ ...form, originChainId: Number(e.target.value) })} disabled={!canEdit}>
               {s.chains.map((c) => (
@@ -79,7 +79,7 @@ export default function SettingsPage() {
                 </option>
               ))}
             </Select>
-            <Select label="Payout network (destination)" value={form.destinationChainId} onChange={(e) => setForm({ ...form, destinationChainId: Number(e.target.value) })} disabled={!canEdit}>
+            <Select label="Settlement network (destination)" value={form.destinationChainId} onChange={(e) => setForm({ ...form, destinationChainId: Number(e.target.value) })} disabled={!canEdit}>
               {s.chains.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -87,26 +87,26 @@ export default function SettingsPage() {
               ))}
             </Select>
           </div>
-          <Select label="Asset" value={form.assetSymbol} onChange={(e) => setForm({ ...form, assetSymbol: e.target.value })} disabled={!canEdit} help={assets.length ? "Applies to new batches only." : "No shared asset is configured for this network pair."}>
+          <Select label="Asset" value={form.assetSymbol} onChange={(e) => setForm({ ...form, assetSymbol: e.target.value })} disabled={!canEdit} help={assets.length ? "USDG is the settlement asset of Robinhood Chain. Applies to new operations only." : "No shared asset is configured for this network pair."}>
             {(assets.length ? assets : [form.assetSymbol]).map((a) => (
               <option key={a} value={a}>
                 {a}
               </option>
             ))}
           </Select>
-          {form.originChainId === form.destinationChainId && <p className="text-[0.8125rem] text-warning">Same-chain routes are direct transfers from the treasury: no external privacy benefit.</p>}
+          {form.originChainId === form.destinationChainId && <p className="text-[0.8125rem] text-warning">Same-chain routes are direct transfers: the desk wallet is the visible sender of each leg until the desk contracts are wired in.</p>}
         </section>
 
         <section className="card p-6 space-y-5">
-          <h2 className="title-2">Payment preferences</h2>
-          <Switch checked={form.jitterEnabled} onChange={(v) => setForm({ ...form, jitterEnabled: v })} disabled={!canEdit} label="Space out submissions by default" help="Adds a random delay (0 to the maximum below) before each payment is submitted. Operational only, never past a batch deadline, timestamps retained internally. Not a privacy guarantee." />
+          <h2 className="title-2">Execution preferences</h2>
+          <Switch checked={form.jitterEnabled} onChange={(v) => setForm({ ...form, jitterEnabled: v })} disabled={!canEdit} label="Space out legs by default" help="Adds a random delay (0 to the maximum below) before each leg is submitted. Operational only, never past an operation deadline, timestamps retained internally. Not a privacy guarantee." />
           <Input label="Maximum spacing (seconds, 0–1800)" type="number" min={0} max={1800} value={form.jitterMaxSeconds} onChange={(e) => setForm({ ...form, jitterMaxSeconds: Math.max(0, Math.min(1800, Number(e.target.value) || 0)) })} disabled={!canEdit || !form.jitterEnabled} />
-          <Input label="Maximum retries per payment" type="number" min={0} max={10} value={form.maxRetries} onChange={(e) => setForm({ ...form, maxRetries: Math.max(0, Math.min(10, Number(e.target.value) || 0)) })} disabled={!canEdit} help="Only provider-classified transient failures are retryable." />
+          <Input label="Maximum retries per leg" type="number" min={0} max={10} value={form.maxRetries} onChange={(e) => setForm({ ...form, maxRetries: Math.max(0, Math.min(10, Number(e.target.value) || 0)) })} disabled={!canEdit} help="Only provider-classified transient failures are retryable." />
         </section>
 
         <section className="card p-6 space-y-5">
           <h2 className="title-2">Security preferences</h2>
-          <Switch checked={form.requireFourEyes} onChange={(v) => setForm({ ...form, requireFourEyes: v })} disabled={!canEdit} label="Four-eyes approval" help="The person who last edited the recipient set cannot approve it." />
+          <Switch checked={form.requireFourEyes} onChange={(v) => setForm({ ...form, requireFourEyes: v })} disabled={!canEdit} label="Four-eyes approval" help="The person who last edited the leg set cannot approve it. Delegated treasury operations rely on this: the proposer is never the approver." />
           <p className="text-[0.8125rem] text-ink-faint">Sessions last 14 days and are revoked when a member is removed. Passwords are hashed with scrypt.</p>
         </section>
       </div>

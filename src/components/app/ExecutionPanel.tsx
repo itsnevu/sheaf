@@ -26,6 +26,8 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
   const total = summary.valid;
   const done = summary.completed;
   const active = summary.inFlight;
+  // The leg currently being worked: everything settled so far plus one, capped at the total.
+  const currentLeg = Math.min(total, done + summary.failed + summary.retryEligible + 1);
   const isDemo = batch.mode === "demo";
   const activeFunding = funding[0];
 
@@ -44,13 +46,13 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
       {/* Funding */}
       {batch.status === "APPROVED" && (
         <section className="card p-5">
-          <h3 className="title-2">Fund the batch</h3>
+          <h3 className="title-2">Fund the operation</h3>
           <p className="mt-1 text-[0.875rem] text-ink-soft">
             Estimated funding requirement: <Money units={summary.fundingRequired} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="font-medium text-ink" /> on {chainName(batch.originChainId)} (plus native gas).
           </p>
           {isDemo ? (
             <>
-              <p className="mt-2 text-[0.8125rem] text-warning">Demo mode: funding is recorded as a simulated event. No wallet, no transfer.</p>
+              <p className="mt-2 text-[0.8125rem] text-warning">Demo desk: funding is recorded as a simulated event. No wallet, no transfer.</p>
               {me.can("batch.fund") && (
                 <Button variant="primary" className="mt-4" onClick={() => setConfirmFund(true)}>
                   Record simulated funding
@@ -62,7 +64,7 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
               <RealExecutionConsole d={d} stage="fund" onFund={onFund} onRefresh={onRefresh} />
             </div>
           ) : (
-            <p className="mt-3 text-[0.8125rem] text-ink-faint">A finance admin or owner must confirm funding.</p>
+            <p className="mt-3 text-[0.8125rem] text-ink-faint">A desk operator or owner must confirm funding.</p>
           )}
         </section>
       )}
@@ -73,15 +75,15 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
           <h3 className="title-2">{batch.status === "FUNDED" ? "Start execution" : "Resume execution"}</h3>
           <p className="mt-1 text-[0.875rem] text-ink-soft">
             {batch.status === "FUNDED"
-              ? `${total} payment(s) will be queued, one job each, with idempotency keys. ${batch.jitterMaxSeconds ? `Submissions are spaced up to ${Math.round(batch.jitterMaxSeconds / 60)} minutes apart.` : ""}`
-              : `${summary.retryEligible} retry-eligible payment(s) can be re-queued. Completed payments are untouched.`}
+              ? `${total} leg(s) will be queued, one job each, with idempotency keys. Legs with a not-before time wait for it. ${batch.jitterMaxSeconds ? `Legs are spaced up to ${Math.round(batch.jitterMaxSeconds / 60)} minutes apart.` : ""}`
+              : `${summary.retryEligible} retry-eligible leg(s) can be re-queued. Completed legs are untouched.`}
           </p>
           {me.can("batch.execute") ? (
             <Button variant="accent" className="mt-4" onClick={() => setConfirmExec(true)} disabled={batch.status !== "FUNDED" && summary.retryEligible === 0}>
               {isDemo ? "Execute (simulated)" : "Execute"}
             </Button>
           ) : (
-            <p className="mt-3 text-[0.8125rem] text-ink-faint">A finance admin or owner starts execution.</p>
+            <p className="mt-3 text-[0.8125rem] text-ink-faint">A desk operator or owner starts execution.</p>
           )}
         </section>
       )}
@@ -90,11 +92,11 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
       {["EXECUTING", "COMPLETED", "PARTIALLY_FAILED", "FAILED"].includes(batch.status) && (
         <section className="card p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="title-2">Execution</h3>
+            <h3 className="title-2">{batch.status === "EXECUTING" ? `Executing leg ${currentLeg} of ${total}` : `Executed ${done} of ${total} legs`}</h3>
             <StatusBadge status={batch.status} />
           </div>
           <div className="mt-4">
-            <Progress value={done} max={total} label="Completed payments" tone={batch.status === "COMPLETED" ? "success" : "veil"} />
+            <Progress value={done} max={total} label="Completed legs" tone={batch.status === "COMPLETED" ? "success" : "veil"} />
           </div>
           <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 text-[0.875rem]">
             <Kv k="In flight" v={active} />
@@ -107,7 +109,7 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
               <RealExecutionConsole d={d} stage="sign" onFund={onFund} onRefresh={onRefresh} />
             </div>
           )}
-          {isDemo && batch.status === "EXECUTING" && <p className="mt-4 text-[0.8125rem] text-warning">Simulated execution in progress. Statuses advance on a fixed schedule; no chain activity.</p>}
+          {isDemo && batch.status === "EXECUTING" && <p className="mt-4 text-[0.8125rem] text-warning">Simulated execution in progress. Legs advance on a fixed schedule; nothing touches Robinhood Chain.</p>}
         </section>
       )}
 
@@ -136,11 +138,11 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
       )}
 
       <Dialog open={confirmFund} onClose={() => setConfirmFund(false)} title="Record simulated funding" footer={<><Button variant="ghost" onClick={() => setConfirmFund(false)}>Cancel</Button><Button variant="primary" loading={busy} onClick={() => run(() => onFund(), () => setConfirmFund(false))}>Record funding</Button></>}>
-        <p className="text-[0.9375rem] text-ink-soft">This records a <strong className="text-ink">simulated</strong> funding event for <Money units={summary.fundingRequired} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="text-ink font-medium" />. No funds move. The batch becomes fundable-executed in demo mode only.</p>
+        <p className="text-[0.9375rem] text-ink-soft">This records a <strong className="text-ink">simulated</strong> funding event for <Money units={summary.fundingRequired} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="text-ink font-medium" />. No funds move. The operation becomes executable in demo mode only.</p>
       </Dialog>
-      <Dialog open={confirmExec} onClose={() => setConfirmExec(false)} title={isDemo ? "Execute simulated batch?" : "Execute batch?"} footer={<><Button variant="ghost" onClick={() => setConfirmExec(false)}>Cancel</Button><Button variant="accent" loading={busy} onClick={() => run(onExecute, () => setConfirmExec(false))}>Confirm and execute</Button></>}>
+      <Dialog open={confirmExec} onClose={() => setConfirmExec(false)} title={isDemo ? "Execute simulated operation?" : "Execute operation?"} footer={<><Button variant="ghost" onClick={() => setConfirmExec(false)}>Cancel</Button><Button variant="accent" loading={busy} onClick={() => run(onExecute, () => setConfirmExec(false))}>Confirm and execute</Button></>}>
         <p className="text-[0.9375rem] text-ink-soft">
-          {isDemo ? "Payments will be simulated by the mock provider. Some rows may be scripted to fail so you can exercise retries." : "Each route will be presented for signature by the connected treasury wallet. Nothing is sent without your signature."} Approval hash <span className="mono-data">{batch.recipientSetHash?.slice(0, 16)}…</span> will be re-checked before anything starts.
+          {isDemo ? "Legs will be simulated by the mock provider. Some legs may be scripted to fail so you can exercise retries." : "Each leg's route will be presented for signature by the connected desk wallet. Nothing is sent without your signature."} Approval hash <span className="mono-data">{batch.recipientSetHash?.slice(0, 16)}…</span> will be re-checked before anything starts.
         </p>
         {activeFunding && <p className="mt-3 text-[0.8125rem] text-ink-faint">Funding record: {activeFunding.status.toLowerCase()} · {fmtDate(activeFunding.createdAt)}</p>}
       </Dialog>

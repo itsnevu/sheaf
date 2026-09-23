@@ -25,7 +25,7 @@ export const GET = handler(async (req) => {
     orderBy: [{ batch: { createdAt: "desc" } }, { rowNumber: "asc" }],
     include: { batch: true, route: true, reconciliation: true, attempts: { orderBy: { attemptNo: "desc" } } },
   });
-  const header = ["batch_id", "batch_name", "batch_reference", "mode", "simulated", "row", "recipient_name", "recipient_address", "amount", "asset", "network", "internal_reference", "payment_status", "reconciliation_status", "route_kind", "provider_request_id", "tx_hash", "explorer_url", "attempts", "last_fail_reason", "fee_estimate_usd", "fee_actual_usd", "approved_at", "submitted_at", "completed_at", "reconciliation_note"];
+  const header = ["operation_id", "operation_name", "operation_kind", "operation_reference", "mode", "simulated", "leg", "leg_label", "leg_address", "amount", "asset", "network", "not_before", "memo", "leg_status", "reconciliation_status", "route_kind", "provider_request_id", "tx_hash", "explorer_url", "attempts", "last_fail_reason", "fee_estimate_usd", "fee_actual_usd", "approved_at", "submitted_at", "completed_at", "reconciliation_note"];
   const lines = [header.join(",")];
   for (const r of rows) {
     const last = r.attempts[0];
@@ -35,6 +35,7 @@ export const GET = handler(async (req) => {
       [
         r.batchId,
         r.batch.name,
+        r.batch.kind,
         r.batch.reference,
         r.batch.mode,
         r.batch.mode === "demo" ? "true" : "false",
@@ -44,6 +45,7 @@ export const GET = handler(async (req) => {
         r.amount ? formatUnits(r.amount, r.batch.assetDecimals).replace(/,/g, "") : "",
         r.assetSymbol,
         chainName(r.batch.destinationChainId),
+        r.notBefore?.toISOString(),
         r.reference,
         r.status,
         r.reconciliation?.status ?? "UNRECONCILED",
@@ -64,7 +66,7 @@ export const GET = handler(async (req) => {
         .join(","),
     );
   }
-  await audit({ organizationId: s.organizationId, batchId: batchId ?? null, actorId: s.userId, actorEmail: s.email, action: "export.downloaded", summary: `Reconciliation export downloaded (${rows.length} rows${batchId ? ", one batch" : ""})`, payload: { rows: rows.length, batchId } });
-  const name = batchId ? `sheaf-batch-${batchId}.csv` : `sheaf-reconciliation-${new Date().toISOString().slice(0, 10)}.csv`;
+  await audit({ organizationId: s.organizationId, batchId: batchId ?? null, actorId: s.userId, actorEmail: s.email, action: "export.downloaded", summary: `Reconciliation export downloaded (${rows.length} rows${batchId ? ", one operation" : ""})`, payload: { rows: rows.length, batchId } });
+  const name = batchId ? `sheaf-operation-${batchId}.csv` : `sheaf-reconciliation-${new Date().toISOString().slice(0, 10)}.csv`;
   return new Response(lines.join("\n") + "\n", { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${name}"` } });
 });

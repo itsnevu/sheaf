@@ -39,11 +39,11 @@ export const POST = handler<Ctx>(async (req, { params }) => {
   });
 });
 
-/** Original CSV for audit (Owner / Finance admin only). */
+/** Original CSV for audit (Owner / Desk operator only). */
 export const GET = handler<Ctx>(async (_req, { params }) => {
   const s = await requireSession("csv.viewOriginal");
   const batch = await loadBatch(s, params.id);
-  if (!batch.csvOriginal) return fail(404, "No CSV has been imported for this batch");
+  if (!batch.csvOriginal) return fail(404, "No CSV has been imported for this operation");
   await audit({ organizationId: s.organizationId, batchId: batch.id, actorId: s.userId, actorEmail: s.email, action: "csv.downloaded", summary: `Original CSV downloaded (${batch.csvFileName})` });
-  return new Response(batch.csvOriginal, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${(batch.csvFileName ?? "batch.csv").replace(/"/g, "")}"` } });
+  return new Response(batch.csvOriginal, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${(batch.csvFileName ?? "operation.csv").replace(/"/g, "")}"` } });
 });

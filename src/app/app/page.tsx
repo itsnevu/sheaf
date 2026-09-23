@@ -13,7 +13,7 @@ interface Dashboard {
   mode: string;
   assetSymbol: string;
   assetDecimals: number;
-  stats: { totalBatches: number; activeBatches: number; totalPayments: number; completed: number; pending: number; failed: number; retryEligible: number };
+  stats: { totalBatches: number; activeBatches: number; totalLegs: number; completed: number; pending: number; failed: number; retryEligible: number };
   recentBatches: BatchDTO[];
   recentEvents: FeedEvent[];
 }
@@ -24,8 +24,8 @@ export default function OverviewPage() {
   const d = q.data;
   const tiles: Array<[string, number | undefined, string?]> = d
     ? [
-        ["Batches", d.stats.totalBatches, `${d.stats.activeBatches} active`],
-        ["Payments", d.stats.totalPayments, "across executed batches"],
+        ["Operations", d.stats.totalBatches, `${d.stats.activeBatches} active`],
+        ["Legs", d.stats.totalLegs, "across executed operations"],
         ["Completed", d.stats.completed],
         ["Pending", d.stats.pending, "scheduled, submitted or confirming"],
         ["Failed", d.stats.failed, d.stats.retryEligible ? `+${d.stats.retryEligible} retry eligible` : undefined],
@@ -34,7 +34,7 @@ export default function OverviewPage() {
 
   return (
     <>
-      <PageHeader eyebrow={me.user.organizationName} title="Overview" description="Batch and payment status across your organisation." actions={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New batch <IconArrow /></Button>} />
+      <PageHeader eyebrow={me.user.organizationName} title="Overview" description="Operation and leg status across the desk. Private externally, transparent internally." actions={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New operation <IconArrow /></Button>} />
 
       <section aria-label="Key figures" className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {q.isLoading
@@ -56,7 +56,7 @@ export default function OverviewPage() {
       <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[3fr_2fr]">
         <section className="card min-w-0">
           <header className="flex items-center justify-between border-b border-line px-5 py-3.5">
-            <h2 className="title-2">Recent batches</h2>
+            <h2 className="title-2">Recent operations</h2>
             <Link href="/app/batches" className="text-[0.8125rem] text-ink-soft hover:text-ink">
               View all
             </Link>
@@ -75,7 +75,7 @@ export default function OverviewPage() {
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-medium">{b.name}</div>
                       <div className="text-[0.75rem] text-ink-faint">
-                        {b.validCount} recipients · updated {fmtRelative(b.updatedAt)}
+                        {b.kind} · {b.validCount} {b.validCount === 1 ? "leg" : "legs"} · updated {fmtRelative(b.updatedAt)}
                         {b.mode === "demo" && " · demo"}
                       </div>
                     </div>
@@ -86,7 +86,7 @@ export default function OverviewPage() {
               ))}
             </ul>
           ) : (
-            <EmptyState title="No batches yet" detail="Create a batch and upload a contractor CSV to get started." action={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New batch</Button>} />
+            <EmptyState title="No operations yet" detail="Create an operation, pick its kind and add legs to get started." action={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New operation</Button>} />
           )}
         </section>
 

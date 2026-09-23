@@ -22,15 +22,16 @@ export function useMe(): MeContext {
 
 const NAV: Array<{ href: string; label: string; exact?: boolean }> = [
   { href: "/app", label: "__Overview", exact: true },
-  { href: "/app/batches", label: "BATCHES_###" },
+  { href: "/app/batches", label: "OPERATIONS_###" },
+  { href: "/app/executions", label: "EXECUTIONS_###" },
+  { href: "/app/reconciliation", label: "RECONCILIATION_###" },
   { href: "/app/activity", label: "ACTIVITY_###" },
-  { href: "/app/reconciliation", label: "RECON_###" },
   { href: "/app/settings", label: "SETTINGS_###" },
   { href: "/", label: "SITE_###" },
 ];
 
 /**
- * The application on the same white sheet as the site: the red mark top-left opens a bordered
+ * The desk on the same white sheet as the site: the red mark top-left opens a bordered
  * mono list of instruments, the workspace and mode sit bottom-right, the page fills the middle.
  */
 export default function AppShell({ user, capabilities, mode, demoBanner, children }: { user: MeContext["user"]; capabilities: Capability[]; mode: "demo" | "real"; demoBanner: string; children: ReactNode }) {
@@ -68,7 +69,7 @@ export default function AppShell({ user, capabilities, mode, demoBanner, childre
           </button>
           <nav id="app-nav" aria-label="Application" className="p-menu" data-open={open}>
             {NAV.map((n) => {
-              const active = n.exact ? path === n.href : n.href !== "/" && path.startsWith(n.href);
+              const active = n.exact ? path === n.href : n.href !== "/" && (path.startsWith(n.href) || (n.href === "/app/executions" && path.startsWith("/app/payments")));
               return active ? (
                 <span key={n.href} className="is-current" aria-current="page">
                   {n.label}
@@ -89,9 +90,9 @@ export default function AppShell({ user, capabilities, mode, demoBanner, childre
         </main>
         <div className="x-status" role="status">
           <span className="x-status-user">
-            {user.name} · {statusLabel(user.role)} · {user.organizationName}
+            {user.name && user.name !== statusLabel(user.role) ? `${user.name} · ` : ""}{statusLabel(user.role)} · {user.organizationName}
           </span>
-          <span className={mode === "demo" ? "x-status-demo" : "x-status-real"}>{mode === "demo" ? demoBanner : "Real mode — routes are quoted live and transactions are signed by the connected treasury wallet."}</span>
+          <span className={mode === "demo" ? "x-status-demo" : "x-status-real"}>{mode === "demo" ? demoBanner : "Real mode — routes are quoted live by Relay and every leg is signed by the connected desk wallet."}</span>
         </div>
       </div>
     </Ctx.Provider>

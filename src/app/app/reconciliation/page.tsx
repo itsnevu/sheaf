@@ -9,7 +9,7 @@ import { Address, Button, Dialog, EmptyState, Input, Money, Select, Skeleton, St
 import { useToast } from "@/components/ui/Toast";
 import { api, downloadUrl, fmtDate } from "@/lib/client";
 import { RECIPIENT_STATUS, RECON_STATUS, statusLabel } from "@/lib/domain/states";
-import { txUrl } from "@/lib/config";
+import { ROBINHOOD_CHAIN_ID, txUrl } from "@/lib/config";
 import { toDisplayUsd } from "@/lib/money";
 import type { RecipientDTO } from "@/lib/serialize";
 
@@ -43,11 +43,11 @@ export default function ReconciliationPage() {
 
   return (
     <>
-      <PageHeader title="Reconciliation" description="Match every executed payment to its reference. Demo rows are always flagged as simulated." actions={me.can("export.download") && <Button variant="secondary" onClick={() => downloadUrl("/api/export")}>Export all (CSV)</Button>} />
+      <PageHeader title="Reconciliation" description="Match every executed leg to its reference. Demo legs are always flagged as simulated." actions={me.can("export.download") && <Button variant="secondary" onClick={() => downloadUrl("/api/export")}>Export all (CSV)</Button>} />
       <div className="mb-4 grid gap-3 md:grid-cols-[1fr_200px_200px]">
-        <Input type="search" aria-label="Search payments" placeholder="Name, address, reference, tx hash or batch" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
-        <Select aria-label="Payment status" value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
-          <option value="">Any payment status</option>
+        <Input type="search" aria-label="Search legs" placeholder="Label, address, memo, tx hash or operation" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
+        <Select aria-label="Leg status" value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
+          <option value="">Any leg status</option>
           {RECIPIENT_STATUS.filter((s) => !["PENDING", "ROUTED", "ROUTE_UNAVAILABLE"].includes(s)).map((s) => (
             <option key={s} value={s}>
               {statusLabel(s)}
@@ -70,7 +70,7 @@ export default function ReconciliationPage() {
             <Skeleton className="h-10" />
           </div>
         ) : rows.length === 0 ? (
-          <EmptyState title="No payments match" detail={q || status || recon ? "Adjust the search or filters." : "Executed payments appear here once a batch has run."} />
+          <EmptyState title="No legs match" detail={q || status || recon ? "Adjust the search or filters." : "Executed legs appear here once an operation has run."} />
         ) : (
           <>
             <ul className="divide-y divide-line md:hidden">
@@ -81,7 +81,7 @@ export default function ReconciliationPage() {
                       <Link href={`/app/payments/${r.id}`} className="font-medium hover:underline">
                         {r.name}
                       </Link>
-                      <div className="text-[0.75rem] text-ink-faint">{r.batchName} · row {r.rowNumber}</div>
+                      <div className="text-[0.75rem] text-ink-faint">{r.batchName} · leg {r.rowNumber}</div>
                     </div>
                     <Money units={r.amount} decimals={r.assetDecimals} symbol={r.assetSymbol} className="font-medium" />
                   </div>
@@ -102,10 +102,10 @@ export default function ReconciliationPage() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Recipient</th>
-                    <th>Batch</th>
+                    <th>Leg</th>
+                    <th>Operation</th>
                     <th className="text-right">Amount</th>
-                    <th>Payment</th>
+                    <th>Status</th>
                     <th>Reference</th>
                     <th className="text-right">Fee (est.)</th>
                     <th>Reconciliation</th>
@@ -126,7 +126,7 @@ export default function ReconciliationPage() {
                       <td className="max-w-[14rem]">
                         <div className="truncate text-[0.875rem]" title={r.batchName}>{r.batchName}</div>
                         <div className="text-[0.75rem] text-ink-faint">
-                          row {r.rowNumber} · {r.reference ?? "no ref"} {r.batchMode === "demo" && "· demo"}
+                          leg {r.rowNumber} · {r.reference ?? "no memo"} {r.batchMode === "demo" && "· demo"}
                         </div>
                       </td>
                       <td className="text-right">
@@ -137,7 +137,7 @@ export default function ReconciliationPage() {
                         {r.completedAt && <div className="text-[0.75rem] text-ink-faint">{fmtDate(r.completedAt)}</div>}
                       </td>
                       <td>
-                        <TxHash value={r.txHash} url={r.txHash ? txUrl(8453, r.txHash) : null} simulated={r.simulated} />
+                        <TxHash value={r.txHash} url={r.txHash && !r.simulated ? txUrl(ROBINHOOD_CHAIN_ID, r.txHash) : null} simulated={r.simulated} />
                       </td>
                       <td className="text-right tnum">{toDisplayUsd(r.route?.feeTotalUsd)}</td>
                       <td>
@@ -152,7 +152,7 @@ export default function ReconciliationPage() {
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3 text-[0.8125rem] text-ink-soft">
               <span>
-                {total} payment(s) · page {page} of {pages}
+                {total} leg(s) · page {page} of {pages}
               </span>
               <div className="flex gap-2">
                 <Button size="sm" variant="secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
@@ -186,7 +186,7 @@ function ReconDialog({ row, onClose, onSave }: { row: Row; onClose: () => void; 
           ))}
         </Select>
         <Textarea label="Note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Matched to bank statement line 42" />
-        <p className="text-[0.8125rem] text-ink-faint">Payment status: {statusLabel(row.status)}. Reference: {row.txHash ? row.txHash.slice(0, 14) + "…" : "none"}{row.simulated ? " (simulated)" : ""}.</p>
+        <p className="text-[0.8125rem] text-ink-faint">Leg status: {statusLabel(row.status)}. Reference: {row.txHash ? row.txHash.slice(0, 14) + "…" : "none"}{row.simulated ? " (simulated)" : ""}.</p>
       </div>
     </Dialog>
   );

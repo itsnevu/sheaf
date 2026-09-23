@@ -31,14 +31,14 @@ function SignInForm() {
   };
 
   const demo = (who: string) => {
-    setEmail(`${who}@northwind.example`);
+    setEmail(`${who}@halden.example`);
     setPassword("sheaf-demo-2026");
   };
 
   return (
     <>
       <h1 className="title-1">Sign in</h1>
-      <p className="mt-2 text-[0.9375rem] text-ink-soft">Sign a message with your wallet, or use workspace credentials.</p>
+      <p className="mt-2 text-[0.9375rem] text-ink-soft">Sign a message with your wallet, or use desk credentials.</p>
       <div className="mt-6">
         <WalletSignIn next={params.get("next") || "/app"} />
       </div>
@@ -51,10 +51,10 @@ function SignInForm() {
         </Button>
       </form>
       <div className="mt-8 rounded-card border border-line bg-surface p-4">
-        <p className="text-[0.8125rem] font-medium">Demo workspace (Northwind Labs)</p>
-        <p className="mt-1 text-[0.8125rem] text-ink-faint">Fill the form with a seeded account, then sign in.</p>
+        <p className="text-[0.8125rem] font-medium">Demo desk (Halden Desk)</p>
+        <p className="mt-1 text-[0.8125rem] text-ink-faint">Fill the form with a seeded account, then sign in. Everything in the demo is simulated and labelled as such.</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          {["owner", "finance", "approver", "viewer"].map((w) => (
+          {["owner", "desk", "approver", "viewer"].map((w) => (
             <button key={w} type="button" onClick={() => demo(w)} className="btn btn-secondary btn-sm">
               {w}
             </button>
@@ -64,7 +64,7 @@ function SignInForm() {
       <p className="mt-6 text-[0.875rem] text-ink-soft">
         New here?{" "}
         <Link href="/sign-up" className="link">
-          Create a workspace
+          Start a desk
         </Link>
       </p>
     </>

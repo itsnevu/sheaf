@@ -5,7 +5,7 @@ import "@/styles/reader.css";
 
 export const metadata: Metadata = {
   title: "Docs · Sheaf",
-  description: "Sheaf documentation: getting started, CSV format, batch workflow, roles, demo vs real mode, execution, reconciliation and known limitations.",
+  description: "Sheaf documentation: getting started, operation kinds, leg CSV format, workflow and roles, demo vs real mode, contracts, execution and reconciliation, known limitations.",
 };
 
 export default function DocsPage() {

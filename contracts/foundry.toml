@@ -1,0 +1,24 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+solc_version = "0.8.24"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "forge-std/=lib/forge-std/src/",
+]
+
+[fuzz]
+runs = 256
+
+[rpc_endpoints]
+robinhood = "${ROBINHOOD_RPC_URL}"
+
+[lint]
+# block.timestamp comparisons are the intended windows/expiries; events are emitted for every role change.
+exclude_lints = ["block-timestamp", "missing-events-access-control", "reentrancy-events"]

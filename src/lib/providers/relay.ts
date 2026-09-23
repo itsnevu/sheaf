@@ -15,7 +15,7 @@ import type {
  * Relay adapter. Uses only endpoints verified in docs/research/relay-integration-research.md:
  *   POST /quote/v2            → route + unsigned steps + fee estimate
  *   GET  /intents/status/v3   → execution status by requestId
- * No SDK; the treasury wallet signs the steps in the browser (see components/app/RealExecutionConsole).
+ * No SDK; the desk wallet signs the steps in the browser (see components/app/RealExecutionConsole).
  */
 
 // failReason codes Relay documents as safe to retry.
@@ -138,7 +138,7 @@ export class RelayProvider implements PaymentProvider {
   }
 
   async submit(_input: SubmitInput): Promise<SubmitResult> {
-    throw new Error("Relay routes are signed by the treasury wallet in the browser; the server never submits.");
+    throw new Error("Relay routes are signed by the desk wallet in the browser; the server never submits.");
   }
 
   async status(requestId: string): Promise<StatusResult> {

@@ -6,7 +6,8 @@ import { removeRecipient, updateRecipient } from "@/lib/services/batches";
 
 type Ctx = { params: { id: string; rid: string } };
 
-const Patch = z.object({ name: z.string().max(120).optional(), address: z.string().max(80).optional(), amount: z.string().max(40).optional(), reference: z.string().max(120).nullable().optional() });
+/** Edits one leg: label (name), address, amount, memo (reference) and not-before time. */
+const Patch = z.object({ name: z.string().max(120).optional(), address: z.string().max(80).optional(), amount: z.string().max(40).optional(), reference: z.string().max(200).nullable().optional(), notBefore: z.string().max(40).nullable().optional() });
 
 export const PATCH = handler<Ctx>(async (req, { params }) => {
   const s = await requireSession("batch.edit");

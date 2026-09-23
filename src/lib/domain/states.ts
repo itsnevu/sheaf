@@ -1,4 +1,52 @@
-/** Explicit lifecycle states. Transitions are enforced in src/lib/services/batches.ts. */
+/**
+ * Explicit lifecycle states. Transitions are enforced in src/lib/services/batches.ts.
+ *
+ * Vocabulary: an "operation" (a sheaf) is stored as a PaymentBatch; each "leg" of it is a
+ * BatchRecipient. Model names and status values are kept; labels are the product vocabulary.
+ */
+
+/** The four operation kinds, each backed by a contract in contracts/ (referenced by name only). */
+export const OPERATION_KIND = ["CLAIM", "ACCUMULATE", "OTC", "TREASURY"] as const;
+export type OperationKind = (typeof OPERATION_KIND)[number];
+
+export const OPERATION_KIND_INFO: Record<OperationKind, { label: string; contract: string; summary: string; legs: string; legLabel: string; legAddressLabel: string }> = {
+  CLAIM: {
+    label: "Private allocation claim",
+    contract: "PrivateClaim",
+    summary: "An eligible account claims an allocation into a fresh recipient, so the eligible wallet is not the destination on-chain.",
+    legs: "One leg per claim: eligible account → fresh recipient, amount.",
+    legLabel: "Eligible account",
+    legAddressLabel: "Fresh recipient",
+  },
+  ACCUMULATE: {
+    label: "Stealth accumulation",
+    contract: "StealthDesk",
+    summary: "A plan of fresh recipients, amounts and not-before times, committed as a Merkle root and executed one leg at a time.",
+    legs: "One leg per tranche: fresh recipient, amount, not-before.",
+    legLabel: "Tranche",
+    legAddressLabel: "Fresh recipient",
+  },
+  OTC: {
+    label: "Private OTC block",
+    contract: "OtcEscrow",
+    summary: "A single block against one counterparty: give asset and amount, want asset and amount, expiry, and the address to receive into.",
+    legs: "A single leg: counterparty, give amount; memo carries the want side and the receive-into address.",
+    legLabel: "Counterparty",
+    legAddressLabel: "Counterparty address",
+  },
+  TREASURY: {
+    label: "Delegated treasury",
+    contract: "DelegatedTreasury",
+    summary: "Delegated payouts under a daily cap. The proposer is never the approver.",
+    legs: "One leg per payout: to, token, amount.",
+    legLabel: "Payee",
+    legAddressLabel: "Destination",
+  },
+};
+
+export function operationKindLabel(kind: string | null | undefined): string {
+  return OPERATION_KIND_INFO[kind as OperationKind]?.label ?? kind ?? "Operation";
+}
 
 export const BATCH_STATUS = [
   "DRAFT",
@@ -41,10 +89,10 @@ export type ReconStatus = (typeof RECON_STATUS)[number];
 export const ROLES = ["OWNER", "FINANCE_ADMIN", "APPROVER", "VIEWER"] as const;
 export type Role = (typeof ROLES)[number];
 
-/** Batch statuses in which the recipient set may still be edited. */
+/** Operation statuses in which the leg set may still be edited. */
 export const EDITABLE_BATCH_STATUSES: BatchStatus[] = ["DRAFT", "VALIDATED", "ROUTES_PREPARED", "APPROVED"];
 
-/** Terminal recipient states (never touched by the worker again). */
+/** Terminal leg states (never touched by the worker again). */
 export const TERMINAL_RECIPIENT: RecipientStatus[] = ["COMPLETED", "FAILED", "REFUNDED", "CANCELLED"];
 
 export const BATCH_TRANSITIONS: Record<BatchStatus, BatchStatus[]> = {
@@ -95,9 +143,13 @@ export const STATUS_LABEL: Record<string, string> = {
   CONSUMED: "Consumed",
   SIMULATED: "Simulated",
   OWNER: "Owner",
-  FINANCE_ADMIN: "Finance admin",
+  FINANCE_ADMIN: "Desk operator",
   APPROVER: "Approver",
   VIEWER: "Viewer",
+  CLAIM: "Private allocation claim",
+  ACCUMULATE: "Stealth accumulation",
+  OTC: "Private OTC block",
+  TREASURY: "Delegated treasury",
 };
 
 export function statusLabel(s: string | null | undefined): string {

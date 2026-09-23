@@ -11,7 +11,7 @@ export default function PageHeader({ title, eyebrow, description, actions, back 
           </Link>
         )}
         {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
-        <h1 className="title-1 truncate">{title}</h1>
+        <h1 className="title-1 [overflow-wrap:anywhere]">{title}</h1>
         {description && <div className="mt-1.5 text-[0.9375rem] text-ink-soft">{description}</div>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2 md:justify-end">{actions}</div>}

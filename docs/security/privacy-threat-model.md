@@ -1,105 +1,134 @@
 # Sheaf privacy threat model
 
-Positioning: **"Private externally. Transparent internally."** This document states what that means in practice, who can see what, and what Sheaf does and does not promise. It was written against the verified Relay behaviour in `docs/research/relay-integration-research.md`.
+Positioning: **"Private externally. Transparent internally."** Sheaf is the private execution desk for Robinhood Chain (chain id 4663). This document states what that means in practice, who can see what, and what Sheaf does and does not promise. The Relay observations come from `docs/research/relay-integration-research.md`; the on-chain observations for Robinhood Chain are stated as assumptions until verified.
 
-## 1. Privacy objectives
+## 1. What privacy means here
 
-1. Reduce **unnecessary** public linkage between an organisation's treasury operations and individual contractor payouts, where the underlying infrastructure supports it.
-2. Keep every payout fully visible **internally** (finance operators, approvers, auditors) with immutable-by-policy audit events.
+Privacy means one thing: **the wallet that owns the funds or the eligibility does not appear as the destination on-chain.** A claim lands in a fresh recipient, an accumulation plan lands in fresh recipients, an OTC block settles into a receive-into address, a delegated payout goes to its payee without the desk wallet being the payee.
+
+What stays visible, always:
+
+- amounts and assets of every leg;
+- timing of every leg (block timestamps, and internally the not-before and actual times);
+- the desk contract addresses (`PrivateClaim`, `StealthDesk`, `OtcEscrow`, `DelegatedTreasury`) and, today, the desk wallet or a Relay solver as the on-chain sender;
+- everything inside the desk: labels, memos, addresses, approvals, the audit trail.
+
+Words never used in the product or the docs: anonymous, untraceable, unlinkable, invisible, hidden from the blockchain.
+
+## 2. Privacy objectives
+
+1. Keep the owning or eligible wallet out of the destination field of every leg.
+2. Keep every leg fully visible **internally** (desk operators, approvers, auditors) with immutable-by-policy audit events.
 3. Never trade auditability or legal obligations for privacy.
-4. Never describe a payment as anonymous, untraceable, or unlinkable.
+4. Never describe an operation as anonymous, untraceable, or unlinkable.
 
-## 2. Threat assumptions and observers
+## 3. Observers
 
 | Observer | What they can access |
 |---|---|
-| Block explorers, indexers, analytics firms (Chainalysis-style) | All on-chain data: sender, receiver, amount, token, timestamp, calldata, contract interactions. |
-| Validators / sequencers / RPC providers | Same as above plus the submitting IP and mempool timing. The browser's RPC provider sees the treasury address with the operator's IP. |
-| Relay (route provider and its solvers) | Every quote (`user`, `recipient`, amount, chains), every deposit, every fill. Relay also **publicly** exposes request metadata via `GET /requests/v2` and its transaction explorer: `user` → `recipient` pairs are listed without authentication (verified live). |
-| Wallet provider (MetaMask, WalletConnect relays) | The treasury address, every transaction it signs, the dapp origin. |
-| Sheaf backend operators (hosting, DB admins) | Everything in the database: names, addresses, amounts, references, CSV originals, approvals, audit trail. |
-| Finance administrators and approvers | Everything in their organisation, by design. Viewers see redacted addresses. |
-| Recipients | Their own incoming transaction, its sender (treasury or solver), amount, timestamp. |
+| Block explorers, indexers, analytics firms | All on-chain data on Robinhood Chain: sender, receiver, amount, token, timestamp, calldata, contract interactions, including every call to a desk contract. |
+| Sequencer / RPC providers | Same as above plus the submitting IP and timing. The browser's RPC provider sees the desk wallet with the operator's IP. |
+| Relay (route provider and its solvers) | Every quote (`user`, `recipient`, amount, chains), every deposit, every fill. Relay also **publicly** exposes request metadata via `GET /requests/v2` and its transaction explorer: `user` → `recipient` pairs are listed without authentication (verified live on Base). |
+| Wallet provider (MetaMask, WalletConnect relays) | The desk wallet, every transaction it signs, the dapp origin. |
+| Robinhood (issuer of Stock Tokens) | Transfer restrictions on sender and receiver mean the issuer's allowlist sees every Stock Token movement; a fresh unverified address cannot receive them. |
+| Sheaf backend operators (hosting, DB admins) | Everything in the database: labels, addresses, amounts, memos, CSV originals, approvals, audit trail (labels, memos and CSV originals encrypted at rest with one server key). |
+| Desk operators and approvers | Everything in their desk, by design. Viewers see redacted addresses. |
+| Counterparties and recipients | Their own incoming transaction, its sender (desk wallet, solver or desk contract), amount, timestamp. |
 
-Assumed adversary goal: link "this treasury" to "this set of contractors and amounts" and to "this pay cycle".
+Assumed adversary goal: link "this desk wallet" to "these fresh recipients, counterparties and amounts" and to "this plan".
 
-## 3. On-chain data exposure
+## 4. On-chain exposure by operation kind
 
-- **Same-chain, same-token route (default: Base USDC → Base USDC).** Relay returns a plain ERC-20 `transfer(recipient, amount)` from the treasury. On-chain this is indistinguishable from paying directly: sender, recipient, amount and time are all public and linked in one transaction. **No privacy benefit.** Sheaf shows a "Direct transfer" route label and a warning in this case.
-- **Cross-chain route (e.g. Arbitrum USDC → Base USDC).** The treasury sends a deposit to a Relay solver/depository address on the origin chain; a solver pays the recipient on the destination chain from a solver-controlled address. The recipient's incoming transaction does not name the treasury. However: (a) the origin deposit still names the treasury, (b) amounts and times correlate across chains, (c) Relay's public request listing links the two. This is **obfuscation against casual inspection**, not unlinkability.
-- **Funding transactions.** Moving funds into the treasury from an exchange or a main wallet is public and links the treasury to its source. Out of Sheaf's scope.
-- **Amounts.** Payroll amounts are typically round or repeated monthly, which makes recipients recognisable across cycles regardless of routing.
+| Kind | Intended on-chain shape (with the contracts wired) | Shape today (contracts not called) |
+|---|---|---|
+| CLAIM | The eligible account proves eligibility to `PrivateClaim`; the allocation is sent to a fresh recipient. The eligible account is visible as the caller, the fresh recipient as the destination. | A route from the desk wallet to the fresh recipient. |
+| ACCUMULATE | The plan is committed as a Merkle root in `StealthDesk`; legs are executed one at a time, each revealing only its own leaf (recipient, amount, not-before). | One route per leg from the desk wallet, spaced by not-before and optional jitter. |
+| OTC | `OtcEscrow` holds the give side until the counterparty settles the want side or the block expires; the receive-into address is fresh. | A single route from the desk wallet to the counterparty address. |
+| TREASURY | `DelegatedTreasury` enforces proposer ≠ approver and a daily cap on-chain; payouts go to payees. | Four-eyes and the cap are enforced in the desk only; a route per payee from the desk wallet. |
 
-## 4. Provider and infrastructure data exposure
+Until the contracts are wired in, the desk wallet is the visible sender on same-chain routes, and a Relay solver is the sender on cross-chain routes. The UI flags direct-transfer routes for this reason.
 
-- Relay receives and stores the complete route graph and publishes request metadata. Anyone with the `requestId` or the treasury address can list its requests.
-- RPC and wallet providers see the treasury address and operator IP. A VPN or a self-hosted RPC reduces IP linkage; Sheaf supports a per-chain RPC override.
-- Sheaf's own hosting sees everything. Database at rest: contractor names, internal references and CSV originals are encrypted with AES-256-GCM under `SHEAF_ENCRYPTION_KEY`; wallet addresses and amounts stay in clear so they can be queried (see Section 11).
+## 5. Provider exposure (Relay)
 
-## 5. Internal access boundaries (implemented)
+- Every quote carries `user` (desk wallet), `recipient` (leg destination), amount and chains.
+- Requests are listed publicly on Relay's explorer and `GET /requests/v2`; no opt-out is documented.
+- Solver fills on the destination chain are sent from solver addresses, not from the desk wallet (verified from live quote structure on Base; not verified by executing a fill; not verified on Robinhood Chain at all).
 
-- Server-enforced roles per organisation membership: **Owner**, **Finance admin**, **Approver**, **Viewer**. Checks live in `src/lib/auth/permissions.ts` and are applied in every API route and server page, not only in the UI.
-- Organisation isolation: every query is scoped by `organizationId` derived from the session, never from the request body.
-- Viewers see truncated recipient addresses and cannot export; Approvers cannot edit recipients; only Owners/Finance admins can create, validate, prepare and execute; approval requires Approver or Owner and cannot be given by the same user who last modified the recipient set (four-eyes rule, enforced server-side).
-- Every consequential action writes an `AuditEvent` (actor, action, batch, payload hash, timestamp). Audit rows are never updated or deleted by application code; database-level immutability is **not** enforced in this build.
+## 6. Internal exposure and controls
 
-## 6. Metadata leakage
+| Control | Status |
+|---|---|
+| Roles enforced on the server for every route (`requireSession(capability)`) | Implemented, tested |
+| Viewer redaction of addresses in every API response | Implemented, tested |
+| Four-eyes: the last editor of the legs cannot approve them | Implemented, tested; the delegated treasury kind depends on it |
+| Approval bound to the leg-set hash; money changes invalidate it | Implemented, tested |
+| Append-only audit trail (client extension + database triggers) | Implemented, tested |
+| Encryption at rest for labels, memos, CSV originals (AES-256-GCM, one server key) | Implemented, tested |
+| Export audited; demo rows carry `simulated=true` | Implemented |
+| Session cookies hashed, 14 days, revoked on member removal; sign-in rate limited | Implemented |
 
-- CSV originals are stored verbatim (needed for audit) and contain names. They are served only to Owner/Finance admin roles.
-- Internal references (invoice numbers) never leave the database; they are not written into calldata or memos.
-- Transaction references from the provider are stored and shown; they are public identifiers by nature.
-- Export files contain names and full addresses; the UI warns before download and logs the export.
+## 7. Timing correlation
 
-## 7. Timing correlation risks
+- A plan executed as a burst of N legs within seconds is a strong fingerprint on-chain and in Relay's request feed.
+- **Not-before** per leg is the primary spacing tool for accumulation plans: the desk never executes a leg before its time. **Jitter** (0–30 minutes, off by default, never past the deadline) adds operational spacing. Both timestamps are recorded internally.
+- Evaluation: spacing weakens naive "same block" clustering but does not defeat an observer who groups by sender address or by Relay request listing. The UI calls it spacing, never anonymity.
 
-- A batch executed as a burst of N transfers within seconds is a strong "payroll run" fingerprint, both on-chain and in Relay's request feed.
-- **Jitter** (randomised spacing between route submissions) is implemented as an operator setting: off by default, bounded to 0–30 minutes per route, never extending past the batch deadline, with the scheduled and actual timestamps recorded internally. Evaluation: jitter weakens naive "same block" clustering but does not defeat an observer who groups by sender address or by Relay request listing. It is therefore described in the UI as "spacing" for operational and light-privacy reasons, never as anonymity.
-- Jitter is disabled automatically when a batch has a deadline closer than the maximum jitter window.
+## 8. Amount correlation
 
-## 8. Amount correlation risks
+- Identical amounts across plans identify a recipient regardless of route. Splitting or rounding amounts is **not** implemented: altering an approved amount would violate the "no silent changes" principle.
+- Fee-inclusive quoting (`EXACT_OUTPUT`) makes the origin amount slightly different from the leg amount on cross-chain routes; a side effect, not a control.
 
-- Identical amounts every cycle identify a recipient across cycles regardless of route. Splitting or rounding amounts is **not** implemented: altering an approved amount would violate the "no silent changes" principle and complicate accounting.
-- Fee-inclusive quoting (`EXACT_OUTPUT`) makes the origin amount slightly different from the recipient amount on cross-chain routes, which marginally weakens exact-amount matching; this is a side effect, not a control.
+## 9. Stock Token transfer restrictions
 
-## 9. Verified privacy guarantees
+Robinhood Stock Tokens enforce compliance on both sender and receiver. Consequences for the desk:
+
+- A fresh, unverified recipient cannot hold Stock Tokens. Fresh-recipient operations (CLAIM, ACCUMULATE) are only meaningful for USDG or other unrestricted assets, or for recipients that have been verified out of band.
+- The desk does not check allowlists. A leg to a restricted destination fails at execution; the demo seed shows this as `RESTRICTED_TOKEN: recipient not allowlisted (simulated)`.
+- The receive-into address of an OTC block that wants Stock Tokens must be an allowlisted address; the memo carries it, the desk does not verify it.
+
+## 10. Verified guarantees
 
 Only these are claimed:
 
-1. Internal role-based access control is enforced on the server (tested by API tests).
-2. Recipient addresses are truncated for Viewer role in UI and API responses.
-3. Every batch state change and every export is recorded as an audit event.
-4. On cross-chain routes, the recipient's incoming on-chain transaction is sent by a Relay solver address, not by the treasury (verified from live quote structure; not verified by executing a fill).
+1. Internal role-based access control is enforced on the server (tested).
+2. Leg addresses are redacted for the Viewer role in UI and API responses (tested).
+3. Every operation state change and every export is recorded as an audit event (tested).
+4. A leg is never executed before its not-before time (tested against the queue).
+5. On cross-chain routes through Relay, the destination transaction is sent by a solver address, not by the desk wallet (verified from live quote structure on Base; not verified by executing a fill).
 
-## 10. Unverified assumptions
+## 11. Unverified assumptions
 
-- That Relay solvers do not reuse a dedicated per-integrator address that would itself become a treasury fingerprint.
-- That Relay's public request listing cannot be opted out of (no documentation found either way).
-- That fills on the destination chain are not batched by the solver in a way that groups Sheaf's recipients together in one transaction (possible and would re-link them).
-- Any behaviour on non-EVM destination chains.
+- That Relay lists Robinhood Chain (4663) and USDG, and that its solvers fill there.
+- That Relay solvers do not reuse a dedicated per-integrator address that would itself become a desk fingerprint.
+- That Relay's public request listing cannot be opted out of.
+- That fills on the destination chain are not batched by the solver in a way that groups a plan's legs together in one transaction.
+- Everything about the desk contracts' on-chain footprint: they are not called by this version.
 
-## 11. Technical limitations
+## 12. Technical limitations
 
-- Field-level encryption covers names, references and CSV originals with one server-side key. Wallet addresses and amounts are plaintext columns (needed for duplicate detection and search); per-organisation keys held in a KMS are a follow-up.
-- The audit table is append-only (the data layer refuses updates and deletes, and database triggers enforce the same rule for raw SQL). It is not anchored in an external or immutable store.
-- No mixing, shielded pools, or zero-knowledge transfers. Sheaf does not integrate any privacy protocol.
-- Same-chain routes have zero external privacy.
+- The desk contracts are not wired in; the on-chain shape of every kind is the plain route shape in section 4.
+- Field-level encryption covers labels, memos and CSV originals with one server-side key. Addresses and amounts are plaintext columns.
+- The audit table is append-only inside the database but not anchored externally.
+- No mixing, shielded pools or zero-knowledge transfers. Sheaf integrates no privacy protocol.
+- Same-chain routes make the desk wallet the visible sender.
 - Relay is a single trusted intermediary with full visibility.
 
-## 12. Recommended mitigations
+## 13. Mitigations
 
 | Risk | Mitigation | Status |
 |---|---|---|
-| Treasury ↔ recipient direct link | Prefer a cross-chain or cross-token route; Sheaf flags direct-transfer routes on review | Implemented (flag) |
+| Desk wallet ↔ recipient direct link | Wire the desk contracts so the contract, not the wallet, is the sender; until then prefer cross-chain routes and heed the direct-transfer flag | Flag implemented; contracts not wired |
 | Public Relay request feed | Contact Relay about private/opt-out request indexing; use `useDepositAddress` with strict addresses so the on-chain sender is a fresh deposit address | Documented; not enabled |
-| Burst timing fingerprint | Optional bounded jitter, off by default | Implemented |
-| Operator IP linkage | Self-hosted RPC (`NEXT_PUBLIC_RPC_URL_<chain>`), VPN | Configurable |
-| Data at rest | Field-level encryption (names, references, CSV originals) with a server-side key; restrict DB access; back up the key with the database | Implemented (single key; per-org KMS keys not implemented) |
+| Burst timing fingerprint | Not-before per leg; optional bounded jitter | Implemented |
+| Operator IP linkage | Self-hosted RPC (`NEXT_PUBLIC_RPC_URL_4663`), VPN | Configurable |
+| Data at rest | Field-level encryption with a server-side key; restrict DB access; back up the key with the database | Implemented (single key) |
 | Insider misuse | Four-eyes approval, role separation, audit trail, export logging | Implemented |
-| Amount fingerprint | Accept; document to customers. Do not alter approved amounts. | Documented |
-| Treasury reuse across cycles | Rotate treasury wallets per period (organisation policy) | Documented |
+| Amount fingerprint | Accept; document. Do not alter approved amounts. | Documented |
+| Restricted Stock Tokens to fresh addresses | Describe the restriction wherever a fresh address is offered; fail the leg; add an allowlist check before approval | Described; check not implemented |
+| Desk wallet reuse across plans | Rotate desk wallets per plan (desk policy) | Documented |
 
 ## Language policy
 
-Approved: "Designed to reduce unnecessary public linkage between treasury operations and individual payouts, subject to the capabilities and limitations of the underlying payment infrastructure."
+Approved: "Designed so that the wallet that owns the funds or the eligibility is not the destination on-chain, subject to the capabilities and limitations of the underlying routing and settlement infrastructure. Amounts, timing and the desk contract address remain visible."
 
 Not approved anywhere in the product or site: "anonymous", "untraceable", "unlinkable", "invisible", "private transactions", "hidden from the blockchain".

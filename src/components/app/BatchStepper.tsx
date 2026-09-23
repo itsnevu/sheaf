@@ -2,33 +2,49 @@
 
 import { IconCheck } from "@/components/ui";
 
+/** The seven stages of an operation. Indices are used by the operation page. */
 export const WIZARD_STEPS = [
-  { id: "details", label: "Details" },
-  { id: "upload", label: "Upload" },
+  { id: "legs", label: "Legs" },
   { id: "validate", label: "Validate" },
-  { id: "routes", label: "Routes" },
-  { id: "review", label: "Review" },
+  { id: "route", label: "Route" },
   { id: "approve", label: "Approve" },
+  { id: "fund", label: "Fund" },
+  { id: "execute", label: "Execute" },
+  { id: "reconcile", label: "Reconcile" },
 ] as const;
 export type WizardStep = (typeof WIZARD_STEPS)[number]["id"];
+export const STEP = { legs: 0, validate: 1, route: 2, approve: 3, fund: 4, execute: 5, reconcile: 6 } as const;
 
-/** Which step the batch has reached, derived from server state so refreshes never lose place. */
+/** Which stage the operation has reached, derived from server state so refreshes never lose place. */
 export function reachedStep(status: string, hasCsv: boolean, invalidCount: number, validCount: number): number {
-  if (status === "APPROVED") return 5;
-  if (status === "ROUTES_PREPARED") return 4;
-  if (status === "VALIDATED") return 3;
-  if (hasCsv && (invalidCount > 0 || validCount === 0)) return 2;
-  if (hasCsv) return 2;
-  return 1;
+  switch (status) {
+    case "COMPLETED":
+      return STEP.reconcile;
+    case "EXECUTING":
+    case "PARTIALLY_FAILED":
+    case "FAILED":
+    case "FUNDED":
+      return STEP.execute;
+    case "APPROVED":
+      return STEP.fund;
+    case "ROUTES_PREPARED":
+      return STEP.approve;
+    case "VALIDATED":
+      return STEP.route;
+    default:
+      if (hasCsv && (invalidCount > 0 || validCount === 0)) return STEP.validate;
+      if (hasCsv) return STEP.validate;
+      return STEP.legs;
+  }
 }
 
-export default function BatchStepper({ current, reached, onSelect }: { current: number; reached: number; onSelect: (i: number) => void }) {
+export default function BatchStepper({ current, reached, onSelect, interactiveUpTo = WIZARD_STEPS.length - 1 }: { current: number; reached: number; onSelect: (i: number) => void; interactiveUpTo?: number }) {
   return (
-    <ol className="flex items-center gap-1 overflow-x-auto pb-1" aria-label="Batch preparation steps">
+    <ol className="flex items-center gap-1 overflow-x-auto pb-1" aria-label="Operation stages">
       {WIZARD_STEPS.map((s, i) => {
         const done = i < reached;
         const active = i === current;
-        const enabled = i <= reached;
+        const enabled = i <= reached && i <= interactiveUpTo;
         return (
           <li key={s.id} className="flex items-center">
             <button

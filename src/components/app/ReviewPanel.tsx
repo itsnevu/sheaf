@@ -2,6 +2,7 @@
 
 import { Money, StatusBadge, IconWarn } from "@/components/ui";
 import { chainName } from "@/lib/config";
+import { operationKindLabel } from "@/lib/domain/states";
 import { toDisplayUsd } from "@/lib/money";
 import type { BatchDetail } from "./useBatch";
 
@@ -11,20 +12,20 @@ export default function ReviewPanel({ d }: { d: BatchDetail }) {
   const now = Date.now();
   const stale = recipients.filter((r) => r.route?.status === "QUOTED" && r.route.expiresAt && new Date(r.route.expiresAt).getTime() < now).length;
   const warnings: string[] = [];
-  if (summary.invalid > 0) warnings.push(`${summary.invalid} invalid row(s) must be corrected or removed.`);
-  if (summary.routeUnavailable > 0) warnings.push(`${summary.routeUnavailable} recipient(s) have no available route. Prepare routes again or remove them.`);
+  if (summary.invalid > 0) warnings.push(`${summary.invalid} invalid leg(s) must be corrected or removed.`);
+  if (summary.routeUnavailable > 0) warnings.push(`${summary.routeUnavailable} leg(s) have no available route. Prepare routes again or remove them.`);
   if (stale > 0) warnings.push(`${stale} route quote(s) have expired. Prepare routes again before approval.`);
-  if (summary.directTransferRoutes > 0) warnings.push(`${summary.directTransferRoutes} route(s) are direct token transfers from the treasury (same chain, same asset). They provide no external privacy.`);
+  if (summary.directTransferRoutes > 0) warnings.push(`${summary.directTransferRoutes} route(s) are direct token transfers from the desk wallet (same chain, same asset). The desk wallet is then the visible sender of that leg.`);
   const largeWarn = recipients.filter((r) => r.warnings.some((w) => w.code === "AMOUNT_LARGE")).length;
   if (largeWarn) warnings.push(`${largeWarn} unusually large amount(s) flagged; double-check them.`);
-  if (batch.deadlineAt && new Date(batch.deadlineAt).getTime() < now) warnings.push("The batch deadline has passed.");
+  if (batch.deadlineAt && new Date(batch.deadlineAt).getTime() < now) warnings.push("The operation deadline has passed.");
 
   return (
     <div className="space-y-5">
       <dl className="grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-        <Item k="Batch" v={batch.name} sub={batch.reference ?? undefined} />
-        <Item k="Recipients" v={`${summary.valid} valid`} sub={summary.invalid ? `${summary.invalid} invalid` : "0 invalid"} tone={summary.invalid ? "danger" : undefined} />
-        <Item k="Total payment amount" v={<Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} />} sub="exact, from valid rows" />
+        <Item k="Operation" v={batch.name} sub={`${operationKindLabel(batch.kind)}${batch.reference ? ` · ${batch.reference}` : ""}`} />
+        <Item k="Legs" v={`${summary.valid} valid`} sub={summary.invalid ? `${summary.invalid} invalid` : "0 invalid"} tone={summary.invalid ? "danger" : undefined} />
+        <Item k="Total amount" v={<Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} />} sub="exact, from valid legs" />
         <Item k="Asset · network" v={`${batch.assetSymbol} · ${chainName(batch.destinationChainId)}`} sub={batch.originChainId !== batch.destinationChainId ? `funded from ${chainName(batch.originChainId)}` : "same-chain routes"} />
         <Item k="Estimated network + routing fees" v={summary.feesComplete && summary.feeEstimateUsd !== null ? toDisplayUsd(summary.feeEstimateUsd) : <span className="text-warning">Unavailable</span>} sub={summary.feesComplete ? "estimate at quote time; actual fees are computed at fill" : "some routes have no quote"} />
         <Item k="Estimated total funding requirement" v={summary.feesComplete && summary.fundingRequired ? <Money units={summary.fundingRequired} decimals={batch.assetDecimals} symbol={batch.assetSymbol} /> : <span className="text-warning">Unavailable</span>} sub="origin-chain amount incl. routing fees; gas is paid in the native asset" />
@@ -44,7 +45,7 @@ export default function ReviewPanel({ d }: { d: BatchDetail }) {
           </ul>
         </div>
       ) : (
-        <div className="rounded-card border border-success/30 bg-success-tint p-4 text-[0.875rem] text-success">No unresolved warnings. Every recipient has a fresh route and a fee estimate.</div>
+        <div className="rounded-card border border-success/30 bg-success-tint p-4 text-[0.875rem] text-success">No unresolved warnings. Every leg has a fresh route and a fee estimate.</div>
       )}
 
       <div className="table-wrap rounded-card border border-line">
@@ -52,7 +53,7 @@ export default function ReviewPanel({ d }: { d: BatchDetail }) {
           <thead>
             <tr>
               <th>#</th>
-              <th>Recipient</th>
+              <th>Leg</th>
               <th className="text-right">Amount</th>
               <th>Route</th>
               <th className="text-right">Est. fee</th>

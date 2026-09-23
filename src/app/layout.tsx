@@ -11,7 +11,7 @@ const mono = Space_Mono({ variable: "--font-mono", subsets: ["latin"], weight: [
 
 const TITLE = "Sheaf";
 const DESCRIPTION =
-  "Batch contractor payments in digital assets: prepare, approve, coordinate and reconcile every payout from one controlled workflow. Private externally, transparent internally.";
+  "The private execution desk for Robinhood Chain: claim, accumulate, OTC and treasury operations, executed leg by leg from one desk. Private externally. Transparent internally.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),

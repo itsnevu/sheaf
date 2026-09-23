@@ -16,7 +16,7 @@ export const GET = handler(async () => {
     db.organization.findUniqueOrThrow({ where: { id: org } }),
   ]);
   const count = (statuses: string[]) => byStatus.filter((b) => statuses.includes(b.status)).reduce((a, b) => a + b._count._all, 0);
-  const totalPayments = byStatus.reduce((a, b) => a + b._count._all, 0);
+  const totalLegs = byStatus.reduce((a, b) => a + b._count._all, 0);
   return json({
     mode: executionMode(),
     assetSymbol: org$.assetSymbol,
@@ -24,7 +24,7 @@ export const GET = handler(async () => {
     stats: {
       totalBatches,
       activeBatches,
-      totalPayments,
+      totalLegs,
       completed: count(["COMPLETED"]),
       pending: count(["ROUTED", "SCHEDULED", "SUBMITTED", "CONFIRMING", "PENDING"]),
       failed: count(["FAILED", "REFUNDED"]),

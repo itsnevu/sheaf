@@ -122,9 +122,12 @@
   pointer-events: none;
 }
 
-/* Instruments arrive like a print: revealed top to bottom. Leaving fades. */
+/* Instruments arrive like a print: revealed top to bottom. Leaving fades.
+   fill-mode is "backwards" on purpose: a clip-path that stayed after the animation would make
+   #main the containing block of the fixed printer widget and clip the roll once it grows past
+   the stage. */
 .site-print > #main {
-  animation: p-enter 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: p-enter 520ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 .site-print.is-leaving > #main {
   opacity: 0;
@@ -150,12 +153,11 @@
   min-height: 100vh;
   padding-bottom: 40vh;
 }
+/* The paper is in normal flow so the stage, and the page, grow with the roll. */
 .p-paper {
-  position: absolute;
-  left: 50%;
-  top: 0;
+  position: relative;
+  margin: 0 auto;
   width: min(640px, 92vw);
-  transform: translateX(-50%);
   background: #000000;
   filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.2));
   overflow: hidden;
@@ -516,7 +518,7 @@
     bottom: 24px;
   }
   .p-paper {
-    top: 76px;
+    margin-top: 76px;
     width: 92vw;
   }
   .p-stage {

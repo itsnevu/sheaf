@@ -2,8 +2,12 @@
 // production. Enums are strings because SQLite has none; the allowed values live in
 // src/lib/domain/states.ts and are validated in application code.
 //
-// Money is stored as strings of integer base units (e.g. USDC 6 decimals: "1250000" = 1.25).
+// Money is stored as strings of integer base units (e.g. USDG 6 decimals: "1250000" = 1.25).
 // Never floats. See src/lib/money.ts.
+//
+// Vocabulary: a PaymentBatch row is an "operation" (a sheaf) and a BatchRecipient row is one
+// "leg" of it. The model names are kept for compatibility; the UI, API messages and docs use
+// operation / leg throughout.
 
 generator client {
   provider = "prisma-client-js"
@@ -18,12 +22,14 @@ model Organization {
   id                 String   @id @default(cuid())
   name               String
   slug               String   @unique
-  // EVM address of the treasury wallet expected to sign in real mode (optional in demo).
+  // EVM address of the desk wallet (funds and signs in real mode; optional in demo). Never a leg destination.
   treasuryAddress    String?
-  assetSymbol        String   @default("USDC")
+  assetSymbol        String   @default("USDG")
   assetDecimals      Int      @default(6)
-  originChainId      Int      @default(8453)
-  destinationChainId Int      @default(8453)
+  // Robinhood Chain (4663) on both sides by default. A different origin chain means Relay
+  // routes the funding into Robinhood Chain.
+  originChainId      Int      @default(4663)
+  destinationChainId Int      @default(4663)
   // Optional spacing between route submissions. Off by default; bounded in code (0..1800s).
   jitterEnabled      Boolean  @default(false)
   jitterMaxSeconds   Int      @default(0)
@@ -82,6 +88,8 @@ model PaymentBatch {
   organizationId     String
   name               String
   reference          String?
+  // CLAIM | ACCUMULATE | OTC | TREASURY — see OPERATION_KIND in src/lib/domain/states.ts
+  kind               String    @default("ACCUMULATE")
   // DRAFT | VALIDATED | ROUTES_PREPARED | APPROVED | FUNDED | EXECUTING | COMPLETED |
   // PARTIALLY_FAILED | FAILED | CANCELLED
   status             String    @default("DRAFT")
@@ -137,7 +145,10 @@ model BatchRecipient {
   // Integer base units as string when valid, else null.
   amount       String?
   assetSymbol  String
+  // Memo shown to operators and exported; never sent on-chain.
   reference    String?
+  // Earliest time this leg may be executed (ACCUMULATE plans; optional elsewhere).
+  notBefore    DateTime?
   valid        Boolean   @default(false)
   // JSON array of { code, message }.
   errors       String    @default("[]")
@@ -267,9 +278,9 @@ model AuditEvent {
   recipientId    String?
   actorId        String?
   actorEmail     String?
-  // e.g. batch.created, csv.validated, batch.approved, funding.recorded, execution.started,
-  // payment.submitted, payment.completed, payment.failed, payment.retried, reconciliation.updated,
-  // export.downloaded, settings.updated, member.added
+  // e.g. operation.created, csv.validated, operation.approved, funding.recorded,
+  // execution.started, leg.submitted, leg.completed, leg.failed, leg.retried,
+  // reconciliation.updated, export.downloaded, settings.updated, member.added
   action         String
   summary        String
   payload        String   @default("{}")

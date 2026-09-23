@@ -105,7 +105,7 @@ describe("execute_route", () => {
 });
 
 describe("poll_route outcomes", () => {
-  it("success completes the payment, reconciles it and completes the batch", async () => {
+  it("success completes the leg, reconciles it and completes the operation", async () => {
     const { batch } = await executingBatch(2);
     await drain();
     const rows = await db.batchRecipient.findMany({ where: { batchId: batch.id }, include: { reconciliation: true, attempts: true } });
@@ -116,7 +116,7 @@ describe("poll_route outcomes", () => {
     expect(await db.job.count({ where: { batchId: batch.id, status: { in: ["QUEUED", "RUNNING"] } } })).toBe(0);
   });
 
-  it("permanent failure is an exception and the batch is FAILED when nothing completed", async () => {
+  it("permanent failure is an exception and the operation is FAILED when nothing completed", async () => {
     scripted.status = { status: "failure", failReason: "BLOCKED_WALLET", retryable: false };
     const { batch } = await executingBatch(1);
     await drain();
@@ -127,7 +127,7 @@ describe("poll_route outcomes", () => {
     expect(await batchStatus(batch.id)).toBe("FAILED");
   });
 
-  it("transient failure becomes retry-eligible, a retry succeeds, and the batch completes", async () => {
+  it("transient failure becomes retry-eligible, a retry succeeds, and the operation completes", async () => {
     scripted.status = { status: "failure", failReason: "SOLVER_CAPACITY_EXCEEDED", retryable: true };
     const { batch, finance, viewer } = await executingBatch(1);
     await drain();
@@ -156,7 +156,7 @@ describe("poll_route outcomes", () => {
     expect(r.status).toBe("FAILED"); // attemptCount 1 >= maxRetries 1
   });
 
-  it("refund is an exception, and a mixed batch is PARTIALLY_FAILED", async () => {
+  it("refund is an exception, and a mixed operation is PARTIALLY_FAILED", async () => {
     const { batch } = await executingBatch(2);
     // First job succeeds, second refunds.
     const jobs = await db.job.findMany({ where: { batchId: batch.id, type: "execute_route" }, orderBy: { createdAt: "asc" } });
@@ -172,7 +172,7 @@ describe("poll_route outcomes", () => {
     expect(await batchStatus(batch.id)).toBe("PARTIALLY_FAILED");
   });
 
-  it("never fails an unreachable payment: it is flagged UNKNOWN for manual review", async () => {
+  it("never fails an unreachable leg: it is flagged UNKNOWN for manual review", async () => {
     scripted.status = { status: "unknown", details: "provider unreachable" };
     const { batch } = await executingBatch(1);
     await drain(40);
@@ -181,7 +181,7 @@ describe("poll_route outcomes", () => {
     expect(r.status).not.toBe("RETRY_ELIGIBLE");
     expect(r.status).not.toBe("FAILED");
     expect(r.lastError).toContain("may have completed");
-    expect(await db.auditEvent.count({ where: { batchId: batch.id, action: "payment.unknown" } })).toBe(1);
+    expect(await db.auditEvent.count({ where: { batchId: batch.id, action: "leg.unknown" } })).toBe(1);
     expect(await batchStatus(batch.id)).toBe("FAILED"); // rolled up because nothing is active
   });
 });
@@ -213,7 +213,7 @@ describe("processJobs", () => {
     expect((await db.job.findUniqueOrThrow({ where: { id: job.id } })).status).toBe("DONE");
   });
 
-  it("recomputeBatchStatus ignores batches that are not executing", async () => {
+  it("recomputeBatchStatus ignores operations that are not executing", async () => {
     const { finance } = await makeOrg();
     const b = await createBatch(finance, { name: "B" });
     await recomputeBatchStatus(b.id);

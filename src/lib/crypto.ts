@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync, timingSafeEqual } from "crypto";
 
 /**
- * Field-level encryption for personal data at rest (contractor names, internal references and
+ * Field-level encryption for personal data at rest (leg labels, memos and
  * the original CSV). AES-256-GCM with a random 96-bit nonce per value. Ciphertext is stored as
  * `enc1:<base64url(nonce || tag || ciphertext)>`, so plaintext written before encryption was
  * enabled still reads back unchanged (see scripts/encrypt-existing.ts to convert it).

@@ -6,7 +6,11 @@ export function executionMode(): ExecutionMode {
   return process.env.SHEAF_MODE === "real" ? "real" : "demo";
 }
 
-export const DEMO_BANNER = "Demo environment — no real funds are being transferred.";
+export const DEMO_BANNER = "Demo desk — every leg is simulated; no funds move on Robinhood Chain.";
+
+/** Settlement asset of the desk. Robinhood Chain (4663) settles in USDG (6 decimals). */
+export const SETTLEMENT_ASSET = { symbol: "USDG", decimals: 6 } as const;
+export const ROBINHOOD_CHAIN_ID = 4663;
 
 export function relayConfig() {
   return {
@@ -18,13 +22,22 @@ export function relayConfig() {
 
 export function chainConfig() {
   return {
-    originChainId: Number(process.env.SHEAF_ORIGIN_CHAIN_ID || 8453),
-    destinationChainId: Number(process.env.SHEAF_DESTINATION_CHAIN_ID || 8453),
+    originChainId: Number(process.env.SHEAF_ORIGIN_CHAIN_ID || ROBINHOOD_CHAIN_ID),
+    destinationChainId: Number(process.env.SHEAF_DESTINATION_CHAIN_ID || ROBINHOOD_CHAIN_ID),
   };
 }
 
-/** Known asset contracts per chain used for real-mode quotes (verified via Relay /currencies/v2). */
+/**
+ * Known asset contracts per chain used for real-mode quotes. Entries for chains other than 4663
+ * were verified via Relay /currencies/v2. The USDG contract on Robinhood Chain must be set with
+ * SHEAF_USDG_ADDRESS_4663 (and checked against Relay /currencies/v2) before real mode is used;
+ * the placeholder below is only good for demo mode.
+ */
 export const KNOWN_ASSETS: Record<number, Record<string, { address: string; decimals: number }>> = {
+  4663: {
+    USDG: { address: (process.env.SHEAF_USDG_ADDRESS_4663 || "0x0000000000000000000000000000000000000000").toLowerCase(), decimals: 6 },
+    ETH: { address: "0x0000000000000000000000000000000000000000", decimals: 18 },
+  },
   8453: {
     USDC: { address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", decimals: 6 },
     USDT: { address: "0xfde4c96c8593536e31f229ea8f37b2ada2699bb2", decimals: 6 },

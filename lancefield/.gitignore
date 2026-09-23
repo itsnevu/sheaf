@@ -1,12 +1,37 @@
-node_modules
-.next
-out
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
 *.tsbuildinfo
+
+# testing
+coverage/
+playwright-report/
+test-results/
+
+# env files: local secrets stay out, the example is committed
 .env
 .env.local
+.env.*.local
+!.env.example
+
+# prisma (SQLite)
 prisma/*.db
 prisma/*.db-journal
-playwright-report
-test-results
 prisma/test.db*
 prisma/e2e.db*
+
+# debug
+*.log
+
+# misc
+.DS_Store
+Thumbs.db
+.eslintcache
+
+# agent tooling installed locally
+.agents/
+.claude/

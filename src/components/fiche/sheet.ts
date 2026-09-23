@@ -5,33 +5,34 @@
 export const SHEET_SIZE = 1600;
 
 const OBSERVERS: [string, string][] = [
-  ["Block explorers, indexers, analytics firms", "All on-chain data: sender, receiver, amount, token, time, calldata."],
+  ["Block explorers, indexers, analytics firms", "All on-chain data: the desk contract as sender, every recipient, amount, token, time, calldata, and every event a contract emits."],
   ["Validators, sequencers, RPC providers", "The same, plus the submitting IP and mempool timing."],
-  ["Route provider (Relay) and its solvers", "Every quote, deposit and fill. Its public request feed lists user → recipient pairs without authentication (verified)."],
-  ["Wallet providers", "The treasury address, every signed transaction, the dapp origin."],
-  ["Sheaf hosting operators", "Everything in the database, including names, references and the original CSV."],
-  ["Your finance administrators and approvers", "Everything in your organisation, by design. Viewers see redacted addresses."],
+  ["Route provider (Relay) and its solvers", "For cross-chain legs only: every quote, deposit and fill. Its public request feed lists user → recipient pairs without authentication (verified)."],
+  ["Wallet providers", "The connected wallet address, every signed transaction and message, the dapp origin."],
+  ["Sheaf hosting operators", "Everything in the database: operations, legs, labels, memos, unrevealed plans, approvals, the original CSV."],
+  ["Your desk operators and approvers", "Everything in your organisation, by design. Viewers see redacted addresses."],
 ];
 
 const IMPLEMENTED = [
-  "Roles (Owner, Finance admin, Approver, Viewer) enforced on the server in every API route.",
+  "Roles (Owner, Desk operator, Approver, Viewer) enforced on the server in every API route.",
   "Organisation isolation: every query is scoped by the session's organisation, never by a client-supplied id.",
   "Viewers receive redacted addresses from the API, not only in the UI.",
-  "Four-eyes approval: the last editor of the recipient set cannot approve it (configurable).",
-  "Approvals bind to a hash of the recipient set and are invalidated by any change.",
+  "Four-eyes approval: the last editor of the leg set cannot approve it. DelegatedTreasury enforces the same rule on-chain.",
+  "Approvals bind to a hash of the leg set and are invalidated by any change.",
   "Append-only audit events for every state change, download and export, enforced by the data layer and by database triggers.",
-  "Contractor names, internal references and CSV originals are encrypted at rest (AES-256-GCM).",
+  "Labels, memos, unrevealed plan legs and CSV originals are encrypted at rest (AES-256-GCM).",
   "Rate-limited sign-in and sign-up; the server refuses to start in production with placeholder secrets.",
-  "Idempotency keys and a duplicate-send guard: a payment is never re-sent while its last attempt is pending or unknown.",
-  "Optional bounded spacing between submissions (0–30 min), off by default, timestamps kept internally.",
+  "Idempotency keys and a duplicate-send guard: a leg is never re-sent while its last attempt is pending or unknown.",
+  "Not-before is respected by the worker and, for StealthDesk, by the contract.",
 ];
 
 const NOT_IMPLEMENTED = [
-  "Externally anchored audit storage (the audit table is append-only inside the database, not written to a separate ledger).",
-  "Per-organisation encryption keys in a KMS; one server-side key encrypts every organisation.",
+  "Hiding amounts, timing or the desk contract address. All of it is public on Robinhood Chain.",
+  "Hiding the claim link: PrivateClaim emits an event that names both the eligible account and its recipient.",
   "Mixing, shielded pools, zero-knowledge transfers or any privacy protocol.",
-  "Address validation for non-EVM networks.",
-  "Hardware-key or SSO authentication; sessions are cookie-based with scrypt password hashing.",
+  "Verifying a recipient for Robinhood Stock Tokens. Transfer restrictions apply; a fresh, unverified address cannot hold them.",
+  "Gasless claims, prize or reward settlement, non-EVM addresses.",
+  "Externally anchored audit storage; per-organisation KMS keys; hardware-key or SSO authentication.",
 ];
 
 function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
@@ -99,7 +100,7 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   ctx.fillText("AND WHAT IT CANNOT.", 130, 296);
   ctx.font = `21px ${textFont}`;
   let y = 372;
-  for (const line of wrap(ctx, "Sheaf is designed to reduce unnecessary public linkage between treasury operations and individual payouts, subject to the capabilities and limitations of the underlying payment infrastructure. This sheet summarises the full threat model kept in the repository.", 1000)) {
+  for (const line of wrap(ctx, "Sheaf is the private execution desk for Robinhood Chain. Privacy here means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing, the desk contract address and every contract event stay public. This sheet summarises the full threat model kept in the repository.", 1000)) {
     ctx.fillText(line, 130, y);
     y += 28;
   }
@@ -172,18 +173,18 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   // On-chain reality
   panel(710, 1090, 770, 300, "ON-CHAIN REALITY");
   ctx.font = `600 15px ${textFont}`;
-  ctx.fillText("SAME CHAIN, SAME TOKEN (DEFAULT)", 726, 1134);
+  ctx.fillText("ON ROBINHOOD CHAIN (DEFAULT)", 726, 1134);
   ctx.font = `14px ${textFont}`;
   y = 1156;
-  for (const l of wrap(ctx, "The route provider returns a plain token transfer from the treasury to the recipient. On-chain this is identical to paying directly: no privacy benefit. Sheaf labels these routes “Direct transfer” on the review screen.", 350)) {
+  for (const l of wrap(ctx, "The owning wallet funds a desk contract (PrivateClaim, StealthDesk, OtcEscrow or DelegatedTreasury). Every payout is then a public transfer from that contract to a recipient. The owner is not the destination, but the funding transfer, each payout and each event are visible and can be correlated by amount and timing.", 350)) {
     ctx.fillText(l, 726, y);
     y += 18;
   }
   ctx.font = `600 15px ${textFont}`;
-  ctx.fillText("CROSS-CHAIN OR CROSS-TOKEN", 1100, 1134);
+  ctx.fillText("CROSS-CHAIN LEGS", 1100, 1134);
   ctx.font = `14px ${textFont}`;
   y = 1156;
-  for (const l of wrap(ctx, "The treasury deposits with the provider on the origin chain; a provider solver pays the recipient on the destination chain. The recipient's incoming transaction does not name the treasury, but amounts, timing and the provider's public request listing still correlate the two. This is obfuscation against casual inspection, not unlinkability.", 350)) {
+  for (const l of wrap(ctx, "When funds start on another chain, the wallet deposits with Relay on the origin chain and a solver pays the desk on Robinhood Chain. The incoming transaction does not name the wallet, but amounts, timing and the provider's public request listing still correlate the two. This is obfuscation against casual inspection, nothing stronger.", 350)) {
     ctx.fillText(l, 1100, y);
     y += 18;
   }
@@ -202,6 +203,6 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   // Footer
   ctx.fillStyle = "#5d625c";
   ctx.font = `14px ${labelFont}`;
-  ctx.fillText("Sheaf Ltd.        sec-01.des        AES-256-GCM        Append-only audit        EVM only", 130, 1548);
+  ctx.fillText("Sheaf        sec-01.des        Robinhood Chain 4663        USDG        Append-only audit        Four contracts", 130, 1548);
   return c;
 }

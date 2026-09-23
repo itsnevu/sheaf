@@ -3,7 +3,10 @@ import { redactAddress } from "@/lib/address";
 import { can } from "@/lib/auth/permissions";
 import type { Role } from "@/lib/domain/states";
 
-/** Shapes sent to the browser. Addresses are redacted for roles without the capability. */
+/**
+ * Shapes sent to the browser. Addresses are redacted for roles without the capability.
+ * Naming: a "batch" DTO is an operation; a "recipient" DTO is one leg of it.
+ */
 
 export type RecipientDTO = ReturnType<typeof recipientDTO>;
 export type RouteDTO = ReturnType<typeof routeDTO>;
@@ -24,6 +27,7 @@ export function recipientDTO(r: BatchRecipient & { route?: PaymentRoute | null; 
     amountInput: r.amountInput,
     assetSymbol: r.assetSymbol,
     reference: r.reference,
+    notBefore: r.notBefore?.toISOString() ?? null,
     valid: r.valid,
     errors: JSON.parse(r.errors) as Array<{ code: string; message: string; field?: string }>,
     warnings: JSON.parse(r.warnings) as Array<{ code: string; message: string; field?: string }>,
@@ -84,6 +88,7 @@ export function batchDTO(b: PaymentBatch & { _count?: { recipients: number } }) 
     id: b.id,
     name: b.name,
     reference: b.reference,
+    kind: b.kind,
     status: b.status,
     mode: b.mode,
     assetSymbol: b.assetSymbol,

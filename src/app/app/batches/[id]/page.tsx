@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/app/PageHeader";
 import ActivityFeed from "@/components/app/ActivityFeed";
-import BatchStepper, { reachedStep } from "@/components/app/BatchStepper";
+import BatchStepper, { STEP, reachedStep } from "@/components/app/BatchStepper";
 import CsvUpload from "@/components/app/CsvUpload";
 import ExecutionPanel from "@/components/app/ExecutionPanel";
 import RecipientTable from "@/components/app/RecipientTable";
@@ -15,10 +15,13 @@ import { Button, Dialog, Input, Money, Skeleton, StatusBadge, Textarea, IconArro
 import { useToast } from "@/components/ui/Toast";
 import { api, downloadUrl, fmtDate } from "@/lib/client";
 import { chainName } from "@/lib/config";
+import { LEG_CSV_HEADER } from "@/lib/csv/validate";
+import { OPERATION_KIND_INFO, operationKindLabel, type OperationKind } from "@/lib/domain/states";
 
+/** Statuses in which the operation is still being prepared (stages Legs → Fund). */
 const PRE_EXECUTION = ["DRAFT", "VALIDATED", "ROUTES_PREPARED", "APPROVED"];
 
-export default function BatchPage() {
+export default function OperationPage() {
   const { id } = useParams<{ id: string }>();
   const me = useMe();
   const router = useRouter();
@@ -35,9 +38,10 @@ export default function BatchPage() {
   useEffect(() => {
     if (batch && step === null) setStep(reached);
   }, [batch, reached, step]);
-  // Auto-advance when the server moves ahead (e.g. routes prepared) and the user is on the previous step.
+  // Auto-advance when the server moves ahead (validated, routes prepared, approved) and the
+  // operator is still on the previous stage.
   useEffect(() => {
-    if (step !== null && reached > step && (step === 3 || step === 2)) setStep(reached);
+    if (step !== null && reached > step && step >= STEP.validate && step <= STEP.approve) setStep(reached);
   }, [reached, step]);
 
   const act = async (key: string, fn: () => Promise<unknown>, ok?: string) => {
@@ -69,25 +73,45 @@ export default function BatchPage() {
     );
   }
 
+  const kind = batch.kind as OperationKind;
+  const kindInfo = OPERATION_KIND_INFO[kind] ?? OPERATION_KIND_INFO.ACCUMULATE;
   const pre = PRE_EXECUTION.includes(batch.status);
   const editable = d.canEdit && pre;
   const activeApproval = d.approvals.find((a) => a.status === "ACTIVE");
   const canApproveNow = me.can("batch.approve") && batch.status === "ROUTES_PREPARED" && d.summary.routeUnavailable === 0;
   const routing = batch.status === "VALIDATED" && d.recipients.some((r) => r.valid && !r.route) && d.events[0]?.action === "routes.requested";
+  const current = step ?? reached;
 
   const importCsv = (file: { fileName: string; text: string }) =>
     act("csv", async () => {
       const res = await api<{ fileErrors: Array<{ message: string }>; validCount: number; invalidCount: number }>(`/api/batches/${id}/csv`, { method: "POST", json: file });
       if (res.fileErrors.length) throw new Error(res.fileErrors[0].message);
-      toast(`Imported ${res.validCount + res.invalidCount} rows`, { tone: res.invalidCount ? "warning" : "success", detail: res.invalidCount ? `${res.invalidCount} need correction` : "All rows valid" });
-      setStep(2);
+      toast(`Imported ${res.validCount + res.invalidCount} legs`, { tone: res.invalidCount ? "warning" : "success", detail: res.invalidCount ? `${res.invalidCount} need correction` : "All legs valid" });
+      setStep(STEP.validate);
     });
+
+  const legTable = (rows: typeof d.recipients, opts: { execution: boolean }) => (
+    <RecipientTable
+      recipients={rows}
+      assetDecimals={batch.assetDecimals}
+      assetSymbol={batch.assetSymbol}
+      kind={kind}
+      editable={opts.execution ? false : editable}
+      showExecution={opts.execution}
+      canRetry={opts.execution ? me.can("payment.retry") : undefined}
+      onRetry={opts.execution ? (rid) => act(`retry:${rid}`, () => api(`/api/payments/${rid}/retry`, { method: "POST" }), "Retry queued") : undefined}
+      onUpdate={opts.execution ? undefined : (rid, patch) => act(`row:${rid}`, () => api(`/api/batches/${id}/recipients/${rid}`, { method: "PATCH", json: patch }), "Leg updated")}
+      onRemove={opts.execution ? undefined : (rid) => act(`rm:${rid}`, () => api(`/api/batches/${id}/recipients/${rid}`, { method: "DELETE" }), "Leg removed")}
+    />
+  );
+
+  const executionPanel = <ExecutionPanel d={d} onFund={(input) => act("fund", () => api(`/api/batches/${id}/fund`, { method: "POST", json: input ?? {} }), "Funding recorded")} onExecute={() => act("exec", () => api(`/api/batches/${id}/execute`, { method: "POST" }), "Execution started")} onRefresh={refresh} />;
 
   return (
     <>
       <PageHeader
-        back={{ href: "/app/batches", label: "Batches" }}
-        eyebrow={`Batch · ${batch.mode === "demo" ? "demo" : "real"} · ${batch.assetSymbol} on ${chainName(batch.destinationChainId)}`}
+        back={{ href: "/app/batches", label: "Operations" }}
+        eyebrow={`${operationKindLabel(kind)} · ${kindInfo.contract} · ${batch.mode === "demo" ? "demo" : "real"} · ${batch.assetSymbol} on ${chainName(batch.destinationChainId)}`}
         title={
           <span className="inline-flex flex-wrap items-center gap-3">
             {batch.name} <StatusBadge status={batch.status} testId="batch-status" />
@@ -96,7 +120,7 @@ export default function BatchPage() {
         description={
           <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="mono-data inline-flex items-center gap-1">
-              {batch.id} <CopyButton value={batch.id} label="Copy batch id" size="xs" />
+              {batch.id} <CopyButton value={batch.id} label="Copy operation id" size="xs" />
             </span>
             {batch.reference && <span>ref {batch.reference}</span>}
             <span>created {fmtDate(batch.createdAt)}</span>
@@ -117,7 +141,7 @@ export default function BatchPage() {
             )}
             {d.canEdit && ["DRAFT", "VALIDATED", "ROUTES_PREPARED", "APPROVED", "FUNDED"].includes(batch.status) && (
               <Button variant="ghost" className="!text-danger" onClick={() => setCancelOpen(true)}>
-                Cancel batch
+                Cancel operation
               </Button>
             )}
           </>
@@ -126,38 +150,38 @@ export default function BatchPage() {
 
       {pre ? (
         <div className="space-y-6">
-          <BatchStepper current={step ?? reached} reached={reached} onSelect={setStep} />
+          <BatchStepper current={current} reached={reached} onSelect={setStep} interactiveUpTo={STEP.fund} />
 
-          {/* Step 0: details */}
-          {(step ?? reached) === 0 && (
-            <DetailsStep batch={batch} editable={editable} onSave={(patch) => act("details", () => api(`/api/batches/${id}`, { method: "PATCH", json: patch }), "Details saved")} onNext={() => setStep(1)} />
-          )}
-
-          {/* Step 1: upload */}
-          {(step ?? reached) === 1 && (
-            <section className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="title-2">Upload the contractor CSV</h2>
-                  <p className="text-[0.875rem] text-ink-soft">{batch.csvFileName ? `Current file: ${batch.csvFileName}. Uploading a new file replaces every row and invalidates approvals.` : "Required columns: name, address, amount. Optional: asset, reference."}</p>
+          {/* Stage 1: legs (details + import) */}
+          {current === STEP.legs && (
+            <section className="space-y-6">
+              <DetailsCard batch={batch} kindInfo={kindInfo} editable={editable} onSave={(patch) => act("details", () => api(`/api/batches/${id}`, { method: "PATCH", json: patch }), "Details saved")} />
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="title-2">Add the legs</h2>
+                    <p className="text-[0.875rem] text-ink-soft">
+                      {batch.csvFileName ? `Current file: ${batch.csvFileName}. Uploading a new file replaces every leg and invalidates approvals.` : `${kindInfo.legs} CSV columns: ${LEG_CSV_HEADER}.`}
+                    </p>
+                  </div>
+                  <a href={`/api/template?asset=${batch.assetSymbol}`} className="btn btn-secondary btn-sm">
+                    Download template
+                  </a>
                 </div>
-                <a href={`/api/template?asset=${batch.assetSymbol}`} className="btn btn-secondary btn-sm">
-                  Download template
-                </a>
+                {editable ? <CsvUpload assetSymbol={batch.assetSymbol} assetDecimals={batch.assetDecimals} onImport={importCsv} /> : <p className="text-[0.875rem] text-ink-faint">Your role cannot add legs.</p>}
+                {batch.csvFileName && (
+                  <div className="flex justify-end">
+                    <Button variant="secondary" onClick={() => setStep(STEP.validate)}>
+                      Continue to validation <IconArrow />
+                    </Button>
+                  </div>
+                )}
               </div>
-              {editable ? <CsvUpload assetSymbol={batch.assetSymbol} assetDecimals={batch.assetDecimals} onImport={importCsv} /> : <p className="text-[0.875rem] text-ink-faint">Your role cannot upload recipients.</p>}
-              {batch.csvFileName && (
-                <div className="flex justify-end">
-                  <Button variant="secondary" onClick={() => setStep(2)}>
-                    Continue to validation <IconArrow />
-                  </Button>
-                </div>
-              )}
             </section>
           )}
 
-          {/* Step 2: validate */}
-          {(step ?? reached) === 2 && (
+          {/* Stage 2: validate */}
+          {current === STEP.validate && (
             <section className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -167,34 +191,30 @@ export default function BatchPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="ghost" onClick={() => setStep(1)}>
-                    Replace CSV
+                  <Button variant="ghost" onClick={() => setStep(STEP.legs)}>
+                    Replace legs
                   </Button>
-                  <Button variant="primary" disabled={batch.invalidCount > 0 || batch.validCount === 0} onClick={() => setStep(3)}>
+                  <Button variant="primary" disabled={batch.invalidCount > 0 || batch.validCount === 0} onClick={() => setStep(STEP.route)}>
                     Continue to routes <IconArrow />
                   </Button>
                 </div>
               </div>
               {batch.invalidCount > 0 && (
                 <p className="rounded-card border border-danger/30 bg-danger-tint px-4 py-3 text-[0.875rem] text-danger" role="alert">
-                  {batch.invalidCount} row(s) block progress. Edit or remove each one; the batch re-validates automatically.
+                  {batch.invalidCount} leg(s) block progress. Edit or remove each one; the operation re-validates automatically.
                 </p>
               )}
-              {d.recipients.length === 0 ? (
-                <p className="text-[0.875rem] text-ink-faint">No rows imported yet.</p>
-              ) : (
-                <RecipientTable recipients={d.recipients} assetDecimals={batch.assetDecimals} assetSymbol={batch.assetSymbol} editable={editable} showExecution={false} onUpdate={(rid, patch) => act(`row:${rid}`, () => api(`/api/batches/${id}/recipients/${rid}`, { method: "PATCH", json: patch }), "Row updated")} onRemove={(rid) => act(`rm:${rid}`, () => api(`/api/batches/${id}/recipients/${rid}`, { method: "DELETE" }), "Row removed")} />
-              )}
+              {d.recipients.length === 0 ? <p className="text-[0.875rem] text-ink-faint">No legs imported yet.</p> : legTable(d.recipients, { execution: false })}
             </section>
           )}
 
-          {/* Step 3: routes */}
-          {(step ?? reached) === 3 && (
+          {/* Stage 3: route */}
+          {current === STEP.route && (
             <section className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="title-2">Route preparation</h2>
-                  <p className="text-[0.875rem] text-ink-soft">One route and fee quote per recipient. {batch.mode === "demo" ? "Simulated provider." : "Quoted live from Relay; public rate limits apply."}</p>
+                  <p className="text-[0.875rem] text-ink-soft">One route and fee quote per leg. {batch.mode === "demo" ? "Simulated provider." : "Quoted live from Relay into Robinhood Chain; public rate limits apply."}</p>
                 </div>
                 <div className="flex gap-2">
                   {me.can("batch.prepare") && (
@@ -202,8 +222,8 @@ export default function BatchPage() {
                       {d.summary.routed === d.summary.valid && d.summary.valid > 0 ? "Re-prepare routes" : "Prepare routes"}
                     </Button>
                   )}
-                  <Button variant="primary" disabled={batch.status !== "ROUTES_PREPARED" && batch.status !== "APPROVED"} onClick={() => setStep(4)}>
-                    Continue to review <IconArrow />
+                  <Button variant="primary" disabled={batch.status !== "ROUTES_PREPARED" && batch.status !== "APPROVED"} onClick={() => setStep(STEP.approve)}>
+                    Continue to approval <IconArrow />
                   </Button>
                 </div>
               </div>
@@ -218,121 +238,136 @@ export default function BatchPage() {
                   <div className="h-full bg-veil transition-[width] duration-500" style={{ width: `${d.summary.valid ? Math.round(((d.summary.routed + d.summary.routeUnavailable) / d.summary.valid) * 100) : 0}%` }} />
                 </div>
               </div>
-              <RecipientTable recipients={d.recipients.filter((r) => r.valid)} assetDecimals={batch.assetDecimals} assetSymbol={batch.assetSymbol} editable={editable} showExecution={false} onUpdate={(rid, patch) => act(`row:${rid}`, () => api(`/api/batches/${id}/recipients/${rid}`, { method: "PATCH", json: patch }), "Row updated")} onRemove={(rid) => act(`rm:${rid}`, () => api(`/api/batches/${id}/recipients/${rid}`, { method: "DELETE" }), "Row removed")} />
+              {legTable(d.recipients.filter((r) => r.valid), { execution: false })}
             </section>
           )}
 
-          {/* Step 4: review */}
-          {(step ?? reached) === 4 && (
-            <section className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="title-2">Review before approval</h2>
-                  <p className="text-[0.875rem] text-ink-soft">Estimates are labelled. Approval binds to the exact recipient set below.</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="ghost" onClick={() => setStep(3)}>
+          {/* Stage 4: approve (review + approval) */}
+          {current === STEP.approve && (
+            <section className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="title-2">Review and approve</h2>
+                    <p className="text-[0.875rem] text-ink-soft">Estimates are labelled. Approval binds to the exact leg set below.</p>
+                  </div>
+                  <Button variant="ghost" onClick={() => setStep(STEP.route)}>
                     Back to routes
                   </Button>
-                  <Button variant="primary" onClick={() => setStep(5)}>
-                    Continue to approval <IconArrow />
-                  </Button>
                 </div>
+                <ReviewPanel d={d} />
               </div>
-              <ReviewPanel d={d} />
-            </section>
-          )}
 
-          {/* Step 5: approve */}
-          {(step ?? reached) === 5 && (
-            <section className="space-y-4">
-              <h2 className="title-2">Approval</h2>
-              {activeApproval ? (
-                <div className="card p-5">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <StatusBadge tone="success">Approved</StatusBadge>
-                      <div className="mt-2 text-[0.9375rem]">
-                        By <strong>{activeApproval.approverEmail}</strong> on {fmtDate(activeApproval.createdAt)} for <Money units={activeApproval.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="font-medium" />
+              <div className="space-y-4">
+                <h2 className="title-2">Approval</h2>
+                {activeApproval ? (
+                  <div className="card p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <StatusBadge tone="success">Approved</StatusBadge>
+                        <div className="mt-2 text-[0.9375rem]">
+                          By <strong>{activeApproval.approverEmail}</strong> on {fmtDate(activeApproval.createdAt)} for <Money units={activeApproval.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="font-medium" />
+                        </div>
+                        {activeApproval.note && <div className="mt-1 text-[0.875rem] text-ink-soft">“{activeApproval.note}”</div>}
+                        <div className="mt-1 mono-data text-ink-faint">leg set hash {activeApproval.recipientSetHash.slice(0, 20)}…</div>
                       </div>
-                      {activeApproval.note && <div className="mt-1 text-[0.875rem] text-ink-soft">“{activeApproval.note}”</div>}
-                      <div className="mt-1 mono-data text-ink-faint">set hash {activeApproval.recipientSetHash.slice(0, 20)}…</div>
+                      <div className="flex gap-2">
+                        {me.can("batch.approve") && (
+                          <Button variant="ghost" className="!text-danger" onClick={() => act("revoke", () => api(`/api/batches/${id}/approve?reason=${encodeURIComponent("Revoked by approver")}`, { method: "DELETE" }), "Approval revoked")}>
+                            Revoke approval
+                          </Button>
+                        )}
+                        <Button variant="primary" onClick={() => setStep(STEP.fund)}>
+                          Continue to funding <IconArrow />
+                        </Button>
+                      </div>
                     </div>
-                    {me.can("batch.approve") && (
-                      <Button variant="ghost" className="!text-danger" onClick={() => act("revoke", () => api(`/api/batches/${id}/approve?reason=${encodeURIComponent("Revoked by approver")}`, { method: "DELETE" }), "Approval revoked")}>
-                        Revoke approval
+                  </div>
+                ) : (
+                  <div className="card p-5">
+                    <p className="text-[0.9375rem] text-ink-soft">
+                      An <strong>Approver</strong> or <strong>Owner</strong> who did not last edit the legs must approve the exact set of {batch.validCount} legs totalling <Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="font-medium text-ink" />.
+                      {kind === "TREASURY" && " Delegated treasury: the proposer is never the approver."}
+                    </p>
+                    {batch.status !== "ROUTES_PREPARED" && <p className="mt-2 text-[0.875rem] text-warning">Routes must be prepared and fresh before approval.</p>}
+                    {canApproveNow ? (
+                      <Button variant="accent" className="mt-4" onClick={() => setApproveOpen(true)}>
+                        Approve this operation
                       </Button>
+                    ) : (
+                      <p className="mt-4 text-[0.8125rem] text-ink-faint">{me.can("batch.approve") ? "Approval is not possible yet." : "Your role cannot approve. Ask an approver to review."}</p>
                     )}
                   </div>
-                  <p className="mt-4 text-[0.875rem] text-ink-soft">Next: funding and execution below.</p>
-                </div>
-              ) : (
-                <div className="card p-5">
-                  <p className="text-[0.9375rem] text-ink-soft">
-                    An <strong>Approver</strong> or <strong>Owner</strong> who did not last edit the recipients must approve the exact set of {batch.validCount} recipients totalling <Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="font-medium text-ink" />.
-                  </p>
-                  {batch.status !== "ROUTES_PREPARED" && <p className="mt-2 text-[0.875rem] text-warning">Routes must be prepared and fresh before approval.</p>}
-                  {canApproveNow ? (
-                    <Button variant="accent" className="mt-4" onClick={() => setApproveOpen(true)}>
-                      Approve this batch
-                    </Button>
-                  ) : (
-                    <p className="mt-4 text-[0.8125rem] text-ink-faint">{me.can("batch.approve") ? "Approval is not possible yet." : "Your role cannot approve. Ask an approver to review."}</p>
-                  )}
-                </div>
-              )}
-              {d.approvals.filter((a) => a.status !== "ACTIVE").length > 0 && (
-                <details className="text-[0.8125rem] text-ink-faint">
-                  <summary className="cursor-pointer">Previous approvals</summary>
-                  <ul className="mt-2 space-y-1">
-                    {d.approvals
-                      .filter((a) => a.status !== "ACTIVE")
-                      .map((a) => (
-                        <li key={a.id}>
-                          {a.approverEmail} · {fmtDate(a.createdAt)} · invalidated {fmtDate(a.invalidatedAt)}: {a.invalidatedReason}
-                        </li>
-                      ))}
-                  </ul>
-                </details>
-              )}
+                )}
+                {d.approvals.filter((a) => a.status !== "ACTIVE").length > 0 && (
+                  <details className="text-[0.8125rem] text-ink-faint">
+                    <summary className="cursor-pointer">Previous approvals</summary>
+                    <ul className="mt-2 space-y-1">
+                      {d.approvals
+                        .filter((a) => a.status !== "ACTIVE")
+                        .map((a) => (
+                          <li key={a.id}>
+                            {a.approverEmail} · {fmtDate(a.createdAt)} · invalidated {fmtDate(a.invalidatedAt)}: {a.invalidatedReason}
+                          </li>
+                        ))}
+                    </ul>
+                  </details>
+                )}
+              </div>
             </section>
           )}
 
-          {/* Funding lives under approval so the flow reads top to bottom */}
-          {batch.status === "APPROVED" && (step ?? reached) === 5 && (
-            <ExecutionPanel d={d} onFund={(input) => act("fund", () => api(`/api/batches/${id}/fund`, { method: "POST", json: input ?? {} }), "Funding recorded")} onExecute={() => act("exec", () => api(`/api/batches/${id}/execute`, { method: "POST" }), "Execution started")} onRefresh={refresh} />
+          {/* Stage 5: fund */}
+          {current === STEP.fund && (
+            <section className="space-y-4">
+              <div>
+                <h2 className="title-2">Funding</h2>
+                <p className="text-[0.875rem] text-ink-soft">{batch.status === "APPROVED" ? "The approved leg set is funded from the desk wallet. Execution starts after funding." : "Approval is required before funding."}</p>
+              </div>
+              {batch.status === "APPROVED" ? executionPanel : <p className="text-[0.8125rem] text-ink-faint">Nothing to fund yet.</p>}
+            </section>
           )}
         </div>
       ) : (
-        /* ─────────── Execution / post-execution view ─────────── */
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="space-y-6 min-w-0">
-            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Tile k="Recipients" v={String(batch.validCount)} />
-              <Tile k="Total" v={<Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} />} />
-              <Tile k="Est. fees" v={d.summary.feeEstimateUsd ? `$${Number(d.summary.feeEstimateUsd).toFixed(2)}` : "—"} sub="estimate" />
-              <Tile k="Approved by" v={activeApproval?.approverEmail ?? d.approvals[0]?.approverEmail ?? "—"} sub={fmtDate(batch.approvedAt)} />
-            </dl>
-            {batch.status !== "CANCELLED" && (
-              <ExecutionPanel d={d} onFund={(input) => act("fund", () => api(`/api/batches/${id}/fund`, { method: "POST", json: input ?? {} }), "Funding recorded")} onExecute={() => act("exec", () => api(`/api/batches/${id}/execute`, { method: "POST" }), "Execution started")} onRefresh={refresh} />
-            )}
-            <section>
-              <h2 className="title-2 mb-3">Payments</h2>
-              <RecipientTable recipients={d.recipients.filter((r) => r.valid)} assetDecimals={batch.assetDecimals} assetSymbol={batch.assetSymbol} editable={false} showExecution canRetry={me.can("payment.retry")} onRetry={(rid) => act(`retry:${rid}`, () => api(`/api/payments/${rid}/retry`, { method: "POST" }), "Retry queued")} />
-            </section>
+        /* ─────────── Stages 6–7: execute and reconcile ─────────── */
+        <div className="space-y-6">
+          <BatchStepper current={reached} reached={reached} onSelect={() => undefined} interactiveUpTo={-1} />
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="space-y-6 min-w-0">
+              <dl className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-4">
+                <Tile k="Legs" v={String(batch.validCount)} />
+                <Tile k="Total" v={<Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} />} />
+                <Tile k="Est. fees" v={d.summary.feeEstimateUsd ? `$${Number(d.summary.feeEstimateUsd).toFixed(2)}` : "—"} sub="estimate" />
+                <Tile k="Approved by" v={activeApproval?.approverEmail ?? d.approvals[0]?.approverEmail ?? "—"} sub={fmtDate(batch.approvedAt)} />
+              </dl>
+              {batch.status !== "CANCELLED" && executionPanel}
+              <section>
+                <h2 className="title-2 mb-3">Legs</h2>
+                {legTable(d.recipients.filter((r) => r.valid), { execution: true })}
+              </section>
+              {batch.status === "COMPLETED" && (
+                <section className="card p-5">
+                  <h2 className="title-2">Reconcile</h2>
+                  <p className="mt-1 text-[0.875rem] text-ink-soft">Every leg settled. Match each one to its reference on the Reconciliation page; demo legs are always flagged as simulated.</p>
+                  <Button href={`/app/reconciliation`} variant="secondary" className="mt-3">
+                    Open reconciliation <IconArrow />
+                  </Button>
+                </section>
+              )}
+            </div>
+            <aside className="space-y-6">
+              <section className="card p-5">
+                <h2 className="title-2">Timeline</h2>
+                <div className="mt-2 max-h-[32rem] overflow-y-auto">
+                  <ActivityFeed events={d.events} showBatch={false} compact />
+                </div>
+              </section>
+            </aside>
           </div>
-          <aside className="space-y-6">
-            <section className="card p-5">
-              <h2 className="title-2">Timeline</h2>
-              <div className="mt-2 max-h-[32rem] overflow-y-auto">
-                <ActivityFeed events={d.events} showBatch={false} compact />
-              </div>
-            </section>
-          </aside>
         </div>
       )}
 
-      {/* Timeline for pre-execution states, below the wizard */}
+      {/* Timeline for pre-execution states, below the stages */}
       {pre && (
         <section className="card mt-8 p-5">
           <h2 className="title-2">Timeline</h2>
@@ -343,20 +378,20 @@ export default function BatchPage() {
       )}
 
       {/* Approve dialog */}
-      <Dialog open={approveOpen} onClose={() => setApproveOpen(false)} title="Approve batch" footer={<><Button variant="ghost" onClick={() => setApproveOpen(false)}>Cancel</Button><Button variant="accent" loading={busy === "approve"} onClick={() => act("approve", () => api(`/api/batches/${id}/approve`, { method: "POST", json: { note } }), "Batch approved").then(() => setApproveOpen(false)).catch(() => {})}>Approve {batch.validCount} payments</Button></>}>
+      <Dialog open={approveOpen} onClose={() => setApproveOpen(false)} title="Approve operation" footer={<><Button variant="ghost" onClick={() => setApproveOpen(false)}>Cancel</Button><Button variant="accent" loading={busy === "approve"} onClick={() => act("approve", () => api(`/api/batches/${id}/approve`, { method: "POST", json: { note } }), "Operation approved").then(() => setApproveOpen(false)).catch(() => {})}>Approve {batch.validCount} legs</Button></>}>
         <div className="space-y-4 text-[0.9375rem] text-ink-soft">
           <p>
-            You are approving <strong className="text-ink">{batch.validCount}</strong> payments totalling <Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="font-medium text-ink" /> plus estimated fees of {d.summary.feeEstimateUsd ? `$${Number(d.summary.feeEstimateUsd).toFixed(2)}` : "an unavailable amount"}.
+            You are approving <strong className="text-ink">{batch.validCount}</strong> legs of a {operationKindLabel(kind).toLowerCase()} totalling <Money units={batch.totalAmount} decimals={batch.assetDecimals} symbol={batch.assetSymbol} className="font-medium text-ink" /> plus estimated fees of {d.summary.feeEstimateUsd ? `$${Number(d.summary.feeEstimateUsd).toFixed(2)}` : "an unavailable amount"}.
           </p>
-          <p className="mono-data text-ink-faint">recipient set {batch.recipientSetHash}</p>
-          <Textarea label="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Checked against the contractor register." />
-          <p className="text-[0.8125rem]">Any later change to a recipient, amount or route invalidates this approval.</p>
+          <p className="mono-data text-ink-faint">leg set {batch.recipientSetHash}</p>
+          <Textarea label="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Checked against the desk plan." />
+          <p className="text-[0.8125rem]">Any later change to a leg, amount or route invalidates this approval.</p>
         </div>
       </Dialog>
 
       {/* Cancel dialog */}
-      <Dialog open={cancelOpen} onClose={() => setCancelOpen(false)} title="Cancel this batch?" footer={<><Button variant="ghost" onClick={() => setCancelOpen(false)}>Keep batch</Button><Button variant="danger" loading={busy === "cancel"} onClick={() => act("cancel", () => api(`/api/batches/${id}?reason=${encodeURIComponent("Cancelled from batch page")}`, { method: "DELETE" }), "Batch cancelled").then(() => router.push("/app/batches")).catch(() => {})}>Cancel batch</Button></>}>
-        <p className="text-[0.9375rem] text-ink-soft">The batch is kept for audit but can no longer be prepared, approved or executed. Nothing has been sent.</p>
+      <Dialog open={cancelOpen} onClose={() => setCancelOpen(false)} title="Cancel this operation?" footer={<><Button variant="ghost" onClick={() => setCancelOpen(false)}>Keep operation</Button><Button variant="danger" loading={busy === "cancel"} onClick={() => act("cancel", () => api(`/api/batches/${id}?reason=${encodeURIComponent("Cancelled from operation page")}`, { method: "DELETE" }), "Operation cancelled").then(() => router.push("/app/batches")).catch(() => {})}>Cancel operation</Button></>}>
+        <p className="text-[0.9375rem] text-ink-soft">The operation is kept for audit but can no longer be prepared, approved or executed. Nothing has been sent.</p>
       </Dialog>
     </>
   );
@@ -366,13 +401,13 @@ function Tile({ k, v, sub }: { k: string; v: React.ReactNode; sub?: string }) {
   return (
     <div className="card px-4 py-3">
       <dt className="eyebrow">{k}</dt>
-      <dd className="mt-1 truncate font-display text-[1.125rem] font-medium tnum">{v}</dd>
+      <dd className="mt-1 break-words font-display text-[1.125rem] font-medium tnum">{v}</dd>
       {sub && <dd className="text-[0.75rem] text-ink-faint">{sub}</dd>}
     </div>
   );
 }
 
-function DetailsStep({ batch, editable, onSave, onNext }: { batch: { name: string; reference: string | null; deadlineAt: string | null; jitterMaxSeconds: number; csvFileName: string | null }; editable: boolean; onSave: (p: { name: string; reference: string | null; deadlineAt: string | null; jitterMaxSeconds: number }) => Promise<unknown>; onNext: () => void }) {
+function DetailsCard({ batch, kindInfo, editable, onSave }: { batch: { name: string; kind: string; reference: string | null; deadlineAt: string | null; jitterMaxSeconds: number; csvFileName: string | null }; kindInfo: (typeof OPERATION_KIND_INFO)[OperationKind]; editable: boolean; onSave: (p: { name: string; reference: string | null; deadlineAt: string | null; jitterMaxSeconds: number }) => Promise<unknown> }) {
   const [name, setName] = useState(batch.name);
   const [reference, setReference] = useState(batch.reference ?? "");
   const [deadline, setDeadline] = useState(batch.deadlineAt ? new Date(batch.deadlineAt).toISOString().slice(0, 16) : "");
@@ -380,13 +415,19 @@ function DetailsStep({ batch, editable, onSave, onNext }: { batch: { name: strin
   const [busy, setBusy] = useState(false);
   const dirty = name !== batch.name || reference !== (batch.reference ?? "") || (deadline ? new Date(deadline).toISOString() : null) !== batch.deadlineAt || Number(jitter) * 60 !== batch.jitterMaxSeconds;
   return (
-    <section className="card max-w-xl p-6 space-y-4">
-      <h2 className="title-2">Batch details</h2>
-      <Input label="Batch name" value={name} onChange={(e) => setName(e.target.value)} disabled={!editable} />
-      <Input label="Internal reference" value={reference} onChange={(e) => setReference(e.target.value)} disabled={!editable} />
-      <Input label="Deadline" type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} disabled={!editable} help="Execution is never scheduled past this time." />
-      <Input label="Maximum spacing between submissions (minutes)" type="number" min={0} max={30} value={jitter} onChange={(e) => setJitter(e.target.value)} disabled={!editable} help="Operational spacing only; not a privacy guarantee." />
-      <div className="flex gap-2 pt-2">
+    <details className="card max-w-xl p-6" open={!batch.csvFileName}>
+      <summary className="cursor-pointer">
+        <span className="title-2">Operation details</span>
+        <span className="ml-2 text-[0.8125rem] text-ink-faint">
+          {kindInfo.label} · {kindInfo.contract}
+        </span>
+      </summary>
+      <div className="mt-4 space-y-4">
+        <p className="text-[0.8125rem] text-ink-soft">{kindInfo.summary}</p>
+        <Input label="Operation name" value={name} onChange={(e) => setName(e.target.value)} disabled={!editable} />
+        <Input label="Internal reference" value={reference} onChange={(e) => setReference(e.target.value)} disabled={!editable} />
+        <Input label="Deadline" type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} disabled={!editable} help="No leg is scheduled past this time." />
+        <Input label="Maximum spacing between legs (minutes)" type="number" min={0} max={30} value={jitter} onChange={(e) => setJitter(e.target.value)} disabled={!editable} help="Operational spacing only; a leg's not-before time always wins. Not a privacy guarantee." />
         {editable && (
           <Button
             variant="secondary"
@@ -404,10 +445,7 @@ function DetailsStep({ batch, editable, onSave, onNext }: { batch: { name: strin
             Save details
           </Button>
         )}
-        <Button variant="primary" onClick={onNext}>
-          {batch.csvFileName ? "Continue" : "Continue to upload"} <IconArrow />
-        </Button>
       </div>
-    </section>
+    </details>
   );
 }

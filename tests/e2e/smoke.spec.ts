@@ -29,17 +29,21 @@ test.describe("public site and auth", () => {
     await expect(page).toHaveURL(/sign-in/);
   });
 
-  test("rejects a wrong password and signs in a finance admin", async ({ page }) => {
+  test("rejects a wrong password and signs in the desk operator", async ({ page }) => {
     await page.goto("/sign-in");
-    await page.getByLabel("Email").fill("finance@northwind.example");
+    await page.getByLabel("Email").fill("desk@halden.example");
     await page.getByLabel("Password").fill("nope");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page.getByText(/incorrect/i)).toBeVisible();
-    await signIn(page, "finance");
+    await signIn(page, "desk");
     await expect(page.getByRole("status")).toContainText(/demo/i);
+    await expect(page.getByRole("status")).toContainText(/Desk operator · Halden Desk/);
     // The application menu sits behind the red mark on every viewport.
     await page.getByRole("button", { name: "Open navigation" }).click();
     await expect(page.getByRole("navigation", { name: "Application" })).toBeVisible();
+    for (const label of ["OPERATIONS_###", "EXECUTIONS_###", "RECONCILIATION_###", "ACTIVITY_###", "SETTINGS_###"]) {
+      await expect(page.getByRole("navigation", { name: "Application" }).getByText(label)).toBeVisible();
+    }
   });
 
   test("signs in with an injected wallet and lands in a fresh workspace", async ({ page }) => {
@@ -67,10 +71,10 @@ test.describe("public site and auth", () => {
   test("viewer is read-only with redacted addresses", async ({ page }) => {
     await signIn(page, "viewer");
     await page.goto("/app/batches");
-    await expect(page.getByRole("link", { name: /new batch/i })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /new operation/i })).toHaveCount(0);
     // Redaction happens on the server: the viewer's own session never receives a full address.
     const res = await page.request.get("/api/reconciliation?pageSize=50");
-    expect(res.ok()).toBe(true);
+    expect(res.ok(), await res.text()).toBe(true);
     const body = (await res.json()) as { rows: Array<{ address: string | null; addressRedacted: boolean }> };
     expect(body.rows.length).toBeGreaterThan(0);
     for (const r of body.rows) {

@@ -7,21 +7,31 @@ import PageHeader from "@/components/app/PageHeader";
 import { useMe } from "@/components/app/AppShell";
 import { Button, EmptyState, Input, Money, Select, Skeleton, StatusBadge, IconArrow } from "@/components/ui";
 import { api, fmtDate } from "@/lib/client";
-import { BATCH_STATUS, statusLabel } from "@/lib/domain/states";
+import { BATCH_STATUS, OPERATION_KIND, operationKindLabel, statusLabel } from "@/lib/domain/states";
 import type { BatchDTO } from "@/lib/serialize";
 
-export default function BatchesPage() {
+export default function OperationsPage() {
   const me = useMe();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
-  const query = useQuery({ queryKey: ["batches", q, status], queryFn: () => api<{ batches: BatchDTO[] }>(`/api/batches?q=${encodeURIComponent(q)}&status=${status}`), refetchInterval: 8000 });
+  const [kind, setKind] = useState("");
+  const query = useQuery({ queryKey: ["batches", q, status, kind], queryFn: () => api<{ batches: BatchDTO[] }>(`/api/batches?q=${encodeURIComponent(q)}&status=${status}&kind=${kind}`), refetchInterval: 8000 });
   const rows = query.data?.batches ?? [];
+  const filtered = !!(q || status || kind);
 
   return (
     <>
-      <PageHeader title="Batches" description="Every payment batch, from draft to reconciled." actions={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New batch <IconArrow /></Button>} />
-      <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_220px]">
-        <Input type="search" placeholder="Search by name, reference or id" aria-label="Search batches" value={q} onChange={(e) => setQ(e.target.value)} />
+      <PageHeader title="Operations" description="Every sheaf on this desk, from draft to reconciled." actions={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New operation <IconArrow /></Button>} />
+      <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_200px_220px]">
+        <Input type="search" placeholder="Search by name, reference or id" aria-label="Search operations" value={q} onChange={(e) => setQ(e.target.value)} />
+        <Select aria-label="Filter by kind" value={kind} onChange={(e) => setKind(e.target.value)}>
+          <option value="">All kinds</option>
+          {OPERATION_KIND.map((k) => (
+            <option key={k} value={k}>
+              {operationKindLabel(k)}
+            </option>
+          ))}
+        </Select>
         <Select aria-label="Filter by status" value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="">All statuses</option>
           {BATCH_STATUS.map((s) => (
@@ -39,7 +49,7 @@ export default function BatchesPage() {
             <Skeleton className="h-10" />
           </div>
         ) : rows.length === 0 ? (
-          <EmptyState title={q || status ? "No batches match" : "No batches yet"} detail={q || status ? "Try a different search or status." : "Create a batch and upload a contractor CSV."} action={!q && !status && me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New batch</Button>} />
+          <EmptyState title={filtered ? "No operations match" : "No operations yet"} detail={filtered ? "Try a different search, kind or status." : "Create an operation, pick its kind and add legs."} action={!filtered && me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New operation</Button>} />
         ) : (
           <>
             {/* Mobile cards */}
@@ -50,12 +60,16 @@ export default function BatchesPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="truncate font-medium">{b.name}</div>
-                        <div className="text-[0.75rem] text-ink-faint">{b.reference ?? "no reference"} · {fmtDate(b.createdAt)}</div>
+                        <div className="text-[0.75rem] text-ink-faint">
+                          {b.kind} · {b.reference ?? "no reference"} · {fmtDate(b.createdAt)}
+                        </div>
                       </div>
                       <StatusBadge status={b.status} />
                     </div>
                     <div className="mt-2 flex items-center justify-between text-[0.875rem]">
-                      <span className="text-ink-soft">{b.validCount} recipients{b.invalidCount ? ` · ${b.invalidCount} invalid` : ""}</span>
+                      <span className="text-ink-soft">
+                        {b.validCount} {b.validCount === 1 ? "leg" : "legs"}{b.invalidCount ? ` · ${b.invalidCount} invalid` : ""}
+                      </span>
                       <Money units={b.totalAmount} decimals={b.assetDecimals} symbol={b.assetSymbol} />
                     </div>
                   </Link>
@@ -67,9 +81,10 @@ export default function BatchesPage() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Batch</th>
+                    <th>Operation</th>
+                    <th>Kind</th>
                     <th>Status</th>
-                    <th className="text-right">Recipients</th>
+                    <th className="text-right">Legs</th>
                     <th className="text-right">Total</th>
                     <th>Mode</th>
                     <th>Created</th>
@@ -84,6 +99,9 @@ export default function BatchesPage() {
                           {b.name}
                         </Link>
                         <div className="text-[0.75rem] text-ink-faint">{b.reference ?? <span className="font-mono">{b.id.slice(0, 10)}</span>}</div>
+                      </td>
+                      <td>
+                        <span className="badge badge-neutral">{b.kind}</span>
                       </td>
                       <td>
                         <StatusBadge status={b.status} />

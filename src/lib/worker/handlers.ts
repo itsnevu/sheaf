@@ -8,7 +8,7 @@ import { TERMINAL_RECIPIENT } from "@/lib/domain/states";
 
 /**
  * Job handlers. Every handler is idempotent: re-running it after a crash must not create a
- * second payment. Money-moving side effects happen only in execute_route (demo) or in the
+ * second execution of a leg. Money-moving side effects happen only in execute_route (demo) or in the
  * browser (real); everything else is bookkeeping.
  */
 
@@ -95,7 +95,7 @@ export async function prepareRoutes(job: Job) {
   const rows = await db.batchRecipient.findMany({ where: { batchId: batch.id, valid: true }, include: { route: { select: { status: true } } } });
   const allQuoted = rows.length > 0 && rows.every((r) => r.route?.status === "QUOTED");
   await db.paymentBatch.update({ where: { id: batch.id }, data: { status: allQuoted ? "ROUTES_PREPARED" : "VALIDATED" } });
-  await audit({ organizationId: batch.organizationId, batchId: batch.id, action: "routes.prepared", summary: allQuoted ? `Routes ready for all ${rows.length} recipients` : `Routes prepared: ${rows.length - unavailable - rows.filter((r) => !r.route).length} ready, ${rows.filter((r) => r.route?.status !== "QUOTED").length} unavailable`, payload: { total: rows.length, unavailable } });
+  await audit({ organizationId: batch.organizationId, batchId: batch.id, action: "routes.prepared", summary: allQuoted ? `Routes ready for all ${rows.length} legs` : `Routes prepared: ${rows.length - unavailable - rows.filter((r) => !r.route).length} ready, ${rows.filter((r) => r.route?.status !== "QUOTED").length} unavailable`, payload: { total: rows.length, unavailable } });
 }
 
 /* ─────────────── execute_route (demo only) ─────────────── */
@@ -103,7 +103,7 @@ export async function prepareRoutes(job: Job) {
 export async function executeRoute(job: Job) {
   const r = await db.batchRecipient.findUnique({ where: { id: job.recipientId! }, include: { batch: true, route: true, attempts: { orderBy: { attemptNo: "desc" }, take: 1 } } });
   if (!r || !r.route) return;
-  if (r.batch.mode !== "demo") throw new Error("execute_route is only valid for demo batches");
+  if (r.batch.mode !== "demo") throw new Error("execute_route is only valid for demo operations");
   if (r.batch.status !== "EXECUTING") return; // cancelled or paused
   if (r.status !== "SCHEDULED") return; // already picked up or terminal
   const attemptNo = (JSON.parse(job.payload) as { attemptNo?: number }).attemptNo ?? r.attemptCount + 1;
@@ -126,7 +126,7 @@ export async function executeRoute(job: Job) {
       db.paymentRoute.update({ where: { id: r.route.id }, data: { status: "CONSUMED" } }),
       db.job.upsert({ where: { idempotencyKey: `poll:${attempt.id}` }, update: {}, create: { type: "poll_route", batchId: r.batchId, recipientId: r.id, idempotencyKey: `poll:${attempt.id}`, runAt: new Date(Date.now() + POLL_SCHEDULE_MS[0]), payload: JSON.stringify({ attemptId: attempt.id, polls: 0, unknown: 0 }) } }),
     ]);
-    await audit({ organizationId: r.batch.organizationId, batchId: r.batchId, recipientId: r.id, action: "payment.submitted", summary: `Row ${r.rowNumber} submitted (simulated)`, payload: { attemptNo, providerRequestId: sub.providerRequestId, simulated: true } });
+    await audit({ organizationId: r.batch.organizationId, batchId: r.batchId, recipientId: r.id, action: "leg.submitted", summary: `Leg ${r.rowNumber} submitted (simulated)`, payload: { attemptNo, providerRequestId: sub.providerRequestId, simulated: true } });
   } catch (e) {
     // Submission itself failed before anything left: safe to mark failed and retry-eligible.
     const msg = (e as Error).message;
@@ -170,7 +170,7 @@ export async function pollRoute(job: Job) {
         db.batchRecipient.update({ where: { id: r.id }, data: { status: st.status === "submitted" ? "CONFIRMING" : "SUBMITTED" } }),
       ]);
       if (polls >= MAX_POLLS) {
-        // Do not fail it: the payment may still land. Flag for manual review instead.
+        // Do not fail it: the leg may still land. Flag for manual review instead.
         await db.executionAttempt.update({ where: { id: attempt.id }, data: { status: "UNKNOWN", log: log("poll limit reached; needs manual review", attempt.log) } });
         await db.batchRecipient.update({ where: { id: r.id }, data: { lastError: "Status still pending after the polling window. Check the provider before retrying." } });
         await recomputeBatchStatus(r.batchId);
@@ -183,8 +183,8 @@ export async function pollRoute(job: Job) {
       await db.executionAttempt.update({ where: { id: attempt.id }, data: { providerStatus: "unknown", log: log(`status unreachable: ${st.details ?? ""}`, attempt.log) } });
       if (unknown >= MAX_UNKNOWN) {
         await db.executionAttempt.update({ where: { id: attempt.id }, data: { status: "UNKNOWN", finishedAt: new Date() } });
-        await db.batchRecipient.update({ where: { id: r.id }, data: { lastError: `Provider status unavailable (${st.details ?? "no detail"}). Not retried automatically: the payment may have completed.` } });
-        await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "payment.unknown", summary: `Row ${r.rowNumber}: status unknown after ${unknown} checks; manual review required`, payload: { attemptId: attempt.id, details: st.details } });
+        await db.batchRecipient.update({ where: { id: r.id }, data: { lastError: `Provider status unavailable (${st.details ?? "no detail"}). Not retried automatically: the leg may have completed.` } });
+        await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "leg.unknown", summary: `Leg ${r.rowNumber}: status unknown after ${unknown} checks; manual review required`, payload: { attemptId: attempt.id, details: st.details } });
         await recomputeBatchStatus(r.batchId);
         return;
       }
@@ -203,7 +203,7 @@ export async function pollRoute(job: Job) {
           create: { recipientId: r.id, batchId: r.batchId, organizationId: org.id, status: "MATCHED", txHash, feeActual: fees?.feeTotalUsd ?? null, reconciledAt: new Date() },
         }),
       ]);
-      await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "payment.completed", summary: `Row ${r.rowNumber} completed${attempt.simulated ? " (simulated)" : ""}`, payload: { txHash, simulated: attempt.simulated, attemptNo: attempt.attemptNo } });
+      await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "leg.completed", summary: `Leg ${r.rowNumber} completed${attempt.simulated ? " (simulated)" : ""}`, payload: { txHash, simulated: attempt.simulated, attemptNo: attempt.attemptNo } });
       await recomputeBatchStatus(r.batchId);
       return;
     }
@@ -211,9 +211,9 @@ export async function pollRoute(job: Job) {
       await db.$transaction([
         db.executionAttempt.update({ where: { id: attempt.id }, data: { status: "REFUNDED", providerStatus: "refund", failReason: st.failReason, finishedAt: new Date(), log: log(`refunded ${st.inTxHashes[0] ?? ""}`, attempt.log) } }),
         db.batchRecipient.update({ where: { id: r.id }, data: { status: "REFUNDED", lastError: st.details ?? st.failReason ?? "Refunded by provider" } }),
-        db.reconciliationRecord.upsert({ where: { recipientId: r.id }, update: { status: "EXCEPTION", txHash: st.inTxHashes[0] ?? null, note: "Refunded to treasury" }, create: { recipientId: r.id, batchId: r.batchId, organizationId: org.id, status: "EXCEPTION", txHash: st.inTxHashes[0] ?? null, note: "Refunded to treasury" } }),
+        db.reconciliationRecord.upsert({ where: { recipientId: r.id }, update: { status: "EXCEPTION", txHash: st.inTxHashes[0] ?? null, note: "Refunded to the desk wallet" }, create: { recipientId: r.id, batchId: r.batchId, organizationId: org.id, status: "EXCEPTION", txHash: st.inTxHashes[0] ?? null, note: "Refunded to the desk wallet" } }),
       ]);
-      await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "payment.refunded", summary: `Row ${r.rowNumber} refunded: ${st.failReason ?? "provider refund"}`, payload: { failReason: st.failReason } });
+      await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "leg.refunded", summary: `Leg ${r.rowNumber} refunded: ${st.failReason ?? "provider refund"}`, payload: { failReason: st.failReason } });
       await recomputeBatchStatus(r.batchId);
       return;
     }
@@ -224,14 +224,14 @@ export async function pollRoute(job: Job) {
         db.batchRecipient.update({ where: { id: r.id }, data: { status: retryable ? "RETRY_ELIGIBLE" : "FAILED", lastError: `${st.failReason ?? "FAILED"}${st.details ? `: ${st.details}` : ""}` } }),
         db.reconciliationRecord.upsert({ where: { recipientId: r.id }, update: { status: "EXCEPTION", note: st.failReason ?? "failed" }, create: { recipientId: r.id, batchId: r.batchId, organizationId: org.id, status: "EXCEPTION", note: st.failReason ?? "failed" } }),
       ]);
-      await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "payment.failed", summary: `Row ${r.rowNumber} failed: ${st.failReason ?? "unknown reason"}${retryable ? " (retry eligible)" : ""}`, payload: { failReason: st.failReason, retryable, attemptNo: attempt.attemptNo } });
+      await audit({ organizationId: org.id, batchId: r.batchId, recipientId: r.id, action: "leg.failed", summary: `Leg ${r.rowNumber} failed: ${st.failReason ?? "unknown reason"}${retryable ? " (retry eligible)" : ""}`, payload: { failReason: st.failReason, retryable, attemptNo: attempt.attemptNo } });
       await recomputeBatchStatus(r.batchId);
       return;
     }
   }
 }
 
-/* ─────────────── batch status roll-up ─────────────── */
+/* ─────────────── operation status roll-up ─────────────── */
 
 export async function recomputeBatchStatus(batchId: string) {
   const batch = await db.paymentBatch.findUnique({ where: { id: batchId } });
@@ -246,6 +246,6 @@ export async function recomputeBatchStatus(batchId: string) {
   else status = "FAILED";
   if (status !== batch.status) {
     await db.paymentBatch.update({ where: { id: batchId }, data: { status, completedAt: status === "COMPLETED" ? new Date() : null } });
-    await audit({ organizationId: batch.organizationId, batchId, action: `batch.${status.toLowerCase()}`, summary: status === "COMPLETED" ? `Batch completed: ${completed}/${rows.length} payments` : `Batch ${status.toLowerCase().replace("_", " ")}: ${completed}/${rows.length} completed`, payload: { completed, total: rows.length } });
+    await audit({ organizationId: batch.organizationId, batchId, action: `operation.${status.toLowerCase()}`, summary: status === "COMPLETED" ? `Operation completed: ${completed}/${rows.length} legs` : `Operation ${status.toLowerCase().replace("_", " ")}: ${completed}/${rows.length} legs completed`, payload: { completed, total: rows.length } });
   }
 }

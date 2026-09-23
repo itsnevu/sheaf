@@ -19,7 +19,8 @@ interface Detail {
   events: FeedEvent[];
 }
 
-export default function PaymentPage() {
+/** One leg of an operation: destination, route, attempts and timeline. */
+export default function LegPage() {
   const { rid } = useParams<{ rid: string }>();
   const me = useMe();
   const qc = useQueryClient();
@@ -54,13 +55,13 @@ export default function PaymentPage() {
     <>
       <PageHeader
         back={{ href: `/app/batches/${batch.id}`, label: batch.name }}
-        eyebrow={`Payment · row ${p.rowNumber} · ${simulated ? "demo" : "real"}`}
+        eyebrow={`Leg ${p.rowNumber} · ${batch.kind} · ${simulated ? "demo" : "real"}`}
         title={
           <span className="inline-flex flex-wrap items-center gap-3">
             {p.name} <StatusBadge status={p.status} />
           </span>
         }
-        actions={me.can("payment.retry") && p.status === "RETRY_ELIGIBLE" && <Button variant="primary" onClick={retry}>Retry payment</Button>}
+        actions={me.can("payment.retry") && p.status === "RETRY_ELIGIBLE" && <Button variant="primary" onClick={retry}>Retry leg</Button>}
       />
       {p.lastError && (
         <p className="mb-5 rounded-card border border-danger/30 bg-danger-tint px-4 py-3 text-[0.875rem] text-danger" role="alert">
@@ -70,13 +71,14 @@ export default function PaymentPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6 min-w-0">
           <section className="card">
-            <h2 className="title-2 border-b border-line px-5 py-3.5">Payment</h2>
+            <h2 className="title-2 border-b border-line px-5 py-3.5">Leg</h2>
             <dl className="grid gap-x-6 gap-y-4 p-5 sm:grid-cols-2">
               <Kv k="Destination address" v={<Address value={p.address} redacted={p.addressRedacted} full={!p.addressRedacted} className="break-all" />} />
               <Kv k="Amount" v={<Money units={p.amount} decimals={batch.assetDecimals} symbol={p.assetSymbol} className="font-medium" />} />
               <Kv k="Asset · network" v={`${p.assetSymbol} · ${chainName(batch.destinationChainId)}`} />
-              <Kv k="Internal reference" v={p.reference ?? "—"} mono />
-              <Kv k="Batch" v={<Link href={`/app/batches/${batch.id}`} className="link">{batch.name}</Link>} />
+              <Kv k="Memo" v={p.reference ?? "—"} mono />
+              <Kv k="Not before" v={fmtDate(p.notBefore)} />
+              <Kv k="Operation" v={<Link href={`/app/batches/${batch.id}`} className="link">{batch.name}</Link>} />
               <Kv k="Transaction reference" v={<TxHash value={tx} url={tx ? txUrl(batch.destinationChainId, tx) : null} simulated={simulated} />} />
               <Kv k="Submitted" v={fmtDate(p.submittedAt)} />
               <Kv k="Completed" v={fmtDate(p.completedAt)} />
@@ -139,7 +141,7 @@ export default function PaymentPage() {
                 </div>
               </dl>
             ) : (
-              <p className="p-5 text-[0.875rem] text-ink-faint">No route has been prepared for this recipient.</p>
+              <p className="p-5 text-[0.875rem] text-ink-faint">No route has been prepared for this leg.</p>
             )}
           </section>
 

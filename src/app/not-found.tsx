@@ -12,7 +12,7 @@ export default function NotFound() {
           Home
         </Link>
         <Link href="/app" className="btn btn-primary">
-          Dashboard
+          Open the desk
         </Link>
       </div>
     </div>

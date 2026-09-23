@@ -32,7 +32,7 @@ describe("permissions", () => {
     expect(can("APPROVER", "batch.approve")).toBe(true);
     expect(can("APPROVER", "batch.execute")).toBe(false);
   });
-  it("finance admins execute but do not approve", () => {
+  it("desk operators execute but do not approve", () => {
     expect(can("FINANCE_ADMIN", "batch.execute")).toBe(true);
     expect(can("FINANCE_ADMIN", "batch.approve")).toBe(false);
   });

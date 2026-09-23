@@ -9,12 +9,12 @@ import { api } from "@/lib/client";
 
 const TYPES: Array<[string, string]> = [
   ["", "All events"],
-  ["batch", "Batch lifecycle"],
+  ["operation", "Operation lifecycle"],
   ["csv", "CSV validation"],
   ["routes", "Route preparation"],
   ["funding", "Funding"],
   ["execution", "Execution"],
-  ["payment", "Payments (submitted, completed, failed, retried)"],
+  ["leg", "Legs (submitted, completed, failed, retried)"],
   ["reconciliation", "Reconciliation"],
   ["export", "Exports"],
   ["settings", "Settings"],
@@ -33,7 +33,7 @@ export default function ActivityPage() {
   const events = q.data?.pages.flatMap((p) => p.events) ?? [];
   return (
     <>
-      <PageHeader title="Activity" description="Every recorded action across batches, payments, reconciliation and settings." actions={<Select aria-label="Filter events" value={type} onChange={(e) => setType(e.target.value)} className="w-72">{TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select>} />
+      <PageHeader title="Activity" description="Every recorded action across operations, legs, reconciliation and settings." actions={<Select aria-label="Filter events" value={type} onChange={(e) => setType(e.target.value)} className="w-72">{TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select>} />
       <div className="card px-5">
         {q.isLoading ? (
           <div className="space-y-3 py-5">
