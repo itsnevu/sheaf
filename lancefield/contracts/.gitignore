@@ -1,0 +1,8 @@
+out/
+cache/
+dependencies/
+broadcast/
+# Local anvil deployments are recreated by `npm run chain:dev` and the E2E suite.
+deployments/31337.json
+deployments/*.dry-run.json
+deployments/e2e/
