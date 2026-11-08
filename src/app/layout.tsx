@@ -1,14 +1,26 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Barlow, Barlow_Condensed, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { ensureWorker } from "@/lib/worker/boot";
 
-const sans = Barlow({ variable: "--font-sans", subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
-const display = Barlow_Condensed({ variable: "--font-display", subsets: ["latin"], weight: ["200", "300"], display: "swap" });
-const serif = Playfair_Display({ variable: "--font-serif", subsets: ["latin"], weight: ["400"], display: "swap" });
-const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "500", "700"], display: "swap" });
+const sans = localFont({ variable: "--font-sans", src: [
+  { path: "../../public/fonts/barlow-400.woff2", weight: "400" },
+  { path: "../../public/fonts/barlow-500.woff2", weight: "500" },
+  { path: "../../public/fonts/barlow-600.woff2", weight: "600" },
+  { path: "../../public/fonts/barlow-700.woff2", weight: "700" },
+], display: "swap" });
+const display = localFont({ variable: "--font-display", src: [
+  { path: "../../public/fonts/barlow-condensed-200.woff2", weight: "200" },
+  { path: "../../public/fonts/barlow-condensed-300.woff2", weight: "300" },
+], display: "swap" });
+const serif = localFont({ variable: "--font-serif", src: "../../public/fonts/playfair-display-400.woff2", weight: "400", display: "swap" });
+const mono = localFont({ variable: "--font-mono", src: [
+  { path: "../../public/fonts/jetbrains-mono-400.woff2", weight: "400" },
+  { path: "../../public/fonts/jetbrains-mono-500.woff2", weight: "500" },
+  { path: "../../public/fonts/jetbrains-mono-700.woff2", weight: "700" },
+], display: "swap" });
 
 const TITLE = "Raqio";
 const DESCRIPTION =
