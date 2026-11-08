@@ -66,7 +66,7 @@ export default function AppShell({ user, capabilities, mode, demoBanner, childre
           <div className="ml-auto flex items-center gap-4">
             <span className="badge badge-info text-xs hidden sm:inline-flex">
               <span className="badge-dot" />
-              {mode === "demo" ? "Testnet" : "Live"}
+              Elysium Mainnet
             </span>
             <span className="text-xs text-muted hidden md:inline">{user.name || statusLabel(user.role)}</span>
             <button type="button" onClick={signOut} className="text-xs text-faint hover:text-signal transition-colors">Sign out</button>
@@ -111,7 +111,7 @@ export default function AppShell({ user, capabilities, mode, demoBanner, childre
         </div>
 
         {/* Status bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 h-7 bg-surface/80 backdrop-blur border-t border-line flex items-center px-4 gap-4 text-xs font-mono">
+        <div role="status" aria-label="Desk status" className="fixed bottom-0 left-0 right-0 z-40 h-7 bg-surface/80 backdrop-blur border-t border-line flex items-center px-4 gap-4 text-xs font-mono">
           <span className="text-faint truncate">
             {user.name && user.name !== statusLabel(user.role) ? `${user.name} · ` : ""}{statusLabel(user.role)} · {user.organizationName}
           </span>

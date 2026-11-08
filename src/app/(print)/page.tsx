@@ -3,7 +3,7 @@ import HomeClient from "@/components/marketing/HomeClient";
 
 export const metadata: Metadata = {
   title: "Raqio · Token vesting and streaming on Elysium",
-  description: "Linear vesting streams with cliff periods on Elysium L2. 25 bps fee, batch up to 200 streams, fully on-chain. Recipients claim as tokens vest.",
+  description: "Token locks, LP and NFT custody, vesting streams and Merkle airdrops on Elysium Mainnet 99901. View deployed addresses and public proof.",
 };
 
 export default function HomePage() {

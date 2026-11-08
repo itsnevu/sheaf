@@ -1,12 +1,12 @@
 "use client";
 
 const PHASES = [
-  { label: "Desk contracts deployed", phase: "launch", done: true },
-  { label: "Testnet live (Chain ID 99801)", phase: "launch", done: true },
+  { label: "Vault, Airdrop and Score deployed", phase: "launch", done: true },
+  { label: "Elysium Mainnet (Chain ID 99901)", phase: "launch", done: true },
   { label: "Demo desk operational", phase: "launch", done: true },
   { label: "Wallet connect + real mode", phase: "launch", done: true },
   { label: "Security audit", phase: "two", done: false },
-  { label: "Mainnet deployment", phase: "two", done: false },
+  { label: "Ownership nomination acceptance", phase: "two", done: false },
   { label: "Multi-chain bridging", phase: "two", done: false },
 ];
 

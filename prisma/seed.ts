@@ -14,10 +14,10 @@ function hashPassword(password: string) {
 }
 const hex = (s: string, n: number) => createHash("sha256").update(s).digest("hex").slice(0, n);
 const addr = (seed: string) => "0x" + hex("addr:" + seed, 40);
-const CHAIN = 99801;
+const CHAIN = 99901;
 const ASSET = "USDG";
 const DEC = 6;
-const USDG_ADDRESS = process.env.RAQIO_USDG_ADDRESS_99801 || "0x0000000000000000000000000000000000000000";
+const USDG_ADDRESS = process.env.RAQIO_USDG_ADDRESS_99901 || "0x0000000000000000000000000000000000000000";
 const units = (n: string) => {
   const [w, f = ""] = n.split(".");
   return (BigInt(w) * 10n ** BigInt(DEC) + BigInt(f.padEnd(DEC, "0"))).toString();

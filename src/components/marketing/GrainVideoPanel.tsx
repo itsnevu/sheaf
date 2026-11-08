@@ -11,6 +11,6 @@ export default function GrainVideoPanel() {
    <span className="showcase-corner micro">RAQIO / MOTION STUDY 001</span>
    <div className="showcase-wordmark"><Mark size={40}/><span>Raqio</span><p className="micro">Value, released in time.</p></div>
    <div className="showcase-controls"><button type="button" onClick={()=>setPaused(v=>!v)} aria-label={paused?'Play animation':'Pause animation'} aria-pressed={paused}>{paused?'▶':'Ⅱ'}</button><span className="micro">{paused?'MOTION PAUSED':'PROTOCOL IN MOTION'} / NO AUDIO</span></div>
-   <span className="showcase-coordinate micro">99801 ↗ ELYSIUM</span>
+   <span className="showcase-coordinate micro">99901 ↗ ELYSIUM</span>
  </div>;
 }

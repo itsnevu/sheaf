@@ -1,5 +1,7 @@
 > Draft proposal — not an implemented or deployed token system. Supply allocations, staking returns, discounts, governance and burns below are unapproved design assumptions, not live protocol parameters. The implemented vault fee is separate.
 
+Deployment update, 8 November 2026: RaqioVault, RaqioAirdrop and RaqioScore are deployed on chain 99901. No RAQIO token, staking, governance, fee discount or buyback was deployed. Every token parameter below is a draft proposal; see the [whitepaper](whitepaper.md).
+
 # RAQIO Token Economics
 
 ## Token Overview
@@ -7,7 +9,7 @@
 | Parameter       | Value                              |
 | --------------- | ---------------------------------- |
 | Name            | RAQIO                               |
-| Network         | Elysium L2 (Chain ID 99801)        |
+| Network         | Elysium Mainnet (Chain ID 99901)        |
 | Standard        | ERC-20                             |
 | Total supply    | 100,000,000 (fixed, no inflation)  |
 | Decimals        | 18                                 |
@@ -22,7 +24,7 @@
 | Public sale / liquidity          | 15%   | 15,000,000  | 20% at TGE, 80% over 12 months      |
 | Security audit fund & bounties  | 10%   | 10,000,000  | Unlocked, disbursed on completion    |
 
-Team and treasury allocations are vested through Raqio's own RaqioStream contracts (dog-fooding). This means vesting terms are enforced on-chain and publicly verifiable.
+Proposed team and treasury allocations would use RaqioVault vesting. No RAQIO allocation, token or vesting campaign was created by the three-contract mainnet deployment.
 
 ## Supply Unlock Schedule
 
@@ -64,10 +66,10 @@ RAQIO stakers receive reduced protocol fees on stream creation:
 - No stake: 25 bps (0.25%)
 - Any active stake: 15 bps (0.15%)
 
-The discount applies at deposit time. The FeeRouter contract checks staking status on-chain.
+The discount applies at deposit time. A future fee-discount implementation would need a separate staking integration; the deployed Vault does not check staking status.
 
 ### Protocol revenue sharing
-50% of all protocol fees collected by FeeRouter are distributed to RAQIO stakers proportional to their staking weight. Distributions happen per-block and are claimable at any time.
+Proposed only: allocate 50% of fees to staking rewards. The deployed Vault sends fees directly to its configured recipient and implements no staking reward distribution.
 
 ## Burn Mechanism
 
@@ -141,7 +143,7 @@ Failed proposals return the stake. Passed proposals also return the stake after 
 - Emergency pause: any 2 signers can pause protocol (unpause requires 3)
 
 ### Timelock
-All parameter changes enforced by a 48-hour timelock contract. The timelock address is the owner of FeeRouter and any future governance-controlled contracts.
+All parameter changes enforced by a 48-hour timelock contract. A governance timelock and multisig ownership are proposed. The deployed Vault enforces a 48-hour delay only for fee changes; its current administrator is recorded in the mainnet deployment record.
 
 ### Audit
 The RAQIO token contract, staking contract, and governance contract will be audited before mainnet launch. The security audit fund (10M RAQIO) covers:

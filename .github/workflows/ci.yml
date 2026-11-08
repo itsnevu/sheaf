@@ -66,6 +66,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: Raqio:ci
+          tags: raqio:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max

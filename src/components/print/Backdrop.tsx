@@ -92,8 +92,8 @@ export default function Backdrop({ mode = "demo", variant = "site", role }: { mo
       </div>
       <div className="bd-over" data-variant={variant}>
         <dl className="bd-plate" aria-hidden="true">
-          <div><dt>DESK</dt><dd>RH-99801</dd></div>
-          <div><dt>CHAIN</dt><dd>ELYSIUM · 99801</dd></div>
+          <div><dt>DESK</dt><dd>RH-99901</dd></div>
+          <div><dt>CHAIN</dt><dd>ELYSIUM · 99901</dd></div>
           <div><dt>MODE</dt><dd data-mode={mode}>{mode.toUpperCase()}</dd></div>
           {role && <div><dt>ROLE</dt><dd>{role.toUpperCase()}</dd></div>}
           <div><dt>UTC</dt><dd className="bd-clock">{utc}</dd></div>
@@ -141,7 +141,7 @@ export default function Backdrop({ mode = "demo", variant = "site", role }: { mo
         {contents && (
           <div className="bd-stamp" aria-hidden="true">
             <b>CONTROLLED COPY</b>
-            <span>RH-99801 · REV 2026.09</span>
+            <span>RH-99901 · REV 2026.09</span>
           </div>
         )}
       </div>

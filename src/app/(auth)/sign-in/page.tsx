@@ -56,7 +56,7 @@ function SignInForm() {
           <dl>
             <div><dt>HOLDER</dt><dd>{badge ? `${badge.who}@halden.example` : "pick a role"}</dd></div>
             <div><dt>ROLE</dt><dd>{badge?.role ?? "—"}</dd></div>
-            <div><dt>DESK</dt><dd>RH-99801 · HALDEN</dd></div>
+            <div><dt>DESK</dt><dd>RH-99901 · HALDEN</dd></div>
           </dl>
         </div>
         <p className="x-badge-sub">ROLES ON THIS DESK</p>

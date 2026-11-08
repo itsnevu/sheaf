@@ -43,7 +43,7 @@ describe("operation lifecycle", () => {
     expect(b.mode).toBe("demo");
     expect(b.kind).toBe("ACCUMULATE"); // default kind
     expect(b.assetSymbol).toBe("USDG");
-    expect(b.destinationChainId).toBe(99801);
+    expect(b.destinationChainId).toBe(99901);
     expect(b.status).toBe("DRAFT");
     expect(b.jitterMaxSeconds).toBe(1800); // clamped to the bound
     expect(await auditActions(b.id)).toEqual(["operation.created"]);

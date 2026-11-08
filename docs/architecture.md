@@ -1,6 +1,8 @@
 # Raqio architecture
 
-Raqio is the private execution desk for Elysium (chain id 99801). **Private externally. Transparent internally.** A Raqio is one controlled **operation** made of **legs**, executed from one desk. The settlement asset is USDG (6 decimals).
+Current mainnet vault architecture: [whitepaper](whitepaper.md). RaqioVault, RaqioAirdrop and RaqioScore are deployed on chain 99901. The desk architecture below describes the separate legacy workflow; its four contracts were not included in this deployment.
+
+Raqio is the private execution desk for Elysium (chain id 99901). **Private externally. Transparent internally.** A Raqio is one controlled **operation** made of **legs**, executed from one desk. The settlement asset is USDG (6 decimals).
 
 Privacy, in Raqio's sense, means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing and the desk contract address stay visible. Raqio never describes anything as anonymous, untraceable or unlinkable.
 

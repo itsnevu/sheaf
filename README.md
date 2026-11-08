@@ -1,6 +1,6 @@
 # Raqio
 
-Vault platform continuation: [implementation status](docs/platform-implementation-status.md). Includes token/LP/NFT locks, streamed airdrops, a public explorer and a bounded on-chain commitment score on Elysium Testnet. Public deployments and independent audits are separate from the local implementation.
+Vault platform continuation: [implementation status](docs/platform-implementation-status.md). Includes token/LP/NFT locks, streamed airdrops, a public explorer and a bounded on-chain commitment score on Elysium Mainnet (chain 99901). Vault, Airdrop and Score are deployed; [addresses and transaction receipts](contracts/deployments/elysium-mainnet-99901.json). Ownership nominations remain pending acceptance. No independent audit has been established.
 
 The private execution desk for Elysium. **Private externally. Transparent internally.**
 
@@ -22,10 +22,10 @@ Tokens with transfer restrictions carry transfer restrictions (compliance checks
 ## What is in this repository
 
 - **The desk** (`src/`): a Next.js 14 app. Sign in (email or Ethereum wallet), create an operation, add legs by paste or CSV, validate, prepare routes (quoted through Relay when the funds come from another chain), four-eyes approval, fund, execute with retries and idempotency keys, reconcile, export, audit trail. Roles: Owner, Desk operator, Approver, Viewer.
-- **The contracts** (`contracts/`): the four Solidity contracts above, Foundry tests, a deploy script and their own README.
+- **The contracts** (`contracts/`): deployed RaqioVault, RaqioAirdrop and RaqioScore, plus the four legacy desk contracts above. The legacy contracts are outside this mainnet deployment.
 - **The site** (`/`, `/docs`, `/security`, `/privacy`): four instrument pages (printer, reader, fiche viewer, index sheet). See `design.md`.
 
-Demo mode (the default) simulates routing, funding and settlement with a deterministic mock provider and labels every record as simulated. Real mode quotes routes from Relay and signs with the connected wallet. The desk does not yet submit transactions to the contracts on-chain; that wiring is the next step and is listed as such in `docs/implementation-status.md`.
+Demo mode (the default) simulates routing, funding and settlement with a deterministic mock provider and labels every record as simulated. Real mode quotes routes from Relay and signs with the connected wallet. The legacy Relay console does not yet call the four legacy desk contracts. Vault and airdrop pages submit wallet-signed calls to the deployed mainnet contracts independently of desk demo mode.
 
 ## Quick start
 
@@ -46,7 +46,19 @@ forge build
 forge test -vv
 ```
 
+## Mainnet contracts
+
+| Contract | Address |
+| --- | --- |
+| RaqioVault | `0x7dA7CA57a86C977a9CfAf3826b257aA9C6aD1C77` |
+| RaqioAirdrop | `0xCf32A62308ce25691CFcc129B52B8a6424462184` |
+| RaqioScore | `0x4b5b48e5ffF7FeC9B9D1978966B2966ac5ab11C8` |
+
+Network: Elysium Mainnet `99901`. RPC: `https://rpc-elysium.perpme.fun`. [Whitepaper](docs/whitepaper.md), web `/whitepaper`, and `/docs#contract-ref` describe the deployed contracts. `npm run docs:sync` refreshes public downloads.
+
 ## Documentation
+
+- [Mainnet readiness audit](docs/mainnet-readiness-audit.md) (verified checks, repaired findings and remaining release work)
 
 - [Architecture](docs/architecture.md)
 - [Development guide](docs/development.md) (setup, env vars, leg CSV format, demo scenarios, real-mode requirements, tests)

@@ -1,6 +1,20 @@
 # Raqio contracts
 
-Raqio is the private execution desk for Elysium (an Arbitrum Orbit L2, chain id 99801).
+## Deployed mainnet infrastructure
+
+RaqioVault: `0x7dA7CA57a86C977a9CfAf3826b257aA9C6aD1C77` (block 2405054).
+
+RaqioAirdrop: `0xCf32A62308ce25691CFcc129B52B8a6424462184` (block 2405110).
+
+RaqioScore: `0x4b5b48e5ffF7FeC9B9D1978966B2966ac5ab11C8` (block 2405190).
+
+Chain `99901`; RPC `https://rpc-elysium.perpme.fun`. [Six transaction receipts](deployments/elysium-mainnet-99901.json), [whitepaper](../docs/whitepaper.md). Deployment script: `script/DeployMainnet.s.sol`. Total paid: `0.0004973761107` native gas units.
+
+Read-only verification on 8 November 2026 found feeBps 25 and both Airdrop/Score referencing this Vault. Owner, pendingOwner and the Vault fee recipient are `0xEd6e3C8196D1DC003D4c9Ee56b808Cd6ef982fbf`. The administrator already owns all three contracts; the nomination remains pending until that wallet calls `acceptOwnership()` on each. This is not a multisig handover. No separate FeeRouter, RAQIO token or staking contract was deployed. Audit and explorer source verification have not been established.
+
+## Legacy desk contracts (outside this deployment)
+
+Raqio is the private execution desk for Elysium (an Arbitrum Orbit L2, chain id 99901).
 Private externally. Transparent internally.
 
 This folder holds the four on-chain operations, one contract each, built with Foundry and
@@ -141,9 +155,9 @@ recipient in a signature, leg double-execute and `notBefore`, plan cancel and wi
 fill by the wrong taker, expiry refund, clean reverts on restricted tokens for every contract,
 four-eyes, the daily cap, role checks, and one fuzz test per contract.
 
-## Deploying to Elysium
+## Legacy testnet deployment (separate from mainnet)
 
-Elysium is an Arbitrum Orbit L2 with chain id 99801. For the RPC URL, explorer and the
+The legacy example below targets Elysium Testnet, chain 99801. For the RPC URL, explorer and the
 USDG contract address, see the Elysium docs; nothing here hard-codes them.
 
 Environment (put these in `contracts/.env`, which is git-ignored, or export them):

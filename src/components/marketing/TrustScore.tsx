@@ -2,12 +2,12 @@
 import {useState} from "react";
 import {useReadContract} from "wagmi";
 import {isAddress,type Address} from "viem";
-import {CONTRACTS,elysiumTestnet,isContractConfigured} from "@/lib/contracts/config";
+import {CONTRACTS,elysiumMainnet,isContractConfigured} from "@/lib/contracts/config";
 import {RAQIO_SCORE_ABI} from "@/lib/contracts/score-abi";
 
 export default function TrustScore({score,breakdown}:{score?:number;breakdown?:{supplyLocked:number;lpLocked:number;vestingActive:number;history:number}}={}){
  const [token,setToken]=useState('');const valid=isAddress(token,{strict:false});const configured=isContractConfigured(CONTRACTS.raqioScore);
- const result=useReadContract({address:CONTRACTS.raqioScore,abi:RAQIO_SCORE_ABI,functionName:'getFullScore',args:valid?[token as Address]:undefined,chainId:elysiumTestnet.id,query:{enabled:score===undefined&&configured&&valid,refetchInterval:15000}});
+ const result=useReadContract({address:CONTRACTS.raqioScore,abi:RAQIO_SCORE_ABI,functionName:'getFullScore',args:valid?[token as Address]:undefined,chainId:elysiumMainnet.id,query:{enabled:score===undefined&&configured&&valid,refetchInterval:15000}});
  const current=score??result.data?.value;const value=current===undefined?undefined:Math.max(0,Math.min(100,current));
  const facts=breakdown??(result.data?{supplyLocked:result.data.supplyLocked,lpLocked:result.data.lpLocked,vestingActive:result.data.vestingUsage,history:result.data.history}:undefined);
  const color=value===undefined?'var(--line)':value<=30?'var(--danger)':value<=60?'var(--sky)':'var(--success)';const circumference=2*Math.PI*82;

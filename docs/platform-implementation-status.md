@@ -1,6 +1,6 @@
 # Raqio platform continuation — 8 November 2026
 
-Raqio targets Elysium Testnet (99801), with HYPE for gas. HoodLock is a product reference, not a dependency, brand or source of protocol claims.
+Raqio uses Elysium Mainnet (99901), with HYPE for gas. HoodLock is a product reference, not a dependency, brand or source of protocol claims.
 
 ## Implemented in this workspace
 
@@ -24,13 +24,17 @@ Raqio targets Elysium Testnet (99801), with HYPE for gas. HoodLock is a product 
 - TypeScript, ESLint and the real-data check pass. The production build passes.
 - `node scripts/qa-vault-flow.cjs` starts a temporary Anvil chain and a separate QA database/server, deploys local-only test contracts, then exercises the actual UI through wallet RPC. No public-chain transaction is made. Report: `test-results/vault-ui-qa.json`; responsive screenshots: `test-results/vault-explore-{375,768,1440}.png`.
 
-## Configuration and deployment work still required
+## Mainnet deployment and remaining operations
 
-No new public-chain deployment was performed. Set the verified deployment addresses in `NEXT_PUBLIC_RAQIO_VAULT_ADDRESS`, `NEXT_PUBLIC_RAQIO_AIRDROP_ADDRESS`, `NEXT_PUBLIC_RAQIO_SCORE_ADDRESS` and the intended RPC in `NEXT_PUBLIC_ELYSIUM_RPC_URL`. Until configured, the UI displays unavailable states and blocks transactions.
+Follow-up review: [mainnet readiness audit](mainnet-readiness-audit.md). The review confirmed all six receipts and deployed runtime/ABI matches, reran 74 Solidity tests and 112 application tests, passed 12 production browser tests and 11 local wallet/UI checks, and repaired claimable polling, damaged form text and a documentation mismatch. Ownership acceptance, hosting release, independent audit and source verification remain open; local legacy mode is demo and one existing workspace still uses chain 4663.
 
-`contracts/script/DeployInfrastructure.s.sol` is prepared for an Elysium Testnet dry run; it checks chain ID 99801 and requires `FEE_ROUTER_ADDRESS` and `RAQIO_ADMIN_ADDRESS`. It deploys the three contracts and nominates the administrator with two-step ownership; that administrator must accept ownership. Broadcasting and contract verification are separate operator actions. These contracts have local regression coverage, not an independent security audit.
+Website verification for this mainnet update: 112 application tests passed; ESLint, TypeScript, the real-data check and production build passed. Local Anvil UI coverage passed for ERC-20 approval/deposit/receipts, beneficiary preservation, public records, campaign creation and vested claims, NFT ID zero custody/withdrawal, score reads and legacy stream URLs. Explorer layouts passed at 375/768/1440px; docs, vault docs, whitepaper and security passed the 375px overflow check and link all three mainnet addresses. Report: `test-results/vault-ui-qa.json`. These checks sent no public-chain transactions.
 
-The Prisma schema defaults and explicit new-workspace defaults now use 99801. Existing organizations/operations may still contain historical chain settings; review organization Settings before new real-mode operations. Do not rewrite signed plans, audit events or historical transactions to another chain. USDG remains a legacy desk accounting denomination, not a claim about Elysium's native currency; its actual token address must be configured separately for real routes.
+Mainnet deployment completed on Elysium chain `99901`. RaqioVault is `0x7dA7CA57a86C977a9CfAf3826b257aA9C6aD1C77`, RaqioAirdrop is `0xCf32A62308ce25691CFcc129B52B8a6424462184`, and RaqioScore is `0x4b5b48e5ffF7FeC9B9D1978966B2966ac5ab11C8`. Deployment receipts and transaction hashes are recorded in `contracts/deployments/elysium-mainnet-99901.json`.
+
+`contracts/script/DeployMainnet.s.sol` broadcast all three deployments and ownership nominations successfully on chain 99901. The read-only RPC check on 8 November 2026 found bytecode at all three addresses, Vault fee 25bps, and both Airdrop/Score pointing to the deployed Vault. Owner and pendingOwner are both `0xEd6e3C8196D1DC003D4c9Ee56b808Cd6ef982fbf` on all three contracts: the administrator already owns them, but each nomination still requires `acceptOwnership()` to clear pending state. The fee recipient is the same EOA, not a separately deployed FeeRouter. Independent audit and explorer source verification have not been established. The testnet-only infrastructure script remains available for isolated testing.
+
+The wallet hooks, read/write gates, public explorer, airdrops, score lookup, new-workspace defaults and Prisma schema now use 99901. Legacy stream URLs render the deployed Vault flow. Existing organizations/operations may still contain historical chain settings; review organization Settings before new real-mode operations. Do not rewrite signed plans, audit events or historical transactions to another chain. The updated documentation and `/whitepaper` describe these three contracts. There is no 200-stream batch function or beneficiary-change function in this Vault. USDG remains a legacy desk accounting denomination, not a claim about Elysium's native currency; its actual token address must be configured separately for real routes.
 
 ## Deliberately not claimed as complete
 

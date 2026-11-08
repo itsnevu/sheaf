@@ -12,7 +12,7 @@ const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], weigh
 
 const TITLE = "Raqio";
 const DESCRIPTION =
-  "Token vesting and streaming protocol on Elysium L2. Linear streams with cliff, batch create, 25 bps fee, fully on-chain.";
+  "Token locks, vesting streams and Merkle airdrops on Elysium Mainnet 99901. Deployed Vault, Airdrop and Score contracts with public records.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),

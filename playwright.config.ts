@@ -8,6 +8,7 @@ const PORT = Number(process.env.E2E_PORT || 3111);
 
 export default defineConfig({
   testDir: "tests/e2e",
+  outputDir: "test-results/e2e",
   globalSetup: "./tests/e2e/global-setup.ts",
   timeout: 90_000,
   expect: { timeout: 15_000 },
@@ -35,7 +36,9 @@ export default defineConfig({
       RAQIO_ENCRYPTION_KEY: "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       WORKER_SECRET: "e2e-worker-secret-0123456789abcdef",
       SHEAF_MODE: "demo",
+      RAQIO_MODE: "demo",
       SHEAF_RATE_LIMIT: "off",
+      RAQIO_RATE_LIMIT: "off",
       WORKER_MODE: "in-process",
       WORKER_INTERVAL_MS: "500",
       NEXT_PUBLIC_APP_URL: `http://localhost:${PORT}`,

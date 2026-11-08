@@ -30,8 +30,8 @@ const PRODUCTS = [
   {
     tag: "03 / VESTING",
     title: "VESTING STREAMS",
-    desc: "Linear vesting with cliff periods. Batch up to 200 streams in one transaction.",
-    href: "/app/streams/new",
+    desc: "Linear vesting with cliff periods and beneficiary claims from the vault.",
+    href: "/app/lock/stream",
     icon: (
       <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
         <path d="M4 28L12 28L28 4" />

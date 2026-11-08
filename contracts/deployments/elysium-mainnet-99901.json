@@ -1,0 +1,38 @@
+{
+  "network": "Kinetiq Elysium Mainnet",
+  "chainId": 99901,
+  "rpcUrl": "https://rpc-elysium.perpme.fun",
+  "deployer": "0xEd6e3C8196D1DC003D4c9Ee56b808Cd6ef982fbf",
+  "contracts": {
+    "RaqioVault": "0x7dA7CA57a86C977a9CfAf3826b257aA9C6aD1C77",
+    "RaqioAirdrop": "0xCf32A62308ce25691CFcc129B52B8a6424462184",
+    "RaqioScore": "0x4b5b48e5ffF7FeC9B9D1978966B2966ac5ab11C8"
+  },
+  "transactions": [
+    "0xccc5080557439e827aad71f1bc5e24f1c7815484e7ff425bb36681da2a2f2140",
+    "0x0a1587464602763a951224f7cfb0b96c6cba576b7b1e56b5c85a6d4bebb81ba4",
+    "0x04efece9c4889825778d8c64fa3a04bcb55f9314656811eddb711d2b1b47e5a5",
+    "0x94d72f7670384652a8602c2a70e6ffde6d52116c423d2a8d47686d51d631894e",
+    "0xd7623ba79be58a7a1789c8f98515d9352d9464f1ccc7a2af0c69421bdc4c7671",
+    "0xdd69672c2aec36ebf12910041eaae9b6095aea759aed43e63e304392a504f912"
+  ],
+  "status": "broadcast-successful",
+  "explorerUrl": "https://elysium.kinetiq.xyz/explorer",
+  "deploymentBlocks": {
+    "RaqioVault": 2405054,
+    "RaqioAirdrop": 2405110,
+    "RaqioScore": 2405190
+  },
+  "totalGasUsed": 4965833,
+  "totalPaid": "0.0004973761107",
+  "feeBpsAtDeployment": 25,
+  "feeRecipient": "0xEd6e3C8196D1DC003D4c9Ee56b808Cd6ef982fbf",
+  "ownershipSnapshot": {
+    "checkedOn": "2026-11-08",
+    "owner": "0xEd6e3C8196D1DC003D4c9Ee56b808Cd6ef982fbf",
+    "pendingOwner": "0xEd6e3C8196D1DC003D4c9Ee56b808Cd6ef982fbf",
+    "note": "All three contracts. The nomination is pending; the nominated address already owns each contract."
+  },
+  "securityAudit": "not-established",
+  "sourceVerification": "not-established"
+}

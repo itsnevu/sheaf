@@ -134,7 +134,7 @@ export default function HomeDeck() {
   return (
     <>
       <section className="h-cover" aria-label="About Raqio">
-        <p className="h-eyebrow">RH-99801 · THE PRIVATE EXECUTION DESK · ELYSIUM</p>
+        <p className="h-eyebrow">RH-99901 · THE PRIVATE EXECUTION DESK · ELYSIUM</p>
         <div className="h-head">
           <h2 className="h-title">
             PRIVATE<br />EXTERNALLY<span className="h-red">.</span><br />
@@ -212,7 +212,7 @@ export default function HomeDeck() {
       </section>
 
       <p className="h-spec" aria-hidden="true">
-        <b>MODEL RH-99801</b><br />THERMAL ROLL · 7 SERIES A–G<br />DRAG ME · TURN THE DIALS
+        <b>MODEL RH-99901</b><br />THERMAL ROLL · 7 SERIES A–G<br />DRAG ME · TURN THE DIALS
       </p>
       <p className="h-hint" aria-hidden="true"><span className="h-hint-arrow">▲</span> PRESS POWER TO PRINT</p>
 

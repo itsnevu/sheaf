@@ -1,6 +1,8 @@
 # Raqio privacy threat model
 
-Positioning: **"Private externally. Transparent internally."** Raqio is the private execution desk for Elysium (chain id 99801). This document states what that means in practice, who can see what, and what Raqio does and does not promise. The Relay observations come from `docs/research/relay-integration-research.md`; the on-chain observations for Elysium are stated as assumptions until verified.
+The deployed Vault, Airdrop and Score are public contracts on mainnet 99901: owners, beneficiaries and events are visible. No private-recipient guarantee applies to vault locks. The desk threat model below concerns separate legacy contracts and Relay operations; see the [whitepaper](../whitepaper.md) for deployed scope.
+
+Positioning: **"Private externally. Transparent internally."** Raqio is the private execution desk for Elysium (chain id 99901). This document states what that means in practice, who can see what, and what Raqio does and does not promise. The Relay observations come from `docs/research/relay-integration-research.md`; the on-chain observations for Elysium are stated as assumptions until verified.
 
 ## 1. What privacy means here
 
@@ -98,7 +100,7 @@ Only these are claimed:
 
 ## 11. Unverified assumptions
 
-- That Relay lists Elysium (99801) and USDG, and that its solvers fill there.
+- That Relay lists Elysium Mainnet (99901) and USDG, and that its solvers fill there.
 - That Relay solvers do not reuse a dedicated per-integrator address that would itself become a desk fingerprint.
 - That Relay's public request listing cannot be opted out of.
 - That fills on the destination chain are not batched by the solver in a way that groups a plan's legs together in one transaction.
@@ -120,7 +122,7 @@ Only these are claimed:
 | Desk wallet ↔ recipient direct link | Wire the desk contracts so the contract, not the wallet, is the sender; until then prefer cross-chain routes and heed the direct-transfer flag | Flag implemented; contracts not wired |
 | Public Relay request feed | Contact Relay about private/opt-out request indexing; use `useDepositAddress` with strict addresses so the on-chain sender is a fresh deposit address | Documented; not enabled |
 | Burst timing fingerprint | Not-before per leg; optional bounded jitter | Implemented |
-| Operator IP linkage | Self-hosted RPC (`NEXT_PUBLIC_RPC_URL_99801`), VPN | Configurable |
+| Operator IP linkage | Self-hosted RPC (`NEXT_PUBLIC_ELYSIUM_MAINNET_RPC_URL`), VPN | Configurable |
 | Data at rest | Field-level encryption with a server-side key; restrict DB access; back up the key with the database | Implemented (single key) |
 | Insider misuse | Four-eyes approval, role separation, audit trail, export logging | Implemented |
 | Amount fingerprint | Accept; document. Do not alter approved amounts. | Documented |

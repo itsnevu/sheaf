@@ -10,7 +10,7 @@ test.describe("public site and auth", () => {
     page.on("pageerror", (e) => errors.push(e.message));
     // Link prefetches cancelled by the next navigation log a benign "Failed to fetch RSC payload" line.
     page.on("console", (m) => m.type() === "error" && !/Failed to fetch RSC payload/.test(m.text()) && errors.push(m.text()));
-    for (const path of ["/", "/security", "/docs", "/privacy"]) {
+    for (const path of ["/", "/security", "/docs", "/docs/vault", "/whitepaper", "/privacy"]) {
       const res = await page.goto(path, { waitUntil: "networkidle" });
       expect(res?.status()).toBe(200);
       await expect(page.locator("main")).toBeVisible();
@@ -38,10 +38,11 @@ test.describe("public site and auth", () => {
     await signIn(page, "desk");
     await expect(page.getByRole("status")).toContainText(/demo/i);
     await expect(page.getByRole("status")).toContainText(/Desk operator · Halden Desk/);
-    // The application menu sits behind the red mark on every viewport.
-    await page.getByRole("button", { name: "Open navigation" }).click();
+    if ((page.viewportSize()?.width ?? 1440) < 768) {
+      await page.getByRole("button", { name: "Toggle sidebar" }).click();
+    }
     await expect(page.getByRole("navigation", { name: "Application" })).toBeVisible();
-    for (const label of ["OPERATIONS_###", "EXECUTIONS_###", "RECONCILIATION_###", "ACTIVITY_###", "SETTINGS_###"]) {
+    for (const label of ["Operations", "Executions", "Reconciliation", "Activity", "Settings"]) {
       await expect(page.getByRole("navigation", { name: "Application" }).getByText(label)).toBeVisible();
     }
   });

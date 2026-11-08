@@ -26,9 +26,9 @@ model Organization {
   treasuryAddress    String?
   assetSymbol        String   @default("USDG")
   assetDecimals      Int      @default(6)
-  // Elysium Testnet by default. Cross-chain origin support depends on the route provider.
-  originChainId      Int      @default(99801)
-  destinationChainId Int      @default(99801)
+  // Elysium Mainnet by default. Cross-chain origin support depends on the route provider.
+  originChainId      Int      @default(99901)
+  destinationChainId Int      @default(99901)
   // Optional spacing between route submissions. Off by default; bounded in code (0..1800s).
   jitterEnabled      Boolean  @default(false)
   jitterMaxSeconds   Int      @default(0)

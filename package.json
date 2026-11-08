@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run docs:sync",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -21,6 +22,8 @@
     "test:e2e": "playwright test",
     "test:vault-ui": "node scripts/qa-vault-flow.cjs",
     "contracts:abi": "node scripts/sync-contract-abis.cjs",
+    "audit:mainnet": "node scripts/audit-mainnet.cjs",
+    "docs:sync": "node scripts/sync-public-docs.cjs",
     "check:no-dummy": "tsx scripts/check-no-dummy.ts",
     "check": "npm run lint && npm run typecheck && npm test && npm run check:no-dummy",
     "db:provider": "node scripts/db-provider.mjs",

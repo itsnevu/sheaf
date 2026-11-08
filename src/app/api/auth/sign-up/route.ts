@@ -24,7 +24,7 @@ export const POST = handler(async (req) => {
   if (await db.user.findUnique({ where: { email } })) return fail(409, "An account with this email already exists", "EMAIL_TAKEN");
   let slug = slugify(body.organization);
   if (await db.organization.findUnique({ where: { slug } })) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
-  const org = await db.organization.create({ data: { name: body.organization.trim(), slug, originChainId: 99801, destinationChainId: 99801 } });
+  const org = await db.organization.create({ data: { name: body.organization.trim(), slug, originChainId: 99901, destinationChainId: 99901 } });
   const user = await db.user.create({ data: { name: body.name.trim(), email, passwordHash: hashPassword(body.password) } });
   await db.membership.create({ data: { userId: user.id, organizationId: org.id, role: "OWNER" } });
   await audit({ organizationId: org.id, actorId: user.id, actorEmail: email, action: "organization.created", summary: `Organization “${org.name}” created` });

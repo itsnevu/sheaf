@@ -47,7 +47,7 @@ export const SERIES: Series[] = [
           { kind: "gap" },
           { kind: "p", text: "A Raqio is one controlled operation made of legs, executed from one desk. Claim an allocation, accumulate a position, settle an OTC block or run a treasury without the owning wallet appearing as the destination on-chain." },
           { kind: "gap" },
-          { kind: "kv", k: "CHAIN", v: "Elysium · id 99801" },
+          { kind: "kv", k: "CHAIN", v: "Elysium · id 99901" },
           { kind: "kv", k: "SETTLEMENT", v: "USDG" },
           { kind: "kv", k: "MODE", v: "Demo desk, no keys needed" },
           { kind: "rule", style: "dots" },

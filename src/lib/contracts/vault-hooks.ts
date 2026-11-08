@@ -3,12 +3,12 @@
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { RAQIO_VAULT_ABI } from "./vault-abi";
 import { ERC20_ABI } from "./abi";
-import { CONTRACTS, elysiumTestnet, isContractConfigured } from "./config";
+import { CONTRACTS, elysiumMainnet, isContractConfigured } from "./config";
 import type { Address } from "viem";
 
 export function useVaultNextLockId() {
   return useReadContract({
-    chainId: elysiumTestnet.id,
+    chainId: elysiumMainnet.id,
     address: CONTRACTS.raqioVault,
     abi: RAQIO_VAULT_ABI,
     functionName: "nextLockId",
@@ -18,7 +18,7 @@ export function useVaultNextLockId() {
 
 export function useVaultGetLock(lockId: bigint | undefined) {
   return useReadContract({
-    chainId: elysiumTestnet.id,
+    chainId: elysiumMainnet.id,
     address: CONTRACTS.raqioVault,
     abi: RAQIO_VAULT_ABI,
     functionName: "getLock",
@@ -29,18 +29,18 @@ export function useVaultGetLock(lockId: bigint | undefined) {
 
 export function useVaultClaimable(lockId: bigint | undefined) {
   return useReadContract({
-    chainId: elysiumTestnet.id,
+    chainId: elysiumMainnet.id,
     address: CONTRACTS.raqioVault,
     abi: RAQIO_VAULT_ABI,
     functionName: "claimable",
     args: lockId !== undefined ? [lockId] : undefined,
-    query: { enabled: isContractConfigured(CONTRACTS.raqioVault) && lockId !== undefined },
+    query: { enabled: isContractConfigured(CONTRACTS.raqioVault) && lockId !== undefined, refetchInterval: 5000 },
   });
 }
 
 export function useTokenAllowance(token: Address | undefined, owner: Address | undefined) {
   return useReadContract({
-    chainId: elysiumTestnet.id,
+    chainId: elysiumMainnet.id,
     address: token,
     abi: ERC20_ABI,
     functionName: "allowance",
@@ -51,7 +51,7 @@ export function useTokenAllowance(token: Address | undefined, owner: Address | u
 
 export function useTokenBalance(token: Address | undefined, owner: Address | undefined) {
   return useReadContract({
-    chainId: elysiumTestnet.id,
+    chainId: elysiumMainnet.id,
     address: token,
     abi: ERC20_ABI,
     functionName: "balanceOf",
@@ -62,7 +62,7 @@ export function useTokenBalance(token: Address | undefined, owner: Address | und
 
 export function useTokenDecimals(token: Address | undefined) {
   return useReadContract({
-    chainId: elysiumTestnet.id,
+    chainId: elysiumMainnet.id,
     address: token,
     abi: ERC20_ABI,
     functionName: "decimals",
@@ -72,7 +72,7 @@ export function useTokenDecimals(token: Address | undefined) {
 
 export function useTokenSymbol(token: Address | undefined) {
   return useReadContract({
-    chainId: elysiumTestnet.id,
+    chainId: elysiumMainnet.id,
     address: token,
     abi: ERC20_ABI,
     functionName: "symbol",
@@ -82,10 +82,10 @@ export function useTokenSymbol(token: Address | undefined) {
 
 export function useApproveToken() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
-  const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash, chainId: elysiumTestnet.id });
+  const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash, chainId: elysiumMainnet.id });
   return {
     approve: (token: Address, amount: bigint) =>
-      writeContract({ chainId: elysiumTestnet.id, address: token, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.raqioVault, amount] }),
+      writeContract({ chainId: elysiumMainnet.id, address: token, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.raqioVault, amount] }),
     hash, isPending, isConfirming, receipt, error,
   };
 }
@@ -95,7 +95,7 @@ export function useLockTokens() {
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
   return {
     lockTokens: (token: Address, amount: bigint, unlockTime: bigint, beneficiary: Address) =>
-      writeContract({ chainId: elysiumTestnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "lockTokens", args: [token, amount, unlockTime, beneficiary] }),
+      writeContract({ chainId: elysiumMainnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "lockTokens", args: [token, amount, unlockTime, beneficiary] }),
     hash, isPending, isConfirming, receipt, error,
   };
 }
@@ -105,7 +105,7 @@ export function useLockLP() {
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
   return {
     lockLP: (lpToken: Address, amount: bigint, unlockTime: bigint, beneficiary: Address) =>
-      writeContract({ chainId: elysiumTestnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "lockLP", args: [lpToken, amount, unlockTime, beneficiary] }),
+      writeContract({ chainId: elysiumMainnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "lockLP", args: [lpToken, amount, unlockTime, beneficiary] }),
     hash, isPending, isConfirming, receipt, error,
   };
 }
@@ -115,7 +115,7 @@ export function useClaimLock() {
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
   return {
     claim: (lockId: bigint) =>
-      writeContract({ chainId: elysiumTestnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "claim", args: [lockId] }),
+      writeContract({ chainId: elysiumMainnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "claim", args: [lockId] }),
     hash, isPending, isConfirming, receipt, error,
   };
 }
@@ -125,7 +125,7 @@ export function useCancelLock() {
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
   return {
     cancel: (lockId: bigint) =>
-      writeContract({ chainId: elysiumTestnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "cancel", args: [lockId] }),
+      writeContract({ chainId: elysiumMainnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "cancel", args: [lockId] }),
     hash, isPending, isConfirming, receipt, error,
   };
 }
@@ -135,17 +135,17 @@ export function useExtendLock() {
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
   return {
     extendLock: (lockId: bigint, newUnlockTime: bigint) =>
-      writeContract({ chainId: elysiumTestnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "extendLock", args: [lockId, newUnlockTime] }),
+      writeContract({ chainId: elysiumMainnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "extendLock", args: [lockId, newUnlockTime] }),
     hash, isPending, isConfirming, receipt, error,
   };
 }
 
 export function useCreateVaultStream() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
-  const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash, chainId: elysiumTestnet.id });
+  const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash, chainId: elysiumMainnet.id });
   return {
     createStream: (beneficiary: Address, token: Address, amount: bigint, startTime: bigint, cliffDuration: bigint, totalDuration: bigint, cancelable: boolean) =>
-      writeContract({ chainId: elysiumTestnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "createStream", args: [beneficiary, token, amount, startTime, cliffDuration, totalDuration, cancelable] }),
+      writeContract({ chainId: elysiumMainnet.id, address: CONTRACTS.raqioVault, abi: RAQIO_VAULT_ABI, functionName: "createStream", args: [beneficiary, token, amount, startTime, cliffDuration, totalDuration, cancelable] }),
     hash, isPending, isConfirming, receipt, error,
   };
 }

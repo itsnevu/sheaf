@@ -3,7 +3,7 @@ const mocks=vi.hoisted(()=>({read:vi.fn(),write:vi.fn(),query:vi.fn()}));
 vi.mock('@/lib/db',()=>({db:{$executeRaw:mocks.write,$queryRaw:mocks.query}}));
 vi.mock('next/headers',()=>({cookies:()=>({get:()=>undefined})}));
 vi.mock('viem',async original=>({...await original<typeof import('viem')>(),createPublicClient:()=>({readContract:mocks.read})}));
-vi.mock('@/lib/contracts/config',()=>({CONTRACTS:{raqioVault:'0x1111111111111111111111111111111111111111'},elysiumTestnet:{id:99801},isContractConfigured:()=>true}));
+vi.mock('@/lib/contracts/config',()=>({CONTRACTS:{raqioVault:'0x1111111111111111111111111111111111111111'},elysiumMainnet:{id:99901},isContractConfigured:()=>true}));
 import {GET,POST} from '@/app/api/explore/searches/route';
 const address='0x2222222222222222222222222222222222222222';
 const request=(value:string)=>new Request('http://localhost/api/explore/searches',{method:'POST',headers:{origin:'http://localhost'},body:JSON.stringify({address:value})});

@@ -18,6 +18,7 @@ runs = 256
 
 [rpc_endpoints]
 elysium = "${ELYSIUM_RPC_URL}"
+elysium_mainnet = "${ELYSIUM_MAINNET_RPC_URL}"
 
 [lint]
 # block.timestamp comparisons are the intended windows/expiries; events are emitted for every role change.

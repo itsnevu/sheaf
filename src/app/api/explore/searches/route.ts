@@ -2,12 +2,12 @@ import {randomUUID} from 'node:crypto';
 import {cookies} from 'next/headers';
 import {createPublicClient,http,isAddress} from 'viem';
 import {db} from '@/lib/db';
-import {CONTRACTS,elysiumTestnet,isContractConfigured} from '@/lib/contracts/config';
+import {CONTRACTS,elysiumMainnet,isContractConfigured} from '@/lib/contracts/config';
 import {RAQIO_VAULT_ABI} from '@/lib/contracts/vault-abi';
 
 export const dynamic='force-dynamic';
-const scope=`${elysiumTestnet.id}:${CONTRACTS.raqioVault.toLowerCase()}`;
-const client=createPublicClient({chain:elysiumTestnet,transport:http(undefined,{timeout:8000,retryCount:0})});
+const scope=`${elysiumMainnet.id}:${CONTRACTS.raqioVault.toLowerCase()}`;
+const client=createPublicClient({chain:elysiumMainnet,transport:http(undefined,{timeout:8000,retryCount:0})});
 async function results(){
  const rows=await db.$queryRaw<{token:string; searches:bigint; lastSearched:bigint}[]>`
  SELECT token, COUNT(*) AS searches, MAX(searchedAt) AS lastSearched

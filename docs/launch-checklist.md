@@ -1,126 +1,42 @@
-# Raqio Launch Checklist
+# Raqio mainnet operations checklist
 
-Elysium Testnet (99801). Mainnet parameters are not configured in this implementation; verify its chain ID, RPC and explorer before any production deployment. The mainnet checklist below is a draft, not a deployment record.
+Elysium Mainnet, chain `99901`. Deployment has completed; this checklist records what is proven and what remains open. [Deployment record](../contracts/deployments/elysium-mainnet-99901.json), [whitepaper](whitepaper.md).
 
----
+## Confirmed deployment
 
-## 1. Pre-Audit
+- [x] RaqioVault deployed at `0x7dA7CA57a86C977a9CfAf3826b257aA9C6aD1C77`, block 2405054.
+- [x] RaqioAirdrop deployed at `0xCf32A62308ce25691CFcc129B52B8a6424462184`, block 2405110.
+- [x] RaqioScore deployed at `0x4b5b48e5ffF7FeC9B9D1978966B2966ac5ab11C8`, block 2405190.
+- [x] Three ownership nominations broadcast successfully; all six receipts saved.
+- [x] Read-only RPC check on 8 November 2026: chain 99901, bytecode at all three addresses, Airdrop/Score point to Vault, Vault fee 25bps.
+- [x] Owner, pendingOwner and fee recipient checked: `0xEd6e3C8196D1DC003D4c9Ee56b808Cd6ef982fbf`. The nominated account already owns all three contracts.
 
-- [ ] Smart contract freeze: no changes to RaqioStream.sol or FeeRouter.sol after this point
-- [ ] Unit tests: 100% branch coverage on both contracts
-- [ ] Fuzz testing: Foundry fuzz tests for edge cases (overflow, zero amounts, max batch size 200, dust deposits, uint256 boundary)
-- [ ] Invariant tests: total deposits = total claimed + total unclaimed + total fees at all times
-- [ ] Gas optimization: measure and document gas for createStream, createBatch(200), claim, cancel
-- [ ] Static analysis: Slither, Mythril, Aderyn scans clean with zero high/critical
-- [ ] Testnet deployment verified: all functions exercised on Elysium testnet 99801
-- [ ] Internal code review completed by at least 2 engineers
+## Administrator actions remaining
 
-## 2. Security Audit
+- [ ] Nominated administrator calls `acceptOwnership()` on each contract and verifies `pendingOwner()` is zero afterward.
+- [ ] Decide whether to transfer protocol ownership to a multisig; nominate and accept explicitly if desired. The current deployment does not establish multisig ownership.
+- [ ] Verify source on the appropriate explorer and publish reproducible compiler settings.
+- [ ] Obtain an independent audit; address findings and publish the report. Local tests are not an audit.
+- [ ] Register legitimate ERC-20 LP relationships in Score as needed; publish registration policy.
 
-- [ ] Engage auditor (Cyfrin, Trail of Bits, OpenZeppelin, or equivalent)
-- [ ] Provide auditor with: contracts, full test suite, deployment scripts, architecture doc
-- [ ] Audit scope covers: RaqioStream.sol, FeeRouter.sol, all imported libraries
-- [ ] Remediation: fix all critical and high findings
-- [ ] Document accepted medium/low findings with justification
-- [ ] Re-audit if remediation required changes to core logic
-- [ ] Publish final audit report on /security page
+## Web release
 
-## 3. Mainnet Deployment
+- [x] Wallet hooks, network gates, explorer, airdrop proof exports and score lookup target chain 99901.
+- [x] Legacy stream entry points use the deployed Vault flow.
+- [x] Mainnet addresses, receipts, ABIs, docs and whitepaper are linked publicly.
+- [x] New-workspace defaults use 99901. Existing operations retain historical network settings.
+- [ ] Build and deploy the updated website with production public environment values; check the deployed site afterward.
+- [ ] Review each existing organization's Settings before new mainnet legacy operations.
+- [ ] If legacy real-mode Relay routes are needed, confirm actual provider support and configure `RAQIO_USDG_ADDRESS_99901`. Do not reuse testnet addresses.
+- [ ] Exercise any funded mainnet smoke test only as a separately authorized wallet transaction.
 
-- [ ] Deploy FeeRouter.sol to Elysium mainnet (chain 99901)
-- [ ] Deploy RaqioStream.sol with FeeRouter address as constructor arg
-- [ ] Verify both contracts on Elysium block explorer
-- [ ] Set protocol fee to 25 bps via FeeRouter.setFee()
-- [ ] Transfer FeeRouter ownership to multisig (3-of-5)
-- [ ] Transfer RaqioStream admin role to multisig (3-of-5)
-- [ ] Record deployed addresses in .env and docs
-- [ ] Smoke test: createStream on mainnet with minimal amount
-- [ ] Smoke test: claim on mainnet
-- [ ] Smoke test: cancel on mainnet
-- [ ] Verify FeeRouter received fee from smoke test
+## Operating checks
 
-## 4. Indexer and API
+- [ ] Production secrets and database backups configured and restore tested.
+- [ ] Health checks, RPC error monitoring and exactly one legacy worker path configured.
+- [ ] Monitor claims, cancellation, fee proposals and ownership events.
+- [ ] Keep proof manifests available for campaign recipients; the chain stores roots, not downloadable allocation files.
 
-- [ ] Update Ponder config: chain ID 99901, mainnet RPC, mainnet contract addresses
-- [ ] Update fallback indexer: mainnet WSS endpoint, mainnet start block
-- [ ] Deploy Ponder indexer to Railway or Fly
-- [ ] Deploy Hono API server to Railway or Fly
-- [ ] Verify indexer catches StreamCreated, Claimed, Canceled events on mainnet
-- [ ] Verify API returns correct data for /streams, /stats, /claims endpoints
-- [ ] Set up monitoring and alerts for indexer lag (threshold: 30 seconds behind head)
-- [ ] Configure indexer auto-restart on crash
+## Outside this deployment
 
-## 5. Frontend
-
-- [ ] Add Elysium mainnet chain definition (99901) to wagmi config alongside testnet
-- [ ] Network switcher in app UI: testnet / mainnet toggle
-- [ ] Set NEXT_PUBLIC_RAQIO_STREAM_ADDRESS to mainnet contract
-- [ ] Set NEXT_PUBLIC_FEE_ROUTER_ADDRESS to mainnet contract
-- [ ] Remove or gate testnet-specific copy ("tokens have no real value", "TESTNET" labels)
-- [ ] OG image updated with final Raqio branding
-- [ ] Favicon finalized (current: fluid drip mark)
-- [ ] Mobile responsive QA pass on all /app/* routes and marketing pages
-- [ ] Cross-browser testing: Chrome, Firefox, Safari, mobile Safari, mobile Chrome
-- [ ] Lighthouse audit targets: performance > 90, accessibility > 95, best practices > 90
-
-## 6. Infrastructure
-
-- [ ] Production domain configured and DNS propagated
-- [ ] SSL/TLS certificate active (auto-renew via Let's Encrypt or provider)
-- [ ] CDN configured for static assets and Next.js static output
-- [ ] Database backups: automated daily with 30-day retention
-- [ ] Error monitoring deployed (Sentry or equivalent), alerts to team channel
-- [ ] Uptime monitoring: external probe every 60 seconds, alert on 2 consecutive failures
-- [ ] Rate limiting on all API endpoints (per-IP and per-session)
-- [ ] CORS restricted to production domain only (remove wildcard)
-- [ ] Environment variables reviewed: no secrets in client bundle, no testnet values in production
-
-## 7. Legal and Compliance
-
-- [ ] Terms of service published at /terms
-- [ ] Privacy policy updated for mainnet data handling
-- [ ] Cookie banner functional and compliant
-- [ ] Disclaimer visible: protocol is experimental, not financial advice
-- [ ] Evaluate geo-blocking requirements for restricted jurisdictions
-- [ ] Open-source license confirmed (if applicable)
-
-## 8. Token Launch
-
-Only if RAQIO governance token is included in mainnet launch.
-
-- [ ] RAQIO token contract deployed and verified on Elysium mainnet
-- [ ] Total supply: 100,000,000 RAQIO, fixed, no mint function
-- [ ] Initial liquidity provided on DEX
-- [ ] Team tokens (25%) vested via Raqio streams: 4-year linear, 1-year cliff
-- [ ] Treasury tokens (30%) vested via Raqio streams: 4-year linear, 1-year cliff
-- [ ] Token listed on at least one DEX with sufficient depth
-- [ ] CoinGecko listing application submitted
-- [ ] CoinMarketCap listing application submitted
-- [ ] Token contract address published on docs, website, and socials
-
-## 9. Communications
-
-- [ ] Launch announcement post drafted and reviewed
-- [ ] Documentation site live and complete at /docs
-- [ ] Twitter/X account set up and first posts scheduled
-- [ ] Community channel created (Discord or Telegram)
-- [ ] Developer integration docs: code examples for createStream, claim via viem/ethers
-- [ ] Video walkthrough: creating a stream from wallet connect to confirmation
-- [ ] Press kit: logo assets, one-pager, protocol summary
-
-## 10. Post-Launch
-
-First 48 hours are critical monitoring period.
-
-- [ ] Monitor all contract interactions: watch for reverts, unexpected patterns
-- [ ] Watch for unusual behavior: mass cancellations, fee manipulation attempts, large single streams
-- [ ] Indexer health: confirm zero missed events, lag under 10 seconds
-- [ ] Community feedback collection: pinned thread or form
-- [ ] Bug bounty program live on Immunefi or equivalent
-- [ ] Incident response plan documented: who to contact, how to pause if needed
-- [ ] First governance proposal planned (signal vote on fee parameters or grants)
-- [ ] Roadmap update published: what comes after mainnet
-
----
-
-Last updated: 2026-11-08
+No separate RaqioStream, FeeRouter, RAQIO token, staking, governance, burn, buyback, Ponder indexer or Hono API deployment is established. Do not mark those systems live because the three infrastructure contracts were deployed.

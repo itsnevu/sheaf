@@ -1,5 +1,15 @@
 # Deployment
 
+## Elysium Mainnet contract configuration
+
+The three contracts are already deployed on chain `99901`; do not redeploy to update website content. See the [deployment record](../contracts/deployments/elysium-mainnet-99901.json) and [whitepaper](whitepaper.md). Browser defaults use these addresses and `NEXT_PUBLIC_ELYSIUM_MAINNET_RPC_URL`; `.env.example` contains the exact mainnet values. `NEXT_PUBLIC_RAQIO_VAULT_ADDRESS`, `NEXT_PUBLIC_RAQIO_AIRDROP_ADDRESS` and `NEXT_PUBLIC_RAQIO_SCORE_ADDRESS` override them for isolated testing. Empty values fall back to the deployment record. Never point a mainnet chain definition at testnet contracts.
+
+Next.js embeds public variables during build. Rebuild and redeploy the web application after updating them. Vault and airdrop transactions use real assets regardless of legacy desk demo mode. Existing organizations and historical operations retain their original network; review Settings before new operations.
+
+Ownership nominations remain pending; only the nominated administrator can accept them. Independent audit and source verification are separate, outstanding checks.
+
+The remaining guide covers the legacy desk server.
+
 Raqio ships as a single Next.js server with a built-in job worker. This guide covers the Docker image, the database, the secrets the server refuses to start without, and the checks to run before the first real operation.
 
 ## 1. Secrets and configuration
@@ -13,7 +23,7 @@ Generate each secret once and store it in your secret manager. The server valida
 | `WORKER_SECRET` | `openssl rand -hex 16` | Only needed when `WORKER_MODE=off` (external scheduler calls `POST /api/worker/run`). |
 | `DATABASE_URL` | — | `file:/data/Raqio.db` for SQLite on a persistent volume, or a PostgreSQL URL. |
 | `RAQIO_MODE` | — | `demo` (simulated) or `real` (Relay + desk wallet). Recorded on every operation; changing it never re-routes old operations. |
-| `RAQIO_USDG_ADDRESS_99801` | from Relay `/currencies/v2` | Real mode only. The USDG contract on Elysium. |
+| `RAQIO_USDG_ADDRESS_99901` | from Relay `/currencies/v2` | Real mode only. The USDG contract on Elysium. |
 | `NEXT_PUBLIC_APP_URL` | — | Public HTTPS origin, used for absolute links and metadata. |
 | `RELAY_API_KEY` | from Relay | Real mode only. Raises the 50 quotes/minute public limit. Server-side only. |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | from cloud.reown.com | Optional; adds WalletConnect next to injected wallets in real mode. |
@@ -76,8 +86,8 @@ Terminate TLS in front of the app and forward `X-Forwarded-For` (the sign-in rat
 - [ ] Exactly one worker path enabled (in-process on one instance, or scheduler → `/api/worker/run`).
 - [ ] First desk created through `/sign-up` (creates the Owner); demo seed **not** loaded in production.
 - [ ] Four-eyes approval left on in Settings (delegated treasury depends on it); retry limit reviewed.
-- [ ] Real mode only: desk wallet set in Settings, `RAQIO_USDG_ADDRESS_99801` verified, `RELAY_API_KEY` configured, and one small operation executed on the Elysium testnet (chain `99801`, `RELAY_API_URL=https://api.testnets.relay.link`, if Relay lists it) or on Base Sepolia (`84532`) with a funded test wallet before any mainnet run.
-- [ ] Understood that the desk contracts in `contracts/` are not called by this version: real-mode legs are plain routes signed by the desk wallet.
+- [ ] Real mode only: desk wallet set in Settings, `RAQIO_USDG_ADDRESS_99901` verified, `RELAY_API_KEY` configured, and the legacy signing flow exercised on a supported testnet such as Base Sepolia (`84532`, `RELAY_API_URL=https://api.testnets.relay.link`). Elysium Mainnet uses `99901`; never reuse testnet token addresses on mainnet.
+- [ ] Understood that the four legacy desk contracts are not called by the Relay console. The separate vault/airdrop UI calls the deployed mainnet contracts: real-mode legs are plain routes signed by the desk wallet.
 
 ## 7. Upgrades
 

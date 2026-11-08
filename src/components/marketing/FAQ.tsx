@@ -4,10 +4,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ITEMS = [
-  { q: "What is Raqio?", a: "Raqio is a token vesting and streaming protocol on Elysium. Create linear vesting streams with cliff periods, batch up to 200 streams at once, and let recipients claim tokens as they vest." },
+  { q: "What is Raqio?", a: "Raqio is a token vesting and streaming protocol on Elysium. Lock tokens and LP positions, create cliff vesting streams, and distribute Merkle airdrops through the deployed Vault, Airdrop and Score contracts." },
   { q: "How does vesting work?", a: "Each stream defines a start, cliff, and end time. Nothing vests before the cliff. After the cliff, tokens vest linearly until the end. Recipients claim anytime." },
-  { q: "What are the fees?", a: "25 basis points (0.25%) on each deposit, with a hard cap of 50 bps. Fee changes require a 48-hour timelock. Fees route to the protocol treasury." },
-  { q: "Is this on mainnet?", a: "Raqio is currently on Elysium Testnet (Chain ID 99801). Testnet tokens have no real value. A mainnet launch will follow after the security audit." },
+  { q: "What are the fees?", a: "25 basis points (0.25%) on ERC-20 lock and stream creation at deployment, with a hard cap of 50 bps. Fee changes require a 48-hour timelock. The app reads the current fee from the vault; fees go directly to its configured recipient." },
+  { q: "Is this on mainnet?", a: "Yes. RaqioVault, RaqioAirdrop and RaqioScore are deployed on Elysium Mainnet (Chain ID 99901). Addresses and transaction proofs are in the docs. An independent security audit has not been established." },
   { q: "Can streams be cancelled?", a: "Only if the stream was created with the cancelable flag. When cancelled, vested tokens go to the recipient and unvested tokens return to the sender." },
 ];
 

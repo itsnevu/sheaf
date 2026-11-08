@@ -1,4 +1,5 @@
 /** Server-side runtime configuration. Never import from client components. */
+import { MAINNET_DEPLOYMENT } from "./contracts/deployment";
 
 export type ExecutionMode = "demo" | "real";
 
@@ -6,11 +7,11 @@ export function executionMode(): ExecutionMode {
   return (process.env.RAQIO_MODE ?? process.env.SHEAF_MODE) === "real" ? "real" : "demo";
 }
 
-export const DEMO_BANNER = "Demo desk: every leg is simulated, no funds move on Elysium.";
+export const DEMO_BANNER = "Demo desk: legacy operation legs are simulated. Vault and airdrop wallet actions use mainnet assets.";
 
 /** Desk accounting denomination; an actual ERC-20 address must be configured for real execution. Native gas is HYPE. */
 export const SETTLEMENT_ASSET = { symbol: "USDG", decimals: 6 } as const;
-export const ELYSIUM_CHAIN_ID = 99801;
+export const ELYSIUM_CHAIN_ID = MAINNET_DEPLOYMENT.chainId;
 
 export function relayConfig() {
   return {
@@ -28,12 +29,14 @@ export function chainConfig() {
 }
 
 /**
- * Known asset contracts per chain used for real-mode quotes. Entries for chains other than 99801
- * were verified via Relay /currencies/v2. The USDG contract on Elysium must be set with
- * SHEAF_USDG_ADDRESS_99801 (and checked against Relay /currencies/v2) before real mode is used;
- * the placeholder below is only good for demo mode.
+ * USDG must be configured separately on each network and checked against Relay support.
+ * A missing ERC-20 address is rejected by real-mode routing, never treated as native gas.
  */
 export const KNOWN_ASSETS: Record<number, Record<string, { address: string; decimals: number }>> = {
+  99901: {
+    USDG: { address: (process.env.RAQIO_USDG_ADDRESS_99901 || process.env.SHEAF_USDG_ADDRESS_99901 || "0x0000000000000000000000000000000000000000").toLowerCase(), decimals: 6 },
+    HYPE: { address: "0x0000000000000000000000000000000000000000", decimals: 18 }, // raqio:real-data-ok native token
+  },
   99801: {
     USDG: { address: (process.env.RAQIO_USDG_ADDRESS_99801 || process.env.SHEAF_USDG_ADDRESS_99801 || "0x0000000000000000000000000000000000000000").toLowerCase(), decimals: 6 },
     HYPE: { address: "0x0000000000000000000000000000000000000000", decimals: 18 }, // raqio:real-data-ok native token
@@ -69,7 +72,8 @@ export const CHAIN_NAMES: Record<number, string> = {
   42161: "Arbitrum",
   84532: "Base Sepolia",
   11155111: "Sepolia",
-  99801: "Elysium",
+  99801: "Elysium Testnet",
+  99901: "Elysium Mainnet",
   5042: "Arc",
 };
 
@@ -82,6 +86,7 @@ export const EXPLORERS: Record<number, string> = {
   84532: "https://sepolia.basescan.org",
   11155111: "https://sepolia.etherscan.io",
   99801: "https://elysium.kinetiq.xyz/testnet-explorer",
+  99901: "https://elysium.kinetiq.xyz/explorer",
   5042: "https://explorer.arc.io",
 };
 

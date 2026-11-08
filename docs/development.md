@@ -58,8 +58,8 @@ See `.env.example` for the full list with comments. Summary:
 | `RELAY_API_URL` | `https://api.relay.link` | Use `https://api.testnets.relay.link` for testnets |
 | `RELAY_API_KEY` | empty | Optional; raises rate limits; server-only |
 | `RELAY_REFERRER` | empty | Optional label; requires the key |
-| `Raqio_ORIGIN_CHAIN_ID` / `Raqio_DESTINATION_CHAIN_ID` | `99801` | Elysium on both sides; a different origin makes Relay route the funding into Elysium. Per-desk values live in Settings |
-| `RAQIO_USDG_ADDRESS_99801` | empty | USDG contract on Elysium. Required for real mode; verify against Relay `/currencies/v2` |
+| `RAQIO_ORIGIN_CHAIN_ID` / `RAQIO_DESTINATION_CHAIN_ID` | `99901` | Elysium Mainnet on both sides; a different origin makes Relay route the funding into Elysium. Per-desk values live in Settings |
+| `RAQIO_USDG_ADDRESS_99901` | empty | USDG contract on Elysium. Required for real mode; verify against Relay `/currencies/v2` |
 | `NEXT_PUBLIC_RPC_URL_<chainId>` | empty | Browser RPC override for the wallet console (viem ships the public Elysium RPC) |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | empty | Adds a WalletConnect connector (QR modal) next to injected wallets when set |
 | `WORKER_MODE` | `in-process` | `off` on serverless hosts |
@@ -101,7 +101,7 @@ Simulated submissions are held in process memory; restarting the server while a 
 
 ## Real mode requirements
 
-1. Set `RAQIO_MODE=real`, `RELAY_API_URL` (mainnet or testnets), `RAQIO_USDG_ADDRESS_99801` and optionally `RELAY_API_KEY`.
+1. Set `RAQIO_MODE=real`, `RELAY_API_URL` (mainnet or testnets), `RAQIO_USDG_ADDRESS_99901` and optionally `RELAY_API_KEY`.
 2. In Settings, set the desk wallet address and the origin/destination network and asset. Assets known to the app are listed in `src/lib/config.ts` (`KNOWN_ASSETS`); add entries after checking `POST /currencies/v2` on Relay.
 3. Prepare routes: the worker calls `POST /quote/v2` per leg with `EXACT_OUTPUT`, `refundTo` = desk wallet, `ttl` 600 s, at a pace that respects the public 50 requests/minute limit.
 4. Funding: the wallet console reads the ERC-20 balance of the connected wallet, checks it equals the configured desk wallet and covers the requirement, and records it.

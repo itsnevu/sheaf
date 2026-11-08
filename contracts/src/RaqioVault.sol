@@ -421,13 +421,13 @@ contract RaqioVault is ReentrancyGuard, Ownable2Step, IERC721Receiver {
     /// @notice All lock IDs associated with an address (as owner or beneficiary).
     function locksOf(address user) external view returns (uint256[] memory) {
         uint256[] storage ids = _userLocks[user];
-        uint256 count;
+        uint256 count = 0;
         for (uint256 i; i < ids.length; ++i) {
             Lock storage l = _locks[ids[i]];
             if (l.owner == user || l.beneficiary == user) ++count;
         }
         uint256[] memory current = new uint256[](count);
-        uint256 j;
+        uint256 j = 0;
         for (uint256 i; i < ids.length; ++i) {
             Lock storage l = _locks[ids[i]];
             if (l.owner == user || l.beneficiary == user) current[j++] = ids[i];

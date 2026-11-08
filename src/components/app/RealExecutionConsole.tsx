@@ -1,5 +1,5 @@
 "use client";
-import { elysiumTestnet } from "@/lib/contracts/config";
+import { elysiumMainnet } from "@/lib/contracts/config";
 
 /**
  * Real-mode wallet console. Loaded only in real mode (dynamic import) so wagmi/viem stay out
@@ -20,7 +20,7 @@ import { chainName } from "@/lib/config";
 import type { BatchDetail } from "./useBatch";
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
-const CHAINS: readonly [Chain, ...Chain[]] = [elysiumTestnet, base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia];
+const CHAINS: readonly [Chain, ...Chain[]] = [elysiumMainnet, base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia];
 const config = createConfig({
   chains: CHAINS,
   connectors: [injected(), ...(WC_PROJECT_ID ? [walletConnect({ projectId: WC_PROJECT_ID, showQrModal: true })] : [])],

@@ -70,7 +70,7 @@ export async function signInWithWallet(address: string): Promise<{ userId: strin
   const short = shortWallet(address);
   let slug = `wallet-${address.slice(2, 10)}`;
   if (await db.organization.findUnique({ where: { slug } })) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
-  const org = await db.organization.create({ data: { name: `Workspace ${short}`, slug, originChainId: 99801, destinationChainId: 99801 } });
+  const org = await db.organization.create({ data: { name: `Workspace ${short}`, slug, originChainId: 99901, destinationChainId: 99901 } });
   // Wallet accounts have no password; a random hash keeps the column non-null and unguessable.
   const user = await db.user.create({ data: { name: `Wallet ${short}`, email: `${address}@wallet.raqio.invalid`, passwordHash: hashPassword(generateSiweNonce() + generateSiweNonce()), walletAddress: address } });
   await db.membership.create({ data: { userId: user.id, organizationId: org.id, role: "OWNER" } });
