@@ -4,6 +4,6 @@ import { csvTemplate } from "@/lib/csv/validate";
 export async function GET(req: Request) {
   const asset = new URL(req.url).searchParams.get("asset") || "USDG";
   return new Response(csvTemplate(asset.replace(/[^A-Za-z0-9]/g, "").slice(0, 10) || "USDG") + "\n", {
-    headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="sheaf-legs-template.csv"' },
+    headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="rheo-legs-template.csv"' },
   });
 }

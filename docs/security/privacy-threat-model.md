@@ -1,6 +1,6 @@
-# Sheaf privacy threat model
+# Rheo privacy threat model
 
-Positioning: **"Private externally. Transparent internally."** Sheaf is the private execution desk for Robinhood Chain (chain id 4663). This document states what that means in practice, who can see what, and what Sheaf does and does not promise. The Relay observations come from `docs/research/relay-integration-research.md`; the on-chain observations for Robinhood Chain are stated as assumptions until verified.
+Positioning: **"Private externally. Transparent internally."** Rheo is the private execution desk for Robinhood Chain (chain id 4663). This document states what that means in practice, who can see what, and what Rheo does and does not promise. The Relay observations come from `docs/research/relay-integration-research.md`; the on-chain observations for Robinhood Chain are stated as assumptions until verified.
 
 ## 1. What privacy means here
 
@@ -31,7 +31,7 @@ Words never used in the product or the docs: anonymous, untraceable, unlinkable,
 | Relay (route provider and its solvers) | Every quote (`user`, `recipient`, amount, chains), every deposit, every fill. Relay also **publicly** exposes request metadata via `GET /requests/v2` and its transaction explorer: `user` → `recipient` pairs are listed without authentication (verified live on Base). |
 | Wallet provider (MetaMask, WalletConnect relays) | The desk wallet, every transaction it signs, the dapp origin. |
 | Robinhood (issuer of Stock Tokens) | Transfer restrictions on sender and receiver mean the issuer's allowlist sees every Stock Token movement; a fresh unverified address cannot receive them. |
-| Sheaf backend operators (hosting, DB admins) | Everything in the database: labels, addresses, amounts, memos, CSV originals, approvals, audit trail (labels, memos and CSV originals encrypted at rest with one server key). |
+| Rheo backend operators (hosting, DB admins) | Everything in the database: labels, addresses, amounts, memos, CSV originals, approvals, audit trail (labels, memos and CSV originals encrypted at rest with one server key). |
 | Desk operators and approvers | Everything in their desk, by design. Viewers see redacted addresses. |
 | Counterparties and recipients | Their own incoming transaction, its sender (desk wallet, solver or desk contract), amount, timestamp. |
 
@@ -109,7 +109,7 @@ Only these are claimed:
 - The desk contracts are not wired in; the on-chain shape of every kind is the plain route shape in section 4.
 - Field-level encryption covers labels, memos and CSV originals with one server-side key. Addresses and amounts are plaintext columns.
 - The audit table is append-only inside the database but not anchored externally.
-- No mixing, shielded pools or zero-knowledge transfers. Sheaf integrates no privacy protocol.
+- No mixing, shielded pools or zero-knowledge transfers. Rheo integrates no privacy protocol.
 - Same-chain routes make the desk wallet the visible sender.
 - Relay is a single trusted intermediary with full visibility.
 

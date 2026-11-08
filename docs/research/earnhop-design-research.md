@@ -68,21 +68,21 @@ Order as found in the archived DOM (headings quoted verbatim):
 - Display copy width is capped (`width: 600px` desktop, `310px` under 768 px) rather than fluid, which keeps line lengths short.
 - No horizontal overflow observed in the mobile render.
 
-## 7. Design principles adaptable to Sheaf
+## 7. Design principles adaptable to Rheo
 
-1. **One accent, used sparingly and only for action or emphasis.** Sheaf uses a single accent for primary actions and the emphasised word in headings, never for decoration.
-2. **A distinctive display/body pairing.** Sheaf pairs a grotesk display with a monospace used for numbers, addresses, statuses and eyebrow labels (the inverse of HOP's mono-display choice, which suits a finance tool where the mono carries data rather than slogans).
+1. **One accent, used sparingly and only for action or emphasis.** Rheo uses a single accent for primary actions and the emphasised word in headings, never for decoration.
+2. **A distinctive display/body pairing.** Rheo pairs a grotesk display with a monospace used for numbers, addresses, statuses and eyebrow labels (the inverse of HOP's mono-display choice, which suits a finance tool where the mono carries data rather than slogans).
 3. **Scene-based storytelling with one idea per scene.** Each marketing section carries one heading, one paragraph and one visual. Feature descriptions are one sentence.
 4. **Viewport-scaled sections and alternating alignment** to create rhythm without dividers.
-5. **Hard restraint on radii and shadows.** Sheaf uses two radii (pill and 14–20 px panels) and one ink-tinted shadow scale.
-6. **Proof strip under the hero** (short factual lines) becomes Sheaf's batch-status strip fed by the demo data.
-7. **Copy that states the mechanism**, not the benefit ("Stakes and payouts are plain USDG transfers…"). Sheaf describes what the batch engine does and what it cannot promise.
+5. **Hard restraint on radii and shadows.** Rheo uses two radii (pill and 14–20 px panels) and one ink-tinted shadow scale.
+6. **Proof strip under the hero** (short factual lines) becomes Rheo's batch-status strip fed by the demo data.
+7. **Copy that states the mechanism**, not the benefit ("Stakes and payouts are plain USDG transfers…"). Rheo describes what the batch engine does and what it cannot promise.
 8. **Hover effects gated behind `hover: hover`** and animations behind `prefers-reduced-motion`.
 
 ## 8. Elements that should not be copied
 
 - The HOP/EarnHop name, wordmark, logo, favicon and OG image.
-- The neon magenta-on-violet palette and glow buttons. They read as consumer crypto/gaming and contradict Sheaf's enterprise-finance positioning; Sheaf uses charcoal, warm neutrals and one restrained accent.
+- The neon magenta-on-violet palette and glow buttons. They read as consumer crypto/gaming and contradict Rheo's enterprise-finance positioning; Rheo uses charcoal, warm neutrals and one restrained accent.
 - The uppercase Space Mono headlines (a signature choice of the reference).
 - Any copy, section titles, illustrations or the "[bracketed]" stack list styling.
 - The Robinhood Chain and USDG imagery (`logo-robinhood.png`, `logo-usdg.png`, `pay-*.png` uploads) and the cloudfront illustrations (`eyeballs`, `virtual_ears`, `device_plug`), which belong to the original site.

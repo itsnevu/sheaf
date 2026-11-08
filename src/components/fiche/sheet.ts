@@ -1,19 +1,19 @@
 /**
  * Draws the security and privacy model as one microfiche sheet: a grid of framed panels on a
- * pale card, read by panning and zooming in the viewer. Text is Sheaf's own security page.
+ * pale card, read by panning and zooming in the viewer. Text is Rheo's own security page.
  */
 export const SHEET_SIZE = 1600;
 
-const OBSERVERS: [string, string][] = [
+export const OBSERVERS: [string, string][] = [
   ["Block explorers, indexers, analytics firms", "All on-chain data: the desk contract as sender, every recipient, amount, token, time, calldata, and every event a contract emits."],
   ["Validators, sequencers, RPC providers", "The same, plus the submitting IP and mempool timing."],
   ["Route provider (Relay) and its solvers", "For cross-chain legs only: every quote, deposit and fill. Its public request feed lists user → recipient pairs without authentication (verified)."],
   ["Wallet providers", "The connected wallet address, every signed transaction and message, the dapp origin."],
-  ["Sheaf hosting operators", "Everything in the database: operations, legs, labels, memos, unrevealed plans, approvals, the original CSV."],
+  ["Rheo hosting operators", "Everything in the database: operations, legs, labels, memos, unrevealed plans, approvals, the original CSV."],
   ["Your desk operators and approvers", "Everything in your organisation, by design. Viewers see redacted addresses."],
 ];
 
-const IMPLEMENTED = [
+export const IMPLEMENTED = [
   "Roles (Owner, Desk operator, Approver, Viewer) enforced on the server in every API route.",
   "Organisation isolation: every query is scoped by the session's organisation, never by a client-supplied id.",
   "Viewers receive redacted addresses from the API, not only in the UI.",
@@ -26,7 +26,7 @@ const IMPLEMENTED = [
   "Not-before is respected by the worker and, for StealthDesk, by the contract.",
 ];
 
-const NOT_IMPLEMENTED = [
+export const NOT_IMPLEMENTED = [
   "Hiding amounts, timing or the desk contract address. All of it is public on Robinhood Chain.",
   "Hiding the claim link: PrivateClaim emits an event that names both the eligible account and its recipient.",
   "Mixing, shielded pools, zero-knowledge transfers or any privacy protocol.",
@@ -87,7 +87,7 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   ctx.fillStyle = ink;
   ctx.font = `600 34px ${labelFont}`;
   ctx.textBaseline = "middle";
-  ctx.fillText("SHEAF  ·  SECURITY & PRIVACY MODEL  ·  FICHE 01", 150, 158);
+  ctx.fillText("Rheo  ·  SECURITY & PRIVACY MODEL  ·  FICHE 01", 150, 158);
   ctx.font = `18px ${labelFont}`;
   ctx.textAlign = "right";
   ctx.fillText("docs/security/privacy-threat-model.md", SHEET_SIZE - 150, 158);
@@ -96,11 +96,11 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   // Title block
   ctx.font = `700 46px ${textFont}`;
   ctx.textBaseline = "top";
-  ctx.fillText("HONEST SCOPE: WHAT SHEAF PROTECTS,", 130, 240);
+  ctx.fillText("HONEST SCOPE: WHAT Rheo PROTECTS,", 130, 240);
   ctx.fillText("AND WHAT IT CANNOT.", 130, 296);
   ctx.font = `21px ${textFont}`;
   let y = 372;
-  for (const line of wrap(ctx, "Sheaf is the private execution desk for Robinhood Chain. Privacy here means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing, the desk contract address and every contract event stay public. This sheet summarises the full threat model kept in the repository.", 1000)) {
+  for (const line of wrap(ctx, "Rheo is the private execution desk for Robinhood Chain. Privacy here means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing, the desk contract address and every contract event stay public. This sheet summarises the full threat model kept in the repository.", 1000)) {
     ctx.fillText(line, 130, y);
     y += 28;
   }
@@ -151,7 +151,7 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   for (const t of IMPLEMENTED) {
     const lines = wrap(ctx, t, 470);
     ctx.fillStyle = "#2f6d4a";
-    ctx.fillText("✓", 964, y);
+    ctx.fillText("+", 964, y);
     ctx.fillStyle = ink;
     lines.forEach((l, i) => ctx.fillText(l, 986, y + i * 18));
     y += lines.length * 18 + 8;
@@ -164,7 +164,7 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   for (const t of NOT_IMPLEMENTED) {
     const lines = wrap(ctx, t, 500);
     ctx.fillStyle = "#9a2b22";
-    ctx.fillText("✕", 134, y);
+    ctx.fillText("-", 134, y);
     ctx.fillStyle = ink;
     lines.forEach((l, i) => ctx.fillText(l, 156, y + i * 18));
     y += lines.length * 18 + 8;
@@ -198,11 +198,11 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   ctx.font = `700 26px ${textFont}`;
   ctx.fillText("Anonymous.  Untraceable.  Unlinkable.  Invisible.  Private transactions.", 140, 1462);
   ctx.font = `15px ${textFont}`;
-  ctx.fillText("If you see any of these in Sheaf, it is a bug.", 140, 1496);
+  ctx.fillText("If you see any of these in Rheo, it is a bug.", 140, 1496);
 
   // Footer
   ctx.fillStyle = "#5d625c";
   ctx.font = `14px ${labelFont}`;
-  ctx.fillText("Sheaf        sec-01.des        Robinhood Chain 4663        USDG        Append-only audit        Four contracts", 130, 1548);
+  ctx.fillText("Rheo        sec-01.des        Robinhood Chain 4663        USDG        Append-only audit        Four contracts", 130, 1548);
   return c;
 }

@@ -1,10 +1,10 @@
-# Sheaf
+# Rheo
 
 The private execution desk for Robinhood Chain. **Private externally. Transparent internally.**
 
-A sheaf is one controlled operation made of legs, executed from one desk: prepare the legs, get a second pair of eyes, fund, execute leg by leg, reconcile, keep an append-only record. The wallet that owns the funds or the eligibility never appears as the destination on-chain.
+A Rheo is one controlled operation made of legs, executed from one desk: prepare the legs, get a second pair of eyes, fund, execute leg by leg, reconcile, keep an append-only record. The wallet that owns the funds or the eligibility never appears as the destination on-chain.
 
-Sheaf never says "anonymous", "untraceable" or "unlinkable". Amounts, timing and the desk contract address stay public, and anyone comparing explorers can correlate them. Every page says what stays visible.
+Rheo never says "anonymous", "untraceable" or "unlinkable". Amounts, timing and the desk contract address stay public, and anyone comparing explorers can correlate them. Every page says what stays visible.
 
 ## The four operations
 
@@ -28,13 +28,13 @@ Demo mode (the default) simulates routing, funding and settlement with a determi
 ## Quick start
 
 ```bash
-cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET, SHEAF_ENCRYPTION_KEY
+cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET, Rheo_ENCRYPTION_KEY
 npm install
 npm run db:push && npm run db:seed
 npm run dev
 ```
 
-Open http://localhost:3000 and sign in as `desk@halden.example` / `sheaf-demo-2026` (also `owner@`, `approver@`, `viewer@`).
+Open http://localhost:3000 and sign in as `desk@halden.example` / `Rheo-demo-2026` (also `owner@`, `approver@`, `viewer@`).
 
 Contracts:
 
@@ -61,4 +61,4 @@ forge test -vv
 
 ## Also in this repository
 
-- [lancefield/](lancefield/README.md): Lancefield, a separate Next.js app (an AI-agent contest ground with its own brand). It has its own `package.json`, database and tests; nothing in it depends on Sheaf.
+- [lancefield/](lancefield/README.md): Lancefield, a separate Next.js app (an AI-agent contest ground with its own brand). It has its own `package.json`, database and tests; nothing in it depends on Rheo.

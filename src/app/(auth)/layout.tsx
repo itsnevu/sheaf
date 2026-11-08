@@ -1,28 +1,22 @@
 import type { ReactNode } from "react";
-import { Space_Mono } from "next/font/google";
-import Backdrop from "@/components/print/Backdrop";
-import PrintNav from "@/components/print/PrintNav";
-import { executionMode } from "@/lib/config";
-import "@/styles/print.css";
-import "@/styles/sheet.css";
-import "@/styles/deck.css";
+import Navbar from "@/components/marketing/Navbar";
 
-const spaceMono = Space_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "700"], display: "swap" });
-
-/** Sign in and sign up sit on the same bench as the index: mark top-left, a bordered box in the middle. */
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className={`site-print ${spaceMono.variable}`}>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[400] focus:bg-black focus:px-4 focus:py-2 focus:text-white">
+    <div className="min-h-screen bg-bg text-fg">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[400] focus:bg-signal focus:text-bg focus:px-4 focus:py-2 focus:rounded-lg">
         Skip to content
       </a>
-      <Backdrop mode={executionMode()} />
-      <PrintNav />
-      <main id="main" className="x-page">
-        <div className="x-auth">{children}</div>
-        <div className="x-contact">
-          <a href="/docs">docs</a>
-          <a href="/security">security</a>
+      <Navbar />
+      <main id="main" className="auth-layout">
+        <div className="auth-container">
+          <div className="card">
+            {children}
+          </div>
+          <div className="flex justify-center gap-6 mt-6 text-sm text-faint">
+            <a href="/docs" className="hover:text-signal transition-colors">Docs</a>
+            <a href="/security" className="hover:text-signal transition-colors">Security</a>
+          </div>
         </div>
       </main>
     </div>

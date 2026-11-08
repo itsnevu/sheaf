@@ -17,7 +17,7 @@ const addr = (seed: string) => "0x" + hex("addr:" + seed, 40);
 const CHAIN = 4663;
 const ASSET = "USDG";
 const DEC = 6;
-const USDG_ADDRESS = process.env.SHEAF_USDG_ADDRESS_4663 || "0x0000000000000000000000000000000000000000";
+const USDG_ADDRESS = process.env.Rheo_USDG_ADDRESS_4663 || "0x0000000000000000000000000000000000000000";
 const units = (n: string) => {
   const [w, f = ""] = n.split(".");
   return (BigInt(w) * 10n ** BigInt(DEC) + BigInt(f.padEnd(DEC, "0"))).toString();
@@ -36,7 +36,7 @@ const RESTRICTED = "RESTRICTED_TOKEN: recipient not allowlisted (simulated)";
 const CAPACITY = "SOLVER_CAPACITY_EXCEEDED: Solver capacity exhausted; safe to retry (simulated)";
 
 async function main() {
-  const PASSWORD = "sheaf-demo-2026";
+  const PASSWORD = "Rheo-demo-2026";
   const orgExisting = await db.organization.findUnique({ where: { slug: "halden-desk" } });
   if (orgExisting) {
     console.log("Seed already present (halden-desk). Delete prisma/dev.db to reseed.");

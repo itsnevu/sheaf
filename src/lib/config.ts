@@ -6,7 +6,7 @@ export function executionMode(): ExecutionMode {
   return process.env.SHEAF_MODE === "real" ? "real" : "demo";
 }
 
-export const DEMO_BANNER = "Demo desk — every leg is simulated; no funds move on Robinhood Chain.";
+export const DEMO_BANNER = "Demo desk: every leg is simulated, no funds move on Robinhood Chain.";
 
 /** Settlement asset of the desk. Robinhood Chain (4663) settles in USDG (6 decimals). */
 export const SETTLEMENT_ASSET = { symbol: "USDG", decimals: 6 } as const;

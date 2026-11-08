@@ -1,0 +1,2 @@
+import EngravingArt,{ArtCredit} from "./EngravingArt";
+export default function PageHero({label,title,second,description}:{label:string;title:string;second:string;description:string}){return <header className="page-hero" data-tone="electric"><div className="container-site page-hero-grid"><div><p className="eyebrow mb-6">{label}</p><h1 className="display-2">{title}<br/><span className="second-line">{second}</span></h1><p className="lede">{description}</p></div><div><EngravingArt className="page-hero-art" variant={2}/><ArtCredit/></div></div></header>;}

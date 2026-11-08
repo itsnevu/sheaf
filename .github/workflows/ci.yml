@@ -65,6 +65,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: sheaf:ci
+          tags: Rheo:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max

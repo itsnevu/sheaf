@@ -1,6 +1,6 @@
-# Sheaf contracts
+# Rheo contracts
 
-Sheaf is the private execution desk for Robinhood Chain (an Arbitrum Orbit L2, chain id 4663).
+Rheo is the private execution desk for Robinhood Chain (an Arbitrum Orbit L2, chain id 4663).
 Private externally. Transparent internally.
 
 This folder holds the four on-chain operations, one contract each, built with Foundry and
@@ -8,7 +8,7 @@ Solidity 0.8.24.
 
 ## What "private" means here, and what it does not
 
-Privacy in Sheaf means one thing: the wallet that owns funds or eligibility does not appear as
+Privacy in Rheo means one thing: the wallet that owns funds or eligibility does not appear as
 the destination of the transfer on-chain. A claim goes to a fresh address, not to the eligible
 wallet. An OTC fill pays each side into an address of its choosing. A treasury pays out from a
 shared desk contract, not from its own wallet.
@@ -49,7 +49,7 @@ Private allocation claim for a launch or airdrop.
   `Claim(address account,address recipient,uint256 amount,uint256 deadline)`. The signature is
   bound to the recipient, so a relayer cannot redirect it. Replay is prevented by the
   one-claim-per-account rule, so there is no separate nonce; `deadline` limits how long an
-  unsubmitted signature stays valid. Domain: name `Sheaf PrivateClaim`, version `1`.
+  unsubmitted signature stays valid. Domain: name `Rheo PrivateClaim`, version `1`.
 - One claim per account. After `end`, the owner can `sweep` unclaimed tokens.
 - Leaf: `keccak256(bytes.concat(keccak256(abi.encode(account, amount))))`, OpenZeppelin
   sorted-pair hashing.
@@ -150,8 +150,8 @@ Environment (put these in `contracts/.env`, which is git-ignored, or export them
 
 ```
 ROBINHOOD_RPC_URL=<from the Robinhood Chain docs>
-SHEAF_OWNER=0x...             # owner of PrivateClaim and DelegatedTreasury
-SHEAF_CLAIM_TOKEN=0x...       # ERC-20 distributed by PrivateClaim, e.g. USDG
+Rheo_OWNER=0x...             # owner of PrivateClaim and DelegatedTreasury
+Rheo_CLAIM_TOKEN=0x...       # ERC-20 distributed by PrivateClaim, e.g. USDG
 PRIVATE_KEY=0x...             # deployer key (or use --ledger / --account instead)
 ```
 

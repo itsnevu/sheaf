@@ -10,7 +10,7 @@ const KEY = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 const account = privateKeyToAccount(KEY);
 
 async function signed(nonce: string, overrides: Partial<Parameters<typeof createSiweMessage>[0]> = {}) {
-  const message = createSiweMessage({ address: account.address, chainId: 8453, domain: "sheaf.test", uri: "https://sheaf.test", nonce, version: "1", statement: "Sign in to Sheaf.", ...overrides });
+  const message = createSiweMessage({ address: account.address, chainId: 8453, domain: "Rheo.test", uri: "https://Rheo.test", nonce, version: "1", statement: "Sign in to Rheo.", ...overrides });
   const signature = await account.signMessage({ message });
   return { message, signature };
 }
@@ -19,7 +19,7 @@ describe("sign-in with ethereum", () => {
   it("accepts a valid signature for the right domain and nonce", async () => {
     const nonce = generateSiweNonce();
     const { message, signature } = await signed(nonce);
-    const w = await verifyWalletSignature({ message, signature, host: "sheaf.test", nonce });
+    const w = await verifyWalletSignature({ message, signature, host: "Rheo.test", nonce });
     expect(w.address).toBe(account.address.toLowerCase());
     expect(w.chainId).toBe(8453);
   });
@@ -27,11 +27,11 @@ describe("sign-in with ethereum", () => {
   it("rejects a wrong nonce, a wrong domain and a tampered signature", async () => {
     const nonce = generateSiweNonce();
     const { message, signature } = await signed(nonce);
-    await expect(verifyWalletSignature({ message, signature, host: "sheaf.test", nonce: generateSiweNonce() })).rejects.toBeInstanceOf(HttpError);
+    await expect(verifyWalletSignature({ message, signature, host: "Rheo.test", nonce: generateSiweNonce() })).rejects.toBeInstanceOf(HttpError);
     await expect(verifyWalletSignature({ message, signature, host: "evil.test", nonce })).rejects.toBeInstanceOf(HttpError);
     const bad = (signature.slice(0, 20) + (signature[20] === "a" ? "b" : "a") + signature.slice(21)) as `0x${string}`;
-    await expect(verifyWalletSignature({ message, signature: bad, host: "sheaf.test", nonce })).rejects.toBeInstanceOf(HttpError);
-    await expect(verifyWalletSignature({ message, signature, host: "sheaf.test", nonce: null })).rejects.toMatchObject({ code: "NONCE_MISSING" });
+    await expect(verifyWalletSignature({ message, signature: bad, host: "Rheo.test", nonce })).rejects.toBeInstanceOf(HttpError);
+    await expect(verifyWalletSignature({ message, signature, host: "Rheo.test", nonce: null })).rejects.toMatchObject({ code: "NONCE_MISSING" });
   });
 
   it("creates a workspace on first sign-in and reuses it afterwards", async () => {

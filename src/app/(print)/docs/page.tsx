@@ -1,18 +1,9 @@
-import type { Metadata } from "next";
-import Reader from "@/components/reader/Reader";
-import { label, typewriter } from "@/components/print/fonts";
-import "@/styles/reader.css";
-
-export const metadata: Metadata = {
-  title: "Docs · Sheaf",
-  description: "Sheaf documentation: getting started, operation kinds, leg CSV format, workflow and roles, demo vs real mode, contracts, execution and reconciliation, known limitations.",
-};
-
-export default function DocsPage() {
-  return (
-    <>
-      <h1 className="sr-only">Sheaf documentation</h1>
-      <Reader typeFont={typewriter.style.fontFamily} labelFont={label.style.fontFamily} />
-    </>
-  );
-}
+import type {Metadata} from "next";
+import PageHero from "@/components/marketing/PageHero";
+import {Section} from "@/components/marketing/Section";
+import {ROLLS} from "@/components/reader/rolls";
+export const metadata:Metadata={title:'Documentation',description:'Rheo documentation: getting started, operation kinds, workflow, roles, contracts, execution and reconciliation.'};
+export default function DocsPage(){return <>
+ <PageHero label="RHEO / FIELD MANUAL" title="THE DETAILS." second="IN PLAIN SIGHT." description="Getting started, operation kinds, workflow and roles. The complete desk manual, kept in one place."/>
+ <Section tone="paper"><div className="container-site editorial-layout"><aside className="editorial-index"><p className="micro mb-4">IN THIS MANUAL</p>{ROLLS.map(r=><a href={`#doc-${r.code}`} key={r.code}>{r.code} / {r.title}</a>)}</aside><div>{ROLLS.map(r=><article className="editorial-article" id={`doc-${r.code}`} key={r.code}><p className="micro mb-3">DOCUMENT / {r.code}</p><h2>{r.title}</h2><pre className="doc-lines">{r.lines.slice(5).join('\n')}</pre></article>)}</div></div></Section>
+ </>;}

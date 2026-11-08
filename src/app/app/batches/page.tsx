@@ -21,7 +21,7 @@ export default function OperationsPage() {
 
   return (
     <>
-      <PageHeader title="Operations" description="Every sheaf on this desk, from draft to reconciled." actions={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New operation <IconArrow /></Button>} />
+      <PageHeader title="Operations" description="Every stream on this desk, from draft to reconciled." actions={me.can("batch.create") && <Button href="/app/batches/new" variant="primary">New operation <IconArrow /></Button>} />
       <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_200px_220px]">
         <Input type="search" placeholder="Search by name, reference or id" aria-label="Search operations" value={q} onChange={(e) => setQ(e.target.value)} />
         <Select aria-label="Filter by kind" value={kind} onChange={(e) => setKind(e.target.value)}>

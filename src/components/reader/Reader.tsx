@@ -303,17 +303,17 @@ export default function Reader({ rolls = ROLLS, typeFont, labelFont }: { rolls?:
 
   const go = useCallback((delta: number) => setIdx((i) => (i + delta + rolls.length) % rolls.length), [rolls.length]);
 
-  // The index card in the margin follows the open roll (`sheaf:roll`) and can open one (`sheaf:roll:set`).
+  // The index card in the margin follows the open roll (`Rheo:roll`) and can open one (`Rheo:roll:set`).
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent("sheaf:roll", { detail: idx }));
+    window.dispatchEvent(new CustomEvent("Rheo:roll", { detail: idx }));
   }, [idx]);
   useEffect(() => {
     const on = (e: Event) => {
       const i = (e as CustomEvent<number>).detail;
       if (Number.isInteger(i)) setIdx(((i % rolls.length) + rolls.length) % rolls.length);
     };
-    window.addEventListener("sheaf:roll:set", on);
-    return () => window.removeEventListener("sheaf:roll:set", on);
+    window.addEventListener("Rheo:roll:set", on);
+    return () => window.removeEventListener("Rheo:roll:set", on);
   }, [rolls.length]);
   const nudge = useCallback((delta: number) => setSpeed((s) => Math.max(-5, Math.min(5, s + delta))), []);
 
@@ -488,7 +488,7 @@ export default function Reader({ rolls = ROLLS, typeFont, labelFont }: { rolls?:
               <span className="r-thumb" style={{ top: `${(0.5 - speed / 10) * 100}%` }} />
             </div>
             <div className="r-brand" style={{ fontFamily: labelFont }}>
-              <span>SHEAF</span>
+              <span>Rheo</span>
               <span className="r-brand-strike">Q-MASTER</span>
               <sup>TM</sup>
             </div>

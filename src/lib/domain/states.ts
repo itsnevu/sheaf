@@ -1,7 +1,7 @@
 /**
  * Explicit lifecycle states. Transitions are enforced in src/lib/services/batches.ts.
  *
- * Vocabulary: an "operation" (a sheaf) is stored as a PaymentBatch; each "leg" of it is a
+ * Vocabulary: an "operation" (a stream) is stored as a PaymentBatch; each "leg" of it is a
  * BatchRecipient. Model names and status values are kept; labels are the product vocabulary.
  */
 

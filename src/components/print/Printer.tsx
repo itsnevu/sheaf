@@ -7,7 +7,7 @@ import { LOGICAL_WIDTH, renderWork } from "./render";
 
 /**
  * The instrument. A grey printer that can be dragged around the sheet, two dials (SERIES and
- * WORK) that choose a page of Sheaf's story, a power button that prints it onto the black roll
+ * WORK) that choose a page of Rheo's story, a power button that prints it onto the black roll
  * one row at a time, blend buttons that change the ink, and a right-click menu to copy or save
  * the print. Sounds are synthesised, tiny, and only after the first click.
  */
@@ -229,7 +229,7 @@ export default function Printer({ pixelFont }: { pixelFont: string }) {
     void print(work ?? missingWork(s, WORK_NUMBERS[workIdx]!));
   };
 
-  // The series card beside the printer asks for a print by series letter (`sheaf:print`).
+  // The series card beside the printer asks for a print by series letter (`Rheo:print`).
   const printAt = useRef<(s: number, w: number) => void>(() => {});
   printAt.current = (s, w) => {
     const si = wrapSeries(s);
@@ -245,8 +245,8 @@ export default function Printer({ pixelFont }: { pixelFont: string }) {
       const d = (e as CustomEvent<{ series: number; work?: number }>).detail;
       printAt.current(d.series, d.work ?? 0);
     };
-    window.addEventListener("sheaf:print", on);
-    return () => window.removeEventListener("sheaf:print", on);
+    window.addEventListener("Rheo:print", on);
+    return () => window.removeEventListener("Rheo:print", on);
   }, []);
 
   // Dragging the printer around the sheet.
@@ -307,7 +307,7 @@ export default function Printer({ pixelFont }: { pixelFont: string }) {
     c.drawImage(roll, 0, 0, big.width, big.height);
     const a = document.createElement("a");
     a.href = big.toDataURL("image/png");
-    a.download = `sheaf-print-${printedRef.current.map((w) => w.code).join("-") || "empty"}.png`;
+    a.download = `Rheo-print-${printedRef.current.map((w) => w.code).join("-") || "empty"}.png`;
     a.click();
     setStatus("Print saved.");
     setCtxMenu(null);

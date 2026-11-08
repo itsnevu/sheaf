@@ -73,7 +73,7 @@ export type ProviderStatus =
   | "failure"
   | "refund"
   | "delayed"
-  | "unknown"; // provider unreachable / ambiguous — never treat as failed
+  | "unknown"; // provider unreachable or ambiguous, never treat as failed
 
 export interface StatusResult {
   status: ProviderStatus;

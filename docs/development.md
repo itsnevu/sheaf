@@ -8,15 +8,15 @@
 ## Setup
 
 ```bash
-cd sheaf
-cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET and SHEAF_ENCRYPTION_KEY (openssl rand -hex 32)
+cd Rheo
+cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET and Rheo_ENCRYPTION_KEY (openssl rand -hex 32)
 npm install                     # runs prisma generate
 npm run db:push                 # creates prisma/dev.db (SQLite) and installs the audit triggers
 npm run db:seed                 # demo desk "Halden Desk" with operations at every stage
 npm run dev                     # http://localhost:3000 (use -- -p 3100 if 3000 is taken)
 ```
 
-Seeded accounts (password `sheaf-demo-2026`):
+Seeded accounts (password `Rheo-demo-2026`):
 
 | Email | Role |
 |---|---|
@@ -52,14 +52,14 @@ See `.env.example` for the full list with comments. Summary:
 |---|---|---|
 | `DATABASE_URL` | `file:./dev.db` | Prisma connection |
 | `SESSION_SECRET` | — | Required; signs session token hashes. Production refuses placeholders or fewer than 32 characters |
-| `SHEAF_ENCRYPTION_KEY` | — | 64 hex characters. Encrypts leg labels, memos and CSV originals at rest. Required in production; derived from `SESSION_SECRET` elsewhere. Back it up with the database |
-| `SHEAF_RATE_LIMIT` | `on` | Sign-in/sign-up rate limiting; `off` only for automated tests |
-| `SHEAF_MODE` | `demo` | `demo` or `real`; shown in the UI, recorded on every operation |
+| `Rheo_ENCRYPTION_KEY` | — | 64 hex characters. Encrypts leg labels, memos and CSV originals at rest. Required in production; derived from `SESSION_SECRET` elsewhere. Back it up with the database |
+| `Rheo_RATE_LIMIT` | `on` | Sign-in/sign-up rate limiting; `off` only for automated tests |
+| `Rheo_MODE` | `demo` | `demo` or `real`; shown in the UI, recorded on every operation |
 | `RELAY_API_URL` | `https://api.relay.link` | Use `https://api.testnets.relay.link` for testnets |
 | `RELAY_API_KEY` | empty | Optional; raises rate limits; server-only |
 | `RELAY_REFERRER` | empty | Optional label; requires the key |
-| `SHEAF_ORIGIN_CHAIN_ID` / `SHEAF_DESTINATION_CHAIN_ID` | `4663` | Robinhood Chain on both sides; a different origin makes Relay route the funding into Robinhood Chain. Per-desk values live in Settings |
-| `SHEAF_USDG_ADDRESS_4663` | empty | USDG contract on Robinhood Chain. Required for real mode; verify against Relay `/currencies/v2` |
+| `Rheo_ORIGIN_CHAIN_ID` / `Rheo_DESTINATION_CHAIN_ID` | `4663` | Robinhood Chain on both sides; a different origin makes Relay route the funding into Robinhood Chain. Per-desk values live in Settings |
+| `Rheo_USDG_ADDRESS_4663` | empty | USDG contract on Robinhood Chain. Required for real mode; verify against Relay `/currencies/v2` |
 | `NEXT_PUBLIC_RPC_URL_<chainId>` | empty | Browser RPC override for the wallet console (viem ships the public Robinhood Chain RPC) |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | empty | Adds a WalletConnect connector (QR modal) next to injected wallets when set |
 | `WORKER_MODE` | `in-process` | `off` on serverless hosts |
@@ -101,7 +101,7 @@ Simulated submissions are held in process memory; restarting the server while a 
 
 ## Real mode requirements
 
-1. Set `SHEAF_MODE=real`, `RELAY_API_URL` (mainnet or testnets), `SHEAF_USDG_ADDRESS_4663` and optionally `RELAY_API_KEY`.
+1. Set `Rheo_MODE=real`, `RELAY_API_URL` (mainnet or testnets), `Rheo_USDG_ADDRESS_4663` and optionally `RELAY_API_KEY`.
 2. In Settings, set the desk wallet address and the origin/destination network and asset. Assets known to the app are listed in `src/lib/config.ts` (`KNOWN_ASSETS`); add entries after checking `POST /currencies/v2` on Relay.
 3. Prepare routes: the worker calls `POST /quote/v2` per leg with `EXACT_OUTPUT`, `refundTo` = desk wallet, `ttl` 600 s, at a pace that respects the public 50 requests/minute limit.
 4. Funding: the wallet console reads the ERC-20 balance of the connected wallet, checks it equals the configured desk wallet and covers the requirement, and records it.

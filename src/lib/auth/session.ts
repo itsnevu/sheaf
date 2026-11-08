@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import type { Role } from "@/lib/domain/states";
 
-export const SESSION_COOKIE = "sheaf_session";
+export const SESSION_COOKIE = "rheo_session";
 const SESSION_DAYS = 14;
 
 export function hashPassword(password: string): string {

@@ -6,7 +6,7 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync, timingSafeEq
  * `enc1:<base64url(nonce || tag || ciphertext)>`, so plaintext written before encryption was
  * enabled still reads back unchanged (see scripts/encrypt-existing.ts to convert it).
  *
- * Key: SHEAF_ENCRYPTION_KEY, 64 hex characters (32 bytes). Required in production; in other
+ * Key: RHEO_ENCRYPTION_KEY, 64 hex characters (32 bytes). Required in production; in other
  * environments a key is derived from SESSION_SECRET so local setups work without extra config.
  */
 
@@ -19,18 +19,18 @@ let warned = false;
 
 export function encryptionKey(): Buffer {
   if (cachedKey) return cachedKey;
-  const raw = process.env.SHEAF_ENCRYPTION_KEY?.trim();
+  const raw = process.env.RHEO_ENCRYPTION_KEY?.trim();
   if (raw) {
-    if (!/^[0-9a-fA-F]{64}$/.test(raw)) throw new Error("SHEAF_ENCRYPTION_KEY must be 64 hex characters (32 bytes)");
+    if (!/^[0-9a-fA-F]{64}$/.test(raw)) throw new Error("RHEO_ENCRYPTION_KEY must be 64 hex characters (32 bytes)");
     cachedKey = Buffer.from(raw, "hex");
     return cachedKey;
   }
-  if (process.env.NODE_ENV === "production") throw new Error("SHEAF_ENCRYPTION_KEY is required in production");
+  if (process.env.NODE_ENV === "production") throw new Error("RHEO_ENCRYPTION_KEY is required in production");
   if (!warned) {
     warned = true;
-    console.warn("[crypto] SHEAF_ENCRYPTION_KEY not set; deriving a development key from SESSION_SECRET");
+    console.warn("[crypto] RHEO_ENCRYPTION_KEY not set; deriving a development key from SESSION_SECRET");
   }
-  cachedKey = scryptSync(process.env.SESSION_SECRET || "sheaf-dev", "sheaf-field-encryption", 32);
+  cachedKey = scryptSync(process.env.SESSION_SECRET || "rheo-dev", "rheo-field-encryption", 32);
   return cachedKey;
 }
 
@@ -64,7 +64,7 @@ export function decryptString<T extends string | null | undefined>(value: T): T 
     decipher.setAuthTag(tag);
     return Buffer.concat([decipher.update(ct), decipher.final()]).toString("utf8") as T;
   } catch {
-    throw new Error("Cannot decrypt field: SHEAF_ENCRYPTION_KEY does not match the key that wrote it");
+    throw new Error("Cannot decrypt field: RHEO_ENCRYPTION_KEY does not match the key that wrote it");
   }
 }
 

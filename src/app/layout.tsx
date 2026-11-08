@@ -1,35 +1,36 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Bricolage_Grotesque, Inter, Space_Mono } from "next/font/google";
+import { Barlow, Barlow_Condensed, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { ensureWorker } from "@/lib/worker/boot";
 
-const inter = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
-const display = Bricolage_Grotesque({ variable: "--font-display", subsets: ["latin"], weight: ["400", "500", "600"], display: "swap" });
-const mono = Space_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "700"], display: "swap" });
+const sans = Barlow({ variable: "--font-sans", subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
+const display = Barlow_Condensed({ variable: "--font-display", subsets: ["latin"], weight: ["200", "300"], display: "swap" });
+const serif = Playfair_Display({ variable: "--font-serif", subsets: ["latin"], weight: ["400"], display: "swap" });
+const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "500", "700"], display: "swap" });
 
-const TITLE = "Sheaf";
+const TITLE = "Rheo";
 const DESCRIPTION =
-  "The private execution desk for Robinhood Chain: claim, accumulate, OTC and treasury operations, executed leg by leg from one desk. Private externally. Transparent internally.";
+  "Token vesting and streaming protocol on Elysium L2. Linear streams with cliff, batch create, 25 bps fee, fully on-chain.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
-  title: { default: TITLE, template: "%s · Sheaf" },
+  title: { default: TITLE, template: "%s · Rheo" },
   description: DESCRIPTION,
-  applicationName: "Sheaf",
+  applicationName: "Rheo",
   icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }] },
-  openGraph: { type: "website", siteName: "Sheaf", title: TITLE, description: DESCRIPTION, images: ["/art/og.jpg"] },
+  openGraph: { type: "website", siteName: "Rheo", title: TITLE, description: DESCRIPTION, images: ["/art/og.jpg"] },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   robots: { index: true, follow: true },
 };
 
-export const viewport: Viewport = { themeColor: "#f6f5f1", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "rgb(0, 64, 255)", width: "device-width", initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await ensureWorker();
   return (
-    <html lang="en" className={`${inter.variable} ${display.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable} ${display.variable} ${serif.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>

@@ -45,8 +45,8 @@ function useOpenRoll() {
   const [roll, setRoll] = useState(0);
   useEffect(() => {
     const on = (e: Event) => setRoll((e as CustomEvent<number>).detail);
-    window.addEventListener("sheaf:roll", on);
-    return () => window.removeEventListener("sheaf:roll", on);
+    window.addEventListener("Rheo:roll", on);
+    return () => window.removeEventListener("Rheo:roll", on);
   }, []);
   return roll;
 }
@@ -76,8 +76,8 @@ export default function Backdrop({ mode = "demo", variant = "site", role }: { mo
   const contents = variant === "site" ? CONTENTS[pathname] : undefined;
   const desk = variant === "desk" ? DESK.find(([p]) => pathname.startsWith(p)) : undefined;
   const isDocs = pathname === "/docs";
-  const label = desk ? `${desk[1]} · ${desk[2]}` : pathname.startsWith("/sign-") ? "SHEET 00/04 · ACCESS" : `SHEET ${sheet?.code ?? "--"}/04 · ${sheet?.name ?? "SHEAF"}`;
-  const openRollDoc = (i: number) => window.dispatchEvent(new CustomEvent("sheaf:roll:set", { detail: i }));
+  const label = desk ? `${desk[1]} · ${desk[2]}` : pathname.startsWith("/sign-") ? "SHEET 00/04 · ACCESS" : `SHEET ${sheet?.code ?? "--"}/04 · ${sheet?.name ?? "Rheo"}`;
+  const openRollDoc = (i: number) => window.dispatchEvent(new CustomEvent("Rheo:roll:set", { detail: i }));
 
   return (
     <>

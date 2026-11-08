@@ -1,6 +1,6 @@
 import { expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
-export const PASSWORD = "sheaf-demo-2026";
+export const PASSWORD = "Rheo-demo-2026";
 /** Seeded Halden Desk users: owner, desk operator (FINANCE_ADMIN), approver, viewer. */
 export type Who = "owner" | "desk" | "approver" | "viewer";
 

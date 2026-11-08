@@ -42,7 +42,7 @@ function SignInForm() {
 
   const demo = (who: string) => {
     setEmail(`${who}@halden.example`);
-    setPassword("sheaf-demo-2026");
+    setPassword("Rheo-demo-2026");
     setPicked(who);
   };
   const badge = ROLES.find((r) => r.who === picked);
@@ -52,9 +52,9 @@ function SignInForm() {
       <aside className="x-badge" aria-label="Demo desk access badge">
         <p className="x-badge-head"><span>ACCESS BADGE</span><span>HALDEN DESK · DEMO</span></p>
         <div className="x-badge-id">
-          <span className="x-badge-photo"><Mark size={44} inverted /></span>
+          <span className="x-badge-photo"><Mark size={44} /></span>
           <dl>
-            <div><dt>HOLDER</dt><dd>{badge ? `${badge.who}@halden.example` : "— pick a role —"}</dd></div>
+            <div><dt>HOLDER</dt><dd>{badge ? `${badge.who}@halden.example` : "pick a role"}</dd></div>
             <div><dt>ROLE</dt><dd>{badge?.role ?? "—"}</dd></div>
             <div><dt>DESK</dt><dd>SH-4663 · HALDEN</dd></div>
           </dl>

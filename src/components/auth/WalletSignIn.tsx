@@ -50,7 +50,7 @@ export default function WalletSignIn({ mode = "signin", next = "/app", onLinked 
         uri: window.location.origin,
         nonce,
         version: "1",
-        statement: mode === "link" ? "Link this wallet to your Sheaf account." : "Sign in to Sheaf. No transaction, no fees.",
+        statement: mode === "link" ? "Link this wallet to your Rheo account." : "Sign in to Rheo. No transaction, no fees.",
         expirationTime: new Date(Date.now() + 5 * 60_000),
       });
       setBusy("Confirm in your wallet…");

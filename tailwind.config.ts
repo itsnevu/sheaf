@@ -1,80 +1,56 @@
 import type { Config } from "tailwindcss";
-
-/**
- * Sheaf palette. Hex literals (not var()) so Tailwind 3 opacity modifiers work.
- * The same values are mirrored as CSS custom properties in src/app/globals.css.
- *
- *   ink       #141518  charcoal text and primary actions
- *   canvas    #f6f5f1  warm off-white page
- *   surface   #ffffff  cards
- *   veil      #1d7a6f  the one accent: primary CTA, emphasis, focus
- */
 const config: Config = {
-  content: ["./src/**/*.{ts,tsx}"],
-  // Variant classes are composed at runtime (`btn-${variant}`, `badge-${tone}`); keep them.
-  safelist: [{ pattern: /^(btn|badge)-(primary|accent|secondary|ghost|danger|sm|lg|neutral|info|progress|success|warning)$/ }],
-  darkMode: ["class"],
-  theme: {
-    extend: {
-      colors: {
-        canvas: "#ffffff",
-        surface: "#ffffff",
-        field: "#f2f2f2",
-        line: "#d9d9d9",
-        "line-strong": "#1f1f1f",
-        ink: "#1f1f1f",
-        "ink-soft": "#4a4a4a",
-        "ink-faint": "#9a9a9a",
-        "on-ink": "#ffffff",
-        veil: "#ff0000",
-        "veil-deep": "#cc0000",
-        "veil-tint": "#ffe9e9",
-        success: "#1f7a4d",
-        "success-tint": "#e3f3e9",
-        warning: "#9a6700",
-        "warning-tint": "#fbf0d6",
-        danger: "#b42318",
-        "danger-tint": "#fbe6e3",
-        info: "#3352c7",
-        "info-tint": "#e6eafb",
-        night: "#0f1012",
-        "night-2": "#17181c",
-        "night-line": "#2a2c33",
-      },
-      fontFamily: {
-        sans: ["var(--font-mono)", "ui-monospace", "monospace"],
-        display: ["var(--font-mono)", "ui-monospace", "monospace"],
-        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
-      },
-      borderRadius: {
-        panel: "0px",
-        card: "0px",
-        pill: "0px",
-      },
-      boxShadow: {
-        raised: "none",
-        lifted: "none",
-        inset: "inset 0 1px 2px rgba(20,21,24,.07), inset 0 0 0 1px rgba(20,21,24,.05)",
-        focus: "0 0 0 3px rgba(29,122,111,.28)",
-      },
-      maxWidth: { site: "1200px", wide: "1360px" },
-      screens: { xs: "480px" },
-      keyframes: {
-        "fade-up": { from: { opacity: "0", transform: "translateY(12px)" }, to: { opacity: "1", transform: "none" } },
-        "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
-        shimmer: { from: { backgroundPosition: "200% 0" }, to: { backgroundPosition: "-200% 0" } },
-        pulse2: { "0%, 100%": { opacity: "1" }, "50%": { opacity: ".35" } },
-        drift: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },
-      },
-      animation: {
-        "fade-up": "fade-up .55s cubic-bezier(.2,.8,.2,1) both",
-        "fade-in": "fade-in .3s ease both",
-        shimmer: "shimmer 1.6s linear infinite",
-        pulse2: "pulse2 1.8s ease-in-out infinite",
-        drift: "drift 60s linear infinite",
-      },
-    },
+content:["./src/**/*.{ts,tsx}"], safelist:[{pattern:/^(btn|badge)-(primary|accent|secondary|ghost|danger|sm|lg|neutral|info|progress|success|warning)$/}],
+theme:{extend:{colors:{
+  "electric": "var(--electric)",
+  "navy": "var(--navy)",
+  "paper": "var(--paper)",
+  "sky": "var(--sky)",
+  "ice": "var(--ice)",
+  "bg": "var(--bg)",
+  "surface": "var(--surface)",
+  "card": "var(--card)",
+  "fg": "var(--fg)",
+  "fg-2": "var(--fg-2)",
+  "fg-3": "var(--fg-3)",
+  "ink": {
+    "700": "var(--ink-blue)",
+    "800": "var(--electric)",
+    "850": "var(--navy-deep)",
+    "900": "var(--navy)",
+    "950": "var(--navy-deep)",
+    "DEFAULT": "var(--ink)"
   },
-  plugins: [],
-};
-export default config;
+  "muted": "var(--fg-2)",
+  "faint": "var(--fg-3)",
+  "line": "var(--line)",
+  "line-strong": "var(--line-strong)",
+  "signal": "var(--signal)",
+  "signal-strong": "var(--sky)",
+  "signal-dim": "var(--signal-dim)",
+  "brand2": "var(--electric)",
+  "up": "var(--success)",
+  "down": "var(--danger)",
+  "positive": "var(--success)",
+  "negative": "var(--danger)",
+  "canvas": "var(--canvas)",
+  "field": "var(--field)",
+  "on-ink": "var(--on-ink)",
+  "veil": "var(--signal)",
+  "veil-deep": "var(--electric)",
+  "veil-tint": "var(--signal-dim)",
+  "success": "var(--success)",
+  "success-tint": "var(--signal-dim)",
+  "warning": "var(--sky)",
+  "warning-tint": "var(--signal-dim)",
+  "danger": "var(--danger)",
+  "danger-tint": "var(--signal-dim)",
+  "info": "var(--sky)",
+  "info-tint": "var(--signal-dim)",
+  "night": "var(--navy)",
+  "night-2": "var(--navy-deep)",
+  "night-line": "var(--line)",
+  "ink-soft": "var(--fg-2)",
+  "ink-faint": "var(--fg-3)"
+},fontFamily:{sans:["var(--font-sans)","sans-serif"],display:["var(--font-display)","sans-serif"],mono:["var(--font-mono)","monospace"]},borderRadius:{DEFAULT:"1px",sm:"1px",md:"1px",lg:"1px",xl:"1px","2xl":"1px","3xl":"1px",chip:"1px",btn:"1px",card:"1px",panel:"1px",pill:"1px"},boxShadow:{raised:"none",lifted:"none",glow:"none","glow-sm":"none",focus:"0 0 0 2px var(--sky)"},maxWidth:{site:"1400px",wide:"1520px"},screens:{xs:"480px"},spacing:{18:"4.5rem",128:"32rem",160:"40rem",192:"48rem"},keyframes:{pulse2:{"50%":{opacity:".5"}},shimmer:{"50%":{opacity:".5"}}},animation:{pulse2:"pulse2 2s infinite",shimmer:"shimmer 2s infinite"}}},plugins:[]};export default config;
+

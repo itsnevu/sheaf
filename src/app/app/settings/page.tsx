@@ -64,7 +64,7 @@ export default function SettingsPage() {
               <StatusBadge tone={s.mode === "demo" ? "warning" : "progress"}>{s.mode === "demo" ? "Demo (simulated)" : "Real"}</StatusBadge>
               <span className="text-ink-faint text-[0.8125rem]">set by SHEAF_MODE on the server; cannot be changed here</span>
             </div>
-            <p className="help">Provider: {s.provider.label} — {s.provider.detail}</p>
+            <p className="help">Provider: {s.provider.label} / {s.provider.detail}</p>
           </div>
         </section>
 
