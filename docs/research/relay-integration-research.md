@@ -5,13 +5,13 @@ Verified 21 September 2026 against https://docs.relay.link and the live public A
 ## 1. Verified capabilities
 
 ### Networks and assets
-- `GET /chains` (no key) returned **60 chains**, all `depositEnabled: true`, including Base (8453), Arbitrum (42161), Optimism (10), Ethereum (1), Polygon (137), Arc (5042), Robinhood Chain (4663), Solana, Bitcoin, Tron and TON. Each chain object includes `httpRpcUrl`, `explorerUrl`, `erc20Currencies`, `vmType`, `disabled`, `partialDisableLimit`.
+- `GET /chains` (no key) returned **60 chains**, all `depositEnabled: true`, including Base (8453), Arbitrum (42161), Optimism (10), Ethereum (1), Polygon (137), Arc (5042), Elysium (99801), Solana, Bitcoin, Tron and TON. Each chain object includes `httpRpcUrl`, `explorerUrl`, `erc20Currencies`, `vmType`, `disabled`, `partialDisableLimit`.
 - `POST /currencies/v2` (`{"chainIds":[8453],"defaultList":true}`) returned USDC `0x833589fcd6edb6e08f4c7c32d4f71b54bda02913` (6 decimals), USDT, ETH and others on Base.
 - Testnets: `GET https://api.testnets.relay.link/chains` returned Base Sepolia (84532) and Sepolia (11155111).
-- **Chosen defaults for Rheo**: origin Base (8453) USDC → destination Base (8453) USDC, configurable via `Rheo_ORIGIN_CHAIN_ID` / `Rheo_DESTINATION_CHAIN_ID`. Both are in the live list.
+- **Chosen defaults for Raqio**: origin Base (8453) USDC → destination Base (8453) USDC, configurable via `Raqio_ORIGIN_CHAIN_ID` / `Raqio_DESTINATION_CHAIN_ID`. Both are in the live list.
 
 ### Quote
-- `POST /quote/v2` (docs: references/api/get-quote-v2). Required body: `user`, `originChainId`, `destinationChainId`, `originCurrency`, `destinationCurrency`, `amount` (smallest unit, string), `tradeType` (`EXACT_INPUT` | `EXACT_OUTPUT` | `EXPECTED_OUTPUT`). Optional used by Rheo: `recipient`, `refundTo`, `ttl`, `slippageTolerance`, `useDepositAddress`, `referrer` (needs key).
+- `POST /quote/v2` (docs: references/api/get-quote-v2). Required body: `user`, `originChainId`, `destinationChainId`, `originCurrency`, `destinationCurrency`, `amount` (smallest unit, string), `tradeType` (`EXACT_INPUT` | `EXACT_OUTPUT` | `EXPECTED_OUTPUT`). Optional used by Raqio: `recipient`, `refundTo`, `ttl`, `slippageTolerance`, `useDepositAddress`, `referrer` (needs key).
 - Response: `requestId`, `steps[]` (`id` ∈ approve/deposit/authorize/swap/send, `kind` transaction|signature, `items[].data` = `{from,to,data,value,chainId,gas,maxFeePerGas,maxPriorityFeePerGas}`, `items[].check = {endpoint, method}`), `fees` (`gas`, `relayer`, `relayerGas`, `relayerService`, `app`, `subsidized`, each `{currency, amount, amountFormatted, amountUsd, minimumAmount}`), `details` (`currencyIn`, `currencyOut`, `timeEstimate`, `totalImpact`, `rate`, `slippageTolerance`, `route`, `userBalance`).
 - **Live sample A** (same chain, Base USDC → Base USDC, 1.000000 USDC, `EXACT_INPUT`): one step `send` ("Send funds to the recipient"), `kind: transaction`, calldata is a plain ERC-20 `transfer(recipient, amount)` to the USDC contract. Fees: gas ≈ 0.0000457 ETH (≈ $0.12 at quote time), relayer/service 0.
 - **Live sample B** (Arbitrum USDC → Base USDC, `EXACT_OUTPUT` 1.000000): two steps `approve` then `deposit`; fees: gas 0.0000017 ETH, relayer 0.047089 USDC (relayerGas 0.026988 + relayerService 0.020101), `timeEstimate: 2` seconds, `currencyIn: 1.047089`.
@@ -33,31 +33,31 @@ Verified 21 September 2026 against https://docs.relay.link and the live public A
 - Default per-key limits: `/quote` 50 req/min, `/requests` 200 req/min, `/transactions/status` 200 req/min, others 200 req/min. Elevated on request: `/quote` 10 req/s. On `429`, retry with exponential backoff.
 
 ### Wallet and signing (docs: relay-kit/sdk/actions/execute)
-- Every step is either a `transaction` to be sent by the `user` address from a wallet, or a `signature` (permits). Relay does not custody funds before the deposit transaction, so **the treasury wallet must sign one transaction per route** (plus approvals). The SDK `@relayprotocol/relay-sdk` `execute({quote, wallet, onProgress})` accepts a viem `WalletClient`. Rheo calls the HTTP API directly and signs with wagmi/viem in the browser, which is equivalent and avoids a large SDK bundle.
+- Every step is either a `transaction` to be sent by the `user` address from a wallet, or a `signature` (permits). Relay does not custody funds before the deposit transaction, so **the treasury wallet must sign one transaction per route** (plus approvals). The SDK `@relayprotocol/relay-sdk` `execute({quote, wallet, onProgress})` accepts a viem `WalletClient`. Raqio calls the HTTP API directly and signs with wagmi/viem in the browser, which is equivalent and avoids a large SDK bundle.
 
 ### Deposit addresses (docs: features/deposit-addresses)
-- `useDepositAddress: true` returns a `depositAddress`; Relay sweeps funds received there. Open addresses can be reused for the same route; strict addresses are single-use. This is useful for custodial treasuries that cannot send calldata (exchange withdrawals). Not enabled by default in Rheo.
+- `useDepositAddress: true` returns a `depositAddress`; Relay sweeps funds received there. Open addresses can be reused for the same route; strict addresses are single-use. This is useful for custodial treasuries that cannot send calldata (exchange withdrawals). Not enabled by default in Raqio.
 
 ## 2. Unsupported or unverified assumptions
 
 | Assumption | Status |
 |---|---|
-| One quote can pay **many** recipients | **Unverified / not documented.** `/quote/v2` has one `recipient`. Smart-account docs describe batching calls after a bridge (ERC-4337 / EIP-7702), not multi-recipient payouts. Rheo therefore quotes and executes **one route per recipient**. |
+| One quote can pay **many** recipients | **Unverified / not documented.** `/quote/v2` has one `recipient`. Smart-account docs describe batching calls after a bridge (ERC-4337 / EIP-7702), not multi-recipient payouts. Raqio therefore quotes and executes **one route per recipient**. |
 | Relay hides the treasury from the recipient | **False for same-chain, same-token routes**: the quoted step is a direct ERC-20 transfer from treasury to recipient. For cross-chain routes the destination fill comes from a Relay solver address, but the origin deposit and the `/requests` listing publicly link `user` and `recipient`. See the privacy threat model. |
 | Fees are guaranteed | **Not guaranteed.** Quoted fees are estimates; fills compute actual fees. |
-| Quotes stay valid | Quotes have a `ttl`; Relay may regenerate a quote on deposit. Rheo re-quotes before funding and shows the age of every quote. |
-| Webhooks | Mentioned in rate-limit guidance ("moving from polling to webhooks or websockets") but the webhook API was not verified. Rheo polls `/intents/status/v3` with backoff. |
-| Solana / Bitcoin / Tron recipients | Chains are listed, but address validation for non-EVM VMs is not implemented in Rheo (EVM only, checksum-validated). |
-| Robinhood Chain (4663) and Arc (5042) | Listed by `/chains`; no quote was sampled for them. |
+| Quotes stay valid | Quotes have a `ttl`; Relay may regenerate a quote on deposit. Raqio re-quotes before funding and shows the age of every quote. |
+| Webhooks | Mentioned in rate-limit guidance ("moving from polling to webhooks or websockets") but the webhook API was not verified. Raqio polls `/intents/status/v3` with backoff. |
+| Solana / Bitcoin / Tron recipients | Chains are listed, but address validation for non-EVM VMs is not implemented in Raqio (EVM only, checksum-validated). |
+| Elysium (99801) and Arc (5042) | Listed by `/chains`; no quote was sampled for them. |
 
 ## 3. Required credentials and configuration
 
 | Variable | Purpose | Required |
 |---|---|---|
-| `Rheo_MODE` | `demo` (mock provider) or `real` (Relay adapter) | yes |
+| `Raqio_MODE` | `demo` (mock provider) or `real` (Relay adapter) | yes |
 | `RELAY_API_URL` | `https://api.relay.link` or `https://api.testnets.relay.link` | real mode |
 | `RELAY_API_KEY` | Raises rate limits; needed with `RELAY_REFERRER` | optional |
-| `Rheo_ORIGIN_CHAIN_ID`, `Rheo_DESTINATION_CHAIN_ID` | Route chains | real mode |
+| `Raqio_ORIGIN_CHAIN_ID`, `Raqio_DESTINATION_CHAIN_ID` | Route chains | real mode |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Mobile wallets | optional |
 | `NEXT_PUBLIC_RPC_URL_<chainId>` | Browser RPC override | optional |
 
@@ -66,7 +66,7 @@ Secrets are read only on the server (`src/lib/providers/relay.ts`). No provider 
 ## 4. Integration architecture
 
 ```
-Browser (operator)                  Rheo server                              Relay
+Browser (operator)                  Raqio server                              Relay
 ──────────────────                  ──────────────                              ─────
 Create batch / upload CSV  ──►  validate, store recipients (bigint base units)
 Prepare routes             ──►  PaymentProvider.quote() per recipient  ──────►  POST /quote/v2
@@ -86,8 +86,8 @@ Reconcile / export         ◄──  records with inTxHashes/txHashes, fees, ti
 
 - Real execution requires a browser wallet holding the treasury funds; there is no server-side signer by design (no private keys on the server).
 - Real mode has been verified only for quoting and status polling against the public API. **No on-chain transaction was executed** during this build (no funded wallet was available). The signing path is implemented but untested end-to-end.
-- Same-chain, same-token payouts are plain transfers: Relay adds no routing and no privacy on that path. Rheo surfaces this on the review screen.
-- Rate limit of 50 quotes/min without a key caps route preparation at roughly 50 recipients per minute; Rheo throttles and shows progress.
+- Same-chain, same-token payouts are plain transfers: Relay adds no routing and no privacy on that path. Raqio surfaces this on the review screen.
+- Rate limit of 50 quotes/min without a key caps route preparation at roughly 50 recipients per minute; Raqio throttles and shows progress.
 - Non-EVM destination chains are not supported by the CSV validator.
 
 ## 6. Remaining implementation requirements for production

@@ -9,7 +9,7 @@ import { Address, Button, Dialog, EmptyState, Input, Money, Select, Skeleton, St
 import { useToast } from "@/components/ui/Toast";
 import { api, downloadUrl, fmtDate } from "@/lib/client";
 import { RECIPIENT_STATUS, RECON_STATUS, statusLabel } from "@/lib/domain/states";
-import { ROBINHOOD_CHAIN_ID, txUrl } from "@/lib/config";
+import { ELYSIUM_CHAIN_ID, txUrl } from "@/lib/config";
 import { toDisplayUsd } from "@/lib/money";
 import type { RecipientDTO } from "@/lib/serialize";
 
@@ -137,7 +137,7 @@ export default function ReconciliationPage() {
                         {r.completedAt && <div className="text-[0.75rem] text-ink-faint">{fmtDate(r.completedAt)}</div>}
                       </td>
                       <td>
-                        <TxHash value={r.txHash} url={r.txHash && !r.simulated ? txUrl(ROBINHOOD_CHAIN_ID, r.txHash) : null} simulated={r.simulated} />
+                        <TxHash value={r.txHash} url={r.txHash && !r.simulated ? txUrl(ELYSIUM_CHAIN_ID, r.txHash) : null} simulated={r.simulated} />
                       </td>
                       <td className="text-right tnum">{toDisplayUsd(r.route?.feeTotalUsd)}</td>
                       <td>

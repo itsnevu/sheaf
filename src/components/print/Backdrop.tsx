@@ -45,8 +45,8 @@ function useOpenRoll() {
   const [roll, setRoll] = useState(0);
   useEffect(() => {
     const on = (e: Event) => setRoll((e as CustomEvent<number>).detail);
-    window.addEventListener("Rheo:roll", on);
-    return () => window.removeEventListener("Rheo:roll", on);
+    window.addEventListener("Raqio:roll", on);
+    return () => window.removeEventListener("Raqio:roll", on);
   }, []);
   return roll;
 }
@@ -76,8 +76,8 @@ export default function Backdrop({ mode = "demo", variant = "site", role }: { mo
   const contents = variant === "site" ? CONTENTS[pathname] : undefined;
   const desk = variant === "desk" ? DESK.find(([p]) => pathname.startsWith(p)) : undefined;
   const isDocs = pathname === "/docs";
-  const label = desk ? `${desk[1]} · ${desk[2]}` : pathname.startsWith("/sign-") ? "SHEET 00/04 · ACCESS" : `SHEET ${sheet?.code ?? "--"}/04 · ${sheet?.name ?? "Rheo"}`;
-  const openRollDoc = (i: number) => window.dispatchEvent(new CustomEvent("Rheo:roll:set", { detail: i }));
+  const label = desk ? `${desk[1]} · ${desk[2]}` : pathname.startsWith("/sign-") ? "SHEET 00/04 · ACCESS" : `SHEET ${sheet?.code ?? "--"}/04 · ${sheet?.name ?? "Raqio"}`;
+  const openRollDoc = (i: number) => window.dispatchEvent(new CustomEvent("Raqio:roll:set", { detail: i }));
 
   return (
     <>
@@ -92,8 +92,8 @@ export default function Backdrop({ mode = "demo", variant = "site", role }: { mo
       </div>
       <div className="bd-over" data-variant={variant}>
         <dl className="bd-plate" aria-hidden="true">
-          <div><dt>DESK</dt><dd>SH-4663</dd></div>
-          <div><dt>CHAIN</dt><dd>ROBINHOOD · 4663</dd></div>
+          <div><dt>DESK</dt><dd>RH-99801</dd></div>
+          <div><dt>CHAIN</dt><dd>ELYSIUM · 99801</dd></div>
           <div><dt>MODE</dt><dd data-mode={mode}>{mode.toUpperCase()}</dd></div>
           {role && <div><dt>ROLE</dt><dd>{role.toUpperCase()}</dd></div>}
           <div><dt>UTC</dt><dd className="bd-clock">{utc}</dd></div>
@@ -141,7 +141,7 @@ export default function Backdrop({ mode = "demo", variant = "site", role }: { mo
         {contents && (
           <div className="bd-stamp" aria-hidden="true">
             <b>CONTROLLED COPY</b>
-            <span>SH-4663 · REV 2026.09</span>
+            <span>RH-99801 · REV 2026.09</span>
           </div>
         )}
       </div>

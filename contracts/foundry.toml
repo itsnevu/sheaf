@@ -17,7 +17,7 @@ remappings = [
 runs = 256
 
 [rpc_endpoints]
-robinhood = "${ROBINHOOD_RPC_URL}"
+elysium = "${ELYSIUM_RPC_URL}"
 
 [lint]
 # block.timestamp comparisons are the intended windows/expiries; events are emitted for every role change.

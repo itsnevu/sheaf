@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { linkWallet, unlinkWallet, verifyWalletSignature } from "@/lib/auth/wallet";
 import { fail, handler, json, readJson } from "@/lib/http";
 
-const Body = z.object({ message: z.string().min(20).max(4000), signature: z.string().regex(/^0x[0-9a-fA-F]+$/) });
+const Body = z.object({ family: z.enum(["ethereum", "solana"]).default("ethereum"), message: z.string().min(20).max(4000), signature: z.string().regex(/^0x[0-9a-fA-F]+$/) });
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +22,7 @@ export const POST = handler(async (req) => {
   if (!session) return fail(401, "Sign in first", "UNAUTHENTICATED");
   const body = Body.parse(await readJson(req));
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
-  const wallet = await verifyWalletSignature({ message: body.message, signature: body.signature, host });
+  const wallet = await verifyWalletSignature({ message: body.message, signature: body.signature, family: body.family, host });
   await linkWallet(session.userId, session.organizationId, session.email, wallet.address);
   return json({ ok: true, walletAddress: wallet.address });
 });

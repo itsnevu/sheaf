@@ -214,7 +214,7 @@ export default function OperationPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="title-2">Route preparation</h2>
-                  <p className="text-[0.875rem] text-ink-soft">One route and fee quote per leg. {batch.mode === "demo" ? "Simulated provider." : "Quoted live from Relay into Robinhood Chain; public rate limits apply."}</p>
+                  <p className="text-[0.875rem] text-ink-soft">One route and fee quote per leg. {batch.mode === "demo" ? "Simulated provider." : "Quoted live from Relay into Elysium; public rate limits apply."}</p>
                 </div>
                 <div className="flex gap-2">
                   {me.can("batch.prepare") && (

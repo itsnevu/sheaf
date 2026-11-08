@@ -67,6 +67,6 @@ export const GET = handler(async (req) => {
     );
   }
   await audit({ organizationId: s.organizationId, batchId: batchId ?? null, actorId: s.userId, actorEmail: s.email, action: "export.downloaded", summary: `Reconciliation export downloaded (${rows.length} rows${batchId ? ", one operation" : ""})`, payload: { rows: rows.length, batchId } });
-  const name = batchId ? `rheo-operation-${batchId}.csv` : `rheo-reconciliation-${new Date().toISOString().slice(0, 10)}.csv`;
+  const name = batchId ? `raqio-operation-${batchId}.csv` : `raqio-reconciliation-${new Date().toISOString().slice(0, 10)}.csv`;
   return new Response(lines.join("\n") + "\n", { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${name}"` } });
 });

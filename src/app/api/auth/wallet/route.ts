@@ -4,7 +4,7 @@ import { signInWithWallet, verifyWalletSignature } from "@/lib/auth/wallet";
 import { fail, handler, json, readJson } from "@/lib/http";
 import { clientIp, rateLimit } from "@/lib/ratelimit";
 
-const Body = z.object({ message: z.string().min(20).max(4000), signature: z.string().regex(/^0x[0-9a-fA-F]+$/) });
+const Body = z.object({ family: z.enum(["ethereum", "solana"]).default("ethereum"), message: z.string().min(20).max(4000), signature: z.string().regex(/^0x[0-9a-fA-F]+$/) });
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export const POST = handler(async (req) => {
   if (!limit.ok) return fail(429, "Too many sign-in attempts. Try again in a few minutes.", "RATE_LIMITED", { "retry-after": String(limit.retryAfterSec) });
   const body = Body.parse(await readJson(req));
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
-  const wallet = await verifyWalletSignature({ message: body.message, signature: body.signature, host });
+  const wallet = await verifyWalletSignature({ message: body.message, signature: body.signature, family: body.family, host });
   const target = await signInWithWallet(wallet.address);
   const token = await createSession(target.userId, target.organizationId);
   setSessionCookie(token);

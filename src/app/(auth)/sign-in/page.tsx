@@ -42,7 +42,7 @@ function SignInForm() {
 
   const demo = (who: string) => {
     setEmail(`${who}@halden.example`);
-    setPassword("Rheo-demo-2026");
+    setPassword("Raqio-demo-2026");
     setPicked(who);
   };
   const badge = ROLES.find((r) => r.who === picked);
@@ -56,7 +56,7 @@ function SignInForm() {
           <dl>
             <div><dt>HOLDER</dt><dd>{badge ? `${badge.who}@halden.example` : "pick a role"}</dd></div>
             <div><dt>ROLE</dt><dd>{badge?.role ?? "—"}</dd></div>
-            <div><dt>DESK</dt><dd>SH-4663 · HALDEN</dd></div>
+            <div><dt>DESK</dt><dd>RH-99801 · HALDEN</dd></div>
           </dl>
         </div>
         <p className="x-badge-sub">ROLES ON THIS DESK</p>

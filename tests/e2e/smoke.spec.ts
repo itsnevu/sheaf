@@ -47,7 +47,7 @@ test.describe("public site and auth", () => {
   });
 
   test("signs in with an injected wallet and lands in a fresh workspace", async ({ page }) => {
-    await page.exposeFunction("__RheoSign", async (hexMessage: string) => WALLET.signMessage({ message: { raw: hexMessage as `0x${string}` } }));
+    await page.exposeFunction("__RaqioSign", async (hexMessage: string) => WALLET.signMessage({ message: { raw: hexMessage as `0x${string}` } }));
     await page.addInitScript((address) => {
       const listeners: Record<string, Array<(...a: unknown[]) => void>> = {};
       (window as unknown as { ethereum: unknown }).ethereum = {
@@ -55,7 +55,7 @@ test.describe("public site and auth", () => {
         request: async ({ method, params }: { method: string; params?: unknown[] }) => {
           if (method === "eth_requestAccounts" || method === "eth_accounts") return [address];
           if (method === "eth_chainId") return "0x2105";
-          if (method === "personal_sign") return (window as unknown as { __RheoSign: (m: string) => Promise<string> }).__RheoSign(String(params?.[0]));
+          if (method === "personal_sign") return (window as unknown as { __RaqioSign: (m: string) => Promise<string> }).__RaqioSign(String(params?.[0]));
           throw new Error(`unsupported ${method}`);
         },
         on: (e: string, fn: (...a: unknown[]) => void) => ((listeners[e] ??= []).push(fn), undefined),

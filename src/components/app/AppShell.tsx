@@ -23,6 +23,10 @@ export function useMe(): MeContext {
 
 const NAV: Array<{ href: string; label: string; exact?: boolean }> = [
   { href: "/app", label: "Overview", exact: true },
+  { href: "/app/streams", label: "Streams" },
+  { href: "/app/lock", label: "Lock" },
+  { href: "/app/explore", label: "Explore" },
+  { href: "/app/airdrop", label: "Airdrops" },
   { href: "/app/batches", label: "Operations" },
   { href: "/app/executions", label: "Executions" },
   { href: "/app/reconciliation", label: "Reconciliation" },

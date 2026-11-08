@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import { hashPassword } from "@/lib/auth/session";
+import { verifySolanaMessage } from "@/lib/auth/solana";
 
 /**
  * Sign-In with Ethereum (EIP-4361). The server hands out a nonce in an httpOnly cookie, the
@@ -14,7 +15,7 @@ import { hashPassword } from "@/lib/auth/session";
  * the credential, a placeholder email keeps the schema simple, and the first sign-in creates a
  * workspace owned by the wallet.
  */
-export const NONCE_COOKIE = "rheo_siwe_nonce";
+export const NONCE_COOKIE = "raqio_siwe_nonce";
 const NONCE_TTL_SEC = 300;
 
 export function issueNonce(): string {
@@ -35,9 +36,10 @@ export interface VerifiedWallet {
 }
 
 /** Verifies a signed SIWE message against the nonce cookie and the request host. Throws HttpError. */
-export async function verifyWalletSignature(input: { message: string; signature: string; host: string; nonce?: string | null }): Promise<VerifiedWallet> {
+export async function verifyWalletSignature(input: { message: string; signature: string; host: string; nonce?: string | null; family?: "ethereum" | "solana" }): Promise<VerifiedWallet> {
   const nonce = input.nonce === undefined ? readNonce() : input.nonce;
   if (!nonce) throw new HttpError(400, "Sign-in nonce expired. Try again.", "NONCE_MISSING");
+  if (input.family === "solana") return verifySolanaMessage({ ...input, host: input.host.replace(/^https?:\/\//, ""), nonce });
   const parsed = parseSiweMessage(input.message);
   if (!parsed.address || !parsed.nonce) throw new HttpError(400, "Malformed sign-in message", "BAD_MESSAGE");
   const host = input.host.replace(/^https?:\/\//, "");
@@ -68,9 +70,9 @@ export async function signInWithWallet(address: string): Promise<{ userId: strin
   const short = shortWallet(address);
   let slug = `wallet-${address.slice(2, 10)}`;
   if (await db.organization.findUnique({ where: { slug } })) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
-  const org = await db.organization.create({ data: { name: `Workspace ${short}`, slug } });
+  const org = await db.organization.create({ data: { name: `Workspace ${short}`, slug, originChainId: 99801, destinationChainId: 99801 } });
   // Wallet accounts have no password; a random hash keeps the column non-null and unguessable.
-  const user = await db.user.create({ data: { name: `Wallet ${short}`, email: `${address}@wallet.rheo.invalid`, passwordHash: hashPassword(generateSiweNonce() + generateSiweNonce()), walletAddress: address } });
+  const user = await db.user.create({ data: { name: `Wallet ${short}`, email: `${address}@wallet.raqio.invalid`, passwordHash: hashPassword(generateSiweNonce() + generateSiweNonce()), walletAddress: address } });
   await db.membership.create({ data: { userId: user.id, organizationId: org.id, role: "OWNER" } });
   await audit({ organizationId: org.id, actorId: user.id, actorEmail: user.email, action: "organization.created", summary: `Workspace “${org.name}” created by wallet ${short}` });
   return { userId: user.id, organizationId: org.id, created: true };

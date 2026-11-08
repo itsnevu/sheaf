@@ -1,6 +1,6 @@
 /**
  * Everything the printer can print. SERIES picks a topic, WORK picks a page in it. Every line
- * is Rheo's own copy; the printer only decides how it looks.
+ * is Raqio's own copy; the printer only decides how it looks.
  */
 export type Line =
   | { kind: "h1"; text: string }
@@ -28,7 +28,7 @@ export interface Series {
 }
 
 const stamp = (code: string, title: string): Line[] => [
-  { kind: "row", cols: ["Rheo", code, "EXECUTION DESK"] },
+  { kind: "row", cols: ["Raqio", code, "EXECUTION DESK"] },
   { kind: "rule" },
   { kind: "h1", text: title },
 ];
@@ -36,22 +36,22 @@ const stamp = (code: string, title: string): Line[] => [
 export const SERIES: Series[] = [
   {
     letter: "A",
-    name: "Rheo",
+    name: "Raqio",
     works: [
       {
         code: "A-01",
-        title: "The private execution desk for Robinhood Chain.",
+        title: "The private execution desk for Elysium.",
         lines: [
           ...stamp("A-01", "THE PRIVATE EXECUTION DESK"),
-          { kind: "h1", text: "FOR ROBINHOOD CHAIN." },
+          { kind: "h1", text: "FOR ELYSIUM." },
           { kind: "gap" },
-          { kind: "p", text: "A Rheo is one controlled operation made of legs, executed from one desk. Claim an allocation, accumulate a position, settle an OTC block or run a treasury without the owning wallet appearing as the destination on-chain." },
+          { kind: "p", text: "A Raqio is one controlled operation made of legs, executed from one desk. Claim an allocation, accumulate a position, settle an OTC block or run a treasury without the owning wallet appearing as the destination on-chain." },
           { kind: "gap" },
-          { kind: "kv", k: "CHAIN", v: "Robinhood Chain · id 4663" },
+          { kind: "kv", k: "CHAIN", v: "Elysium · id 99801" },
           { kind: "kv", k: "SETTLEMENT", v: "USDG" },
           { kind: "kv", k: "MODE", v: "Demo desk, no keys needed" },
           { kind: "rule", style: "dots" },
-          { kind: "img", src: "/art/print/Rheo.png", alt: "A bound Rheo of operation legs" },
+          { kind: "img", src: "/art/print/Raqio.png", alt: "A bound Raqio of operation legs" },
           { kind: "rule", style: "dots" },
           { kind: "cta", text: "OPEN THE DEMO DESK →", href: "/sign-in" },
           { kind: "small", text: "Private externally. Transparent internally. Turn SERIES to B for the four operations." },
@@ -63,7 +63,7 @@ export const SERIES: Series[] = [
         title: "Who it is for",
         lines: [
           ...stamp("A-02", "WHO IT IS FOR"),
-          { kind: "p", text: "Teams that move size on Robinhood Chain and do not want the wallet that owns the funds, or the eligibility, to be the address everyone watches." },
+          { kind: "p", text: "Teams that move size on Elysium and do not want the wallet that owns the funds, or the eligibility, to be the address everyone watches." },
           { kind: "gap" },
           { kind: "row", cols: ["DESK", "RUNS", "OPERATION"], head: true },
           { kind: "row", cols: ["Launch team", "allocations", "CLAIM"] },
@@ -79,7 +79,7 @@ export const SERIES: Series[] = [
         title: "Principles",
         lines: [
           ...stamp("A-03", "PRINCIPLES"),
-          { kind: "kv", k: "01", v: "One Rheo, many legs. Each leg is a transfer with its own receipt." },
+          { kind: "kv", k: "01", v: "One Raqio, many legs. Each leg is a transfer with its own receipt." },
           { kind: "kv", k: "02", v: "Nothing executes without a second pair of eyes. The preparer cannot approve." },
           { kind: "kv", k: "03", v: "State what stays visible. Amounts, timing and the desk contract are public." },
           { kind: "kv", k: "04", v: "Never say anonymous. Correlation is possible; the copy says so." },
@@ -102,7 +102,7 @@ export const SERIES: Series[] = [
           { kind: "kv", k: "PROVES", v: "Merkle proof + signature" },
           { kind: "kv", k: "LIMIT", v: "one claim per account" },
           { kind: "kv", k: "WINDOW", v: "closes; owner sweeps the rest" },
-          { kind: "small", text: "Stock Tokens carry transfer restrictions. A fresh, unverified recipient cannot hold them." },
+          { kind: "small", text: "Restricted tokens carry transfer restrictions. A fresh, unverified recipient cannot hold them." },
         ],
       },
       {
@@ -155,37 +155,37 @@ export const SERIES: Series[] = [
           { kind: "row", cols: ["Claim event: account → recipient", "yes"] },
           { kind: "row", cols: ["Owner wallet as destination", "no"] },
           { kind: "rule" },
-          { kind: "small", text: "Correlation by amount and timing is possible. Rheo does not claim otherwise." },
+          { kind: "small", text: "Correlation by amount and timing is possible. Raqio does not claim otherwise." },
         ],
       },
     ],
   },
   {
     letter: "C",
-    name: "HOW A Rheo RUNS",
+    name: "HOW A Raqio RUNS",
     works: [
-      { code: "C-01", title: "Legs", lines: [...stamp("C-01", "1 · LEGS"), { kind: "p", text: "Pick a kind, then add legs. Paste them or drop a CSV: label, address, asset, amount, not-before, memo. Rheo keeps the file exactly as you sent it." }, { kind: "rule", style: "dots" }, { kind: "row", cols: ["label", "address", "asset", "amount", "not-before"], head: true }, { kind: "row", cols: ["leg-01", "0x8f3…c21e", "USDG", "25,000", "09:00"] }, { kind: "row", cols: ["leg-02", "0x91d…4b7a", "USDG", "25,000", "11:30"] }, { kind: "row", cols: ["leg-03", "0x2c8…9f03", "USDG", "20,000", "14:00"] }] },
-      { code: "C-02", title: "Validate", lines: [...stamp("C-02", "2 · VALIDATE"), { kind: "p", text: "Every leg is checked before anything is signed: checksum addresses, supported assets, amount precision, duplicates, not-before order, and a balance check against the funding wallet." }, { kind: "kv", k: "PASS", v: "7 legs" }, { kind: "kv", k: "WARN", v: "1 leg · memo missing" }, { kind: "kv", k: "FAIL", v: "0 legs" }, { kind: "small", text: "Stock Token legs to unverified recipients fail here, not on-chain." }] },
-      { code: "C-03", title: "Route", lines: [...stamp("C-03", "3 · ROUTE"), { kind: "p", text: "Each leg gets a route. On Robinhood Chain it is a desk contract call. When funds start elsewhere, the route is quoted through Relay and shown before approval." }, { kind: "row", cols: ["LEG", "FROM", "TO", "FEE"], head: true }, { kind: "row", cols: ["01", "StealthDesk", "Robinhood", "$0.01"] }, { kind: "row", cols: ["02", "StealthDesk", "Robinhood", "$0.01"] }, { kind: "row", cols: ["03", "Base USDC", "Robinhood", "$0.38"] }] },
-      { code: "C-04", title: "Approve", lines: [...stamp("C-04", "4 · APPROVE"), { kind: "p", text: "The preparer cannot approve their own Rheo. The approver sees totals per asset, the full leg list and every warning, then signs off once. Any edit invalidates the approval." }, { kind: "kv", k: "PREPARED BY", v: "desk@" }, { kind: "kv", k: "APPROVED BY", v: "cio@" }, { kind: "kv", k: "TOTAL", v: "180,000 USDG" }] },
+      { code: "C-01", title: "Legs", lines: [...stamp("C-01", "1 · LEGS"), { kind: "p", text: "Pick a kind, then add legs. Paste them or drop a CSV: label, address, asset, amount, not-before, memo. Raqio keeps the file exactly as you sent it." }, { kind: "rule", style: "dots" }, { kind: "row", cols: ["label", "address", "asset", "amount", "not-before"], head: true }, { kind: "row", cols: ["leg-01", "0x8f3…c21e", "USDG", "25,000", "09:00"] }, { kind: "row", cols: ["leg-02", "0x91d…4b7a", "USDG", "25,000", "11:30"] }, { kind: "row", cols: ["leg-03", "0x2c8…9f03", "USDG", "20,000", "14:00"] }] },
+      { code: "C-02", title: "Validate", lines: [...stamp("C-02", "2 · VALIDATE"), { kind: "p", text: "Every leg is checked before anything is signed: checksum addresses, supported assets, amount precision, duplicates, not-before order, and a balance check against the funding wallet." }, { kind: "kv", k: "PASS", v: "7 legs" }, { kind: "kv", k: "WARN", v: "1 leg · memo missing" }, { kind: "kv", k: "FAIL", v: "0 legs" }, { kind: "small", text: "Restricted token legs to unverified recipients fail here, not on-chain." }] },
+      { code: "C-03", title: "Route", lines: [...stamp("C-03", "3 · ROUTE"), { kind: "p", text: "Each leg gets a route. On Elysium it is a desk contract call. When funds start elsewhere, the route is quoted through Relay and shown before approval." }, { kind: "row", cols: ["LEG", "FROM", "TO", "FEE"], head: true }, { kind: "row", cols: ["01", "StealthDesk", "Elysium", "$0.01"] }, { kind: "row", cols: ["02", "StealthDesk", "Elysium", "$0.01"] }, { kind: "row", cols: ["03", "Base USDC", "Elysium", "$0.38"] }] },
+      { code: "C-04", title: "Approve", lines: [...stamp("C-04", "4 · APPROVE"), { kind: "p", text: "The preparer cannot approve their own Raqio. The approver sees totals per asset, the full leg list and every warning, then signs off once. Any edit invalidates the approval." }, { kind: "kv", k: "PREPARED BY", v: "desk@" }, { kind: "kv", k: "APPROVED BY", v: "cio@" }, { kind: "kv", k: "TOTAL", v: "180,000 USDG" }] },
       { code: "C-05", title: "Fund and execute", lines: [...stamp("C-05", "5 · FUND AND EXECUTE"), { kind: "p", text: "The desk contract is funded once. A worker then executes leg by leg after each not-before, with retries and idempotency keys, so a flaky RPC never double-pays." }, { kind: "row", cols: ["LEG", "STATUS", "HASH"], head: true }, { kind: "row", cols: ["01", "executed", "0x4e1…77aa"] }, { kind: "row", cols: ["02", "executed", "0xd2c…08be"] }, { kind: "row", cols: ["03", "waiting", "—"] }] },
-      { code: "C-06", title: "Reconcile", lines: [...stamp("C-06", "6 · RECONCILE"), { kind: "p", text: "Executed legs are matched back to the plan, exported as CSV, and the Rheo closes with an append-only audit trail. Demo records are labelled simulated." }, { kind: "kv", k: "MATCHED", v: "8 / 8" }, { kind: "kv", k: "EXPORT", v: "Rheo-2026-09-14.csv" }, { kind: "cta", text: "READ THE DOCS →", href: "/docs" }], href: "/docs" },
+      { code: "C-06", title: "Reconcile", lines: [...stamp("C-06", "6 · RECONCILE"), { kind: "p", text: "Executed legs are matched back to the plan, exported as CSV, and the Raqio closes with an append-only audit trail. Demo records are labelled simulated." }, { kind: "kv", k: "MATCHED", v: "8 / 8" }, { kind: "kv", k: "EXPORT", v: "Raqio-2026-09-14.csv" }, { kind: "cta", text: "READ THE DOCS →", href: "/docs" }], href: "/docs" },
     ],
   },
   {
     letter: "D",
     name: "A SAMPLE OPERATION",
     works: [
-      { code: "D-01", title: "Sample plan", lines: [...stamp("D-01", "Rheo #0142 · ACCUMULATE · SAMPLE"), { kind: "kv", k: "KIND", v: "Stealth accumulation" }, { kind: "kv", k: "CONTRACT", v: "StealthDesk" }, { kind: "kv", k: "LEGS", v: "8 · 180,000 USDG" }, { kind: "kv", k: "STATE", v: "executing · 5 executed" }, { kind: "rule", style: "dots" }, { kind: "row", cols: ["#", "RECIPIENT", "AMOUNT", "STATE"], head: true }, { kind: "row", cols: ["01", "0x8f3…c21e", "25,000 USDG", "executed"] }, { kind: "row", cols: ["02", "0x91d…4b7a", "25,000 USDG", "executed"] }, { kind: "row", cols: ["03", "0x2c8…9f03", "20,000 USDG", "executed"] }, { kind: "row", cols: ["04", "0x5a0…e118", "20,000 USDG", "executed"] }, { kind: "row", cols: ["05", "0xb77…30cd", "25,000 USDG", "executed"] }, { kind: "row", cols: ["06", "0x3e9…a4f2", "20,000 USDG", "retrying"] }, { kind: "row", cols: ["07", "hidden", "hidden", "committed"] }, { kind: "row", cols: ["08", "hidden", "hidden", "committed"] }, { kind: "rule" }, { kind: "small", text: "Sample data. Legs 07 and 08 are committed in the Merkle root and not yet revealed on-chain." }] },
+      { code: "D-01", title: "Sample plan", lines: [...stamp("D-01", "Raqio #0142 · ACCUMULATE · SAMPLE"), { kind: "kv", k: "KIND", v: "Stealth accumulation" }, { kind: "kv", k: "CONTRACT", v: "StealthDesk" }, { kind: "kv", k: "LEGS", v: "8 · 180,000 USDG" }, { kind: "kv", k: "STATE", v: "executing · 5 executed" }, { kind: "rule", style: "dots" }, { kind: "row", cols: ["#", "RECIPIENT", "AMOUNT", "STATE"], head: true }, { kind: "row", cols: ["01", "0x8f3…c21e", "25,000 USDG", "executed"] }, { kind: "row", cols: ["02", "0x91d…4b7a", "25,000 USDG", "executed"] }, { kind: "row", cols: ["03", "0x2c8…9f03", "20,000 USDG", "executed"] }, { kind: "row", cols: ["04", "0x5a0…e118", "20,000 USDG", "executed"] }, { kind: "row", cols: ["05", "0xb77…30cd", "25,000 USDG", "executed"] }, { kind: "row", cols: ["06", "0x3e9…a4f2", "20,000 USDG", "retrying"] }, { kind: "row", cols: ["07", "hidden", "hidden", "committed"] }, { kind: "row", cols: ["08", "hidden", "hidden", "committed"] }, { kind: "rule" }, { kind: "small", text: "Sample data. Legs 07 and 08 are committed in the Merkle root and not yet revealed on-chain." }] },
       { code: "D-02", title: "Receipt", lines: [...stamp("D-02", "RECEIPT · LEG 01 · SAMPLE"), { kind: "kv", k: "TO", v: "0x8f3…c21e (fresh)" }, { kind: "kv", k: "AMOUNT", v: "25,000 USDG" }, { kind: "kv", k: "VIA", v: "StealthDesk · executeLeg" }, { kind: "kv", k: "NOT BEFORE", v: "2026-09-14 09:00:00Z" }, { kind: "kv", k: "HASH", v: "0x4e19…77aa" }, { kind: "kv", k: "EXECUTED", v: "2026-09-14 09:31:02Z" }, { kind: "kv", k: "APPROVED BY", v: "cio@" }, { kind: "rule", style: "dots" }, { kind: "small", text: "Every leg prints one of these. On-chain, the payout shows the desk contract as sender, not the treasury." }] },
-      { code: "D-03", title: "Audit trail", lines: [...stamp("D-03", "AUDIT TRAIL · #0142 · SAMPLE"), { kind: "row", cols: ["09:02", "desk@", "Rheo created"] }, { kind: "row", cols: ["09:04", "system", "8 legs validated"] }, { kind: "row", cols: ["09:06", "desk@", "routes prepared"] }, { kind: "row", cols: ["09:20", "cio@", "approved"] }, { kind: "row", cols: ["09:24", "desk@", "funded · plan committed"] }, { kind: "row", cols: ["09:31", "worker", "leg 01 executed"] }, { kind: "row", cols: ["…", "", ""] }, { kind: "small", text: "Append-only. Nothing here can be edited or removed." }] },
+      { code: "D-03", title: "Audit trail", lines: [...stamp("D-03", "AUDIT TRAIL · #0142 · SAMPLE"), { kind: "row", cols: ["09:02", "desk@", "Raqio created"] }, { kind: "row", cols: ["09:04", "system", "8 legs validated"] }, { kind: "row", cols: ["09:06", "desk@", "routes prepared"] }, { kind: "row", cols: ["09:20", "cio@", "approved"] }, { kind: "row", cols: ["09:24", "desk@", "funded · plan committed"] }, { kind: "row", cols: ["09:31", "worker", "leg 01 executed"] }, { kind: "row", cols: ["…", "", ""] }, { kind: "small", text: "Append-only. Nothing here can be edited or removed." }] },
     ],
   },
   {
     letter: "E",
     name: "SECURITY / PRIVACY",
     works: [
-      { code: "E-01", title: "Security", lines: [...stamp("E-01", "SECURITY"), { kind: "p", text: "Rheo never holds your private keys. Real mode signs with the connected wallet in the browser; the server prepares, approves and records. Four-eyes is enforced by the contracts, not only by the app." }, { kind: "kv", k: "SESSIONS", v: "httpOnly, sameSite, rotated" }, { kind: "kv", k: "HEADERS", v: "CSP, HSTS, no sniff, no frames" }, { kind: "kv", k: "AUDIT", v: "append-only, trigger-enforced" }, { kind: "cta", text: "SECURITY PAGE →", href: "/security" }], href: "/security" },
+      { code: "E-01", title: "Security", lines: [...stamp("E-01", "SECURITY"), { kind: "p", text: "Raqio never holds your private keys. Real mode signs with the connected wallet in the browser; the server prepares, approves and records. Four-eyes is enforced by the contracts, not only by the app." }, { kind: "kv", k: "SESSIONS", v: "httpOnly, sameSite, rotated" }, { kind: "kv", k: "HEADERS", v: "CSP, HSTS, no sniff, no frames" }, { kind: "kv", k: "AUDIT", v: "append-only, trigger-enforced" }, { kind: "cta", text: "SECURITY PAGE →", href: "/security" }], href: "/security" },
       { code: "E-02", title: "Privacy", lines: [...stamp("E-02", "PRIVACY"), { kind: "p", text: "On-chain: the owning wallet is not the destination. Amounts, timing, the desk contract and claim events are public, and correlation is possible. Off-chain: your operations, legs and approvals are yours and are not shared." }, { kind: "cta", text: "PRIVACY PAGE →", href: "/privacy" }], href: "/privacy" },
     ],
   },
@@ -200,7 +200,7 @@ export const SERIES: Series[] = [
     letter: "G",
     name: "START",
     works: [
-      { code: "G-01", title: "Start", lines: [...stamp("G-01", "START"), { kind: "p", text: "The demo desk simulates everything and labels it simulated: real validation, real route quotes, no funds moved. Switch to real mode with your own wallet on Robinhood Chain when you are ready." }, { kind: "cta", text: "OPEN THE DEMO DESK →", href: "/sign-in" }, { kind: "small", text: "Right-click the print to copy or save it." }], href: "/sign-in" },
+      { code: "G-01", title: "Start", lines: [...stamp("G-01", "START"), { kind: "p", text: "The demo desk simulates everything and labels it simulated: real validation, real route quotes, no funds moved. Switch to real mode with your own wallet on Elysium when you are ready." }, { kind: "cta", text: "OPEN THE DEMO DESK →", href: "/sign-in" }, { kind: "small", text: "Right-click the print to copy or save it." }], href: "/sign-in" },
     ],
   },
 ];
@@ -216,7 +216,7 @@ export function missingWork(series: Series, workNumber: string): Work {
   return {
     code: `${series.letter}-${workNumber}`,
     title: "Nothing here",
-    lines: [{ kind: "row", cols: ["Rheo", `${series.letter}-${workNumber}`, "NO WORK"] }, { kind: "rule" }, { kind: "p", text: `Series ${series.letter} (${series.name}) has ${series.works.length} page${series.works.length === 1 ? "" : "s"}. Turn WORK back to 01–${String(series.works.length).padStart(2, "0")}.` }],
+    lines: [{ kind: "row", cols: ["Raqio", `${series.letter}-${workNumber}`, "NO WORK"] }, { kind: "rule" }, { kind: "p", text: `Series ${series.letter} (${series.name}) has ${series.works.length} page${series.works.length === 1 ? "" : "s"}. Turn WORK back to 01–${String(series.works.length).padStart(2, "0")}.` }],
   };
 }
 

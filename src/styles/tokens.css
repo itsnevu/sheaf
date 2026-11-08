@@ -1,4 +1,5 @@
 :root {
+ --electric-secondary:#b4c7ff;
  --electric:#0040ff; --navy:#00126b; --navy-deep:#000b66; --ink-blue:#33499b; --sky:#7fa0ff; --ice:#f2f4ff;
  --ice-85:rgba(242,244,255,.85); --ice-50:rgba(242,244,255,.50); --ice-15:rgba(242,244,255,.15);
  --paper:#f2f2f0; --paper-ink:#00126b; --success:#3ddc97; --danger:#ff5a5f;

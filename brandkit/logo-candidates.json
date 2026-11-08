@@ -1,0 +1,137 @@
+[
+  {
+    "brand_context": {
+      "name": "Raqio",
+      "offering": "Token vesting and streaming on Elysium",
+      "industry": "Web3 infrastructure",
+      "audience": "Builders and token distribution teams",
+      "positioning": "Value released over time; no additional product claims"
+    },
+    "visual_axes": {
+      "restrained_expressive": 50,
+      "geometric_organic": 50,
+      "familiar_experimental": 50
+    },
+    "candidate": {
+      "name": "Rill",
+      "mark_type": "lettermark_monogram",
+      "central_idea": "A single fluid lowercase r built from one folded stroke",
+      "visual_mechanism": "Lowercase r: a thick vertical stem curves outward at its upper third into an asymmetrical rounded shoulder with a short downward terminal; a broad, deliberate diagonal channel opens through the shoulder.",
+      "distinctive_element": "Open diagonal notch through a compact curved r shoulder; short low terminal and broad vertical stem.",
+      "shape_logic": "One connected silhouette, outer round shoulders, broad negative-space opening, blunt terminals, width slightly less than height.",
+      "treatment": "flat_vector",
+      "style_register": "restrained fluid-tech identity",
+      "user_style_directive": "Fluid, minimal and iconic without reproducing a reference brand",
+      "composition": "One compact centered mark, generous clear space."
+    },
+    "palette": {
+      "count": 2,
+      "user_requested_more_than_three": false,
+      "roles": [
+        "primary",
+        "background"
+      ]
+    },
+    "reference_signals": [
+      "fluid silhouette",
+      "low-detail icon",
+      "confident solid fill",
+      "recognizable at small sizes"
+    ],
+    "forbidden_elements": [
+      "Do not reproduce Hyperliquid's logo geometry or negative space",
+      "No infinity symbol, H-shaped blob, generic droplet, gradients, bevels, mockups, ornamental initials",
+      "No wordmark or extra text"
+    ]
+  },
+  {
+    "brand_context": {
+      "name": "Raqio",
+      "offering": "Token vesting and streaming on Elysium",
+      "industry": "Web3 infrastructure",
+      "audience": "Builders and token distribution teams",
+      "positioning": "Value released over time; no additional product claims"
+    },
+    "visual_axes": {
+      "restrained_expressive": 50,
+      "geometric_organic": 50,
+      "familiar_experimental": 50
+    },
+    "candidate": {
+      "name": "Tidecut",
+      "mark_type": "abstract",
+      "central_idea": "A single current folding through a right-angled channel",
+      "visual_mechanism": "One solid thick ribbon enters from the lower left, rises through a soft ninety-degree elbow, then exits toward the upper right; its outer silhouette is an asymmetric compact diagonal wedge.",
+      "distinctive_element": "One broad off-center rectangular inlet notch with a concave inner elbow and an oblique upper exit.",
+      "shape_logic": "One unified solid shape, two blunt flat exits, two convex outer corners and one deeply concave corner, no loop.",
+      "treatment": "flat_vector",
+      "style_register": "fluid technical precision",
+      "user_style_directive": "Fluid, minimal and iconic without reproducing a reference brand",
+      "composition": "Centered compact diagonal mark with equal optical clear space."
+    },
+    "palette": {
+      "count": 2,
+      "user_requested_more_than_three": false,
+      "roles": [
+        "primary",
+        "background"
+      ]
+    },
+    "reference_signals": [
+      "fluid silhouette",
+      "low-detail icon",
+      "confident solid fill",
+      "recognizable at small sizes"
+    ],
+    "forbidden_elements": [
+      "Do not reproduce Hyperliquid's logo geometry or negative space",
+      "No infinity symbol, H-shaped blob, generic droplet, gradients, bevels, mockups, ornamental initials",
+      "No wordmark or extra text"
+    ]
+  },
+  {
+    "brand_context": {
+      "name": "Raqio",
+      "offering": "Token vesting and streaming on Elysium",
+      "industry": "Web3 infrastructure",
+      "audience": "Builders and token distribution teams",
+      "positioning": "Value released over time; no additional product claims"
+    },
+    "visual_axes": {
+      "restrained_expressive": 50,
+      "geometric_organic": 50,
+      "familiar_experimental": 50
+    },
+    "candidate": {
+      "name": "Meter",
+      "mark_type": "abstract",
+      "central_idea": "Three equal releases progressing through time",
+      "visual_mechanism": "Three short thick horizontal bars with rounded left ends and square-cut right ends; the middle bar is offset a half-bar length right and the lowest bar a quarter-bar length right, forming a compact asymmetric stair-step.",
+      "distinctive_element": "Alternating concave gaps between three equal bars create a distinctive stepped right edge rather than a wave or chevron.",
+      "shape_logic": "Three separated solid elements, broad equal spacing, controlled one-sided rounding, compact nearly square footprint.",
+      "treatment": "flat_vector",
+      "style_register": "calm mechanical rhythm",
+      "user_style_directive": "Fluid, minimal and iconic without reproducing a reference brand",
+      "composition": "Single isolated three-part symbol centered with generous clear space."
+    },
+    "palette": {
+      "count": 2,
+      "user_requested_more_than_three": false,
+      "roles": [
+        "primary",
+        "background"
+      ]
+    },
+    "reference_signals": [
+      "fluid silhouette",
+      "low-detail icon",
+      "confident solid fill",
+      "recognizable at small sizes"
+    ],
+    "forbidden_elements": [
+      "Do not reproduce Hyperliquid's logo geometry or negative space",
+      "No infinity symbol, H-shaped blob, generic droplet, gradients, bevels, mockups, ornamental initials",
+      "No wordmark or extra text"
+    ]
+  }
+]

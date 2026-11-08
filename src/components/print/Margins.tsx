@@ -24,7 +24,7 @@ const OBSERVERS: Array<[string, string, string]> = [
   ["Validators, sequencer, RPC", "●●●○○", "plus submitting IP"],
   ["Route provider (Relay)", "●●●○○", "cross-chain legs only"],
   ["Wallet provider", "●●●○○", "every signed transaction"],
-  ["Rheo hosting operators", "●●●●●", "everything in the database"],
+  ["Raqio hosting operators", "●●●●●", "everything in the database"],
   ["Your desk operators", "●●●●●", "by design"],
   ["Your viewers", "●◐●●○", "addresses redacted"],
 ];

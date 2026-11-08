@@ -78,7 +78,7 @@ export default function NewOperationPage() {
             );
           })}
         </div>
-        <p className="mt-3 text-[0.8125rem] text-ink-faint">Privacy means the wallet that owns the funds or the eligibility is not the destination on-chain. Amounts, timing and the desk contract address stay visible. Fresh addresses can hold USDG; Robinhood Stock Tokens have transfer restrictions on sender and receiver, so an unverified fresh address cannot hold them.</p>
+        <p className="mt-3 text-[0.8125rem] text-ink-faint">The wallet that owns the funds is not the destination on-chain. Amounts, timing and the desk contract address stay visible. Token transfers remain subject to each token contract&apos;s rules; verify recipient eligibility before executing.</p>
       </section>
 
       <form onSubmit={submit} className="card max-w-xl p-6 space-y-5" noValidate>

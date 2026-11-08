@@ -1,6 +1,6 @@
 /**
  * Draws the security and privacy model as one microfiche sheet: a grid of framed panels on a
- * pale card, read by panning and zooming in the viewer. Text is Rheo's own security page.
+ * pale card, read by panning and zooming in the viewer. Text is Raqio's own security page.
  */
 export const SHEET_SIZE = 1600;
 
@@ -9,7 +9,7 @@ export const OBSERVERS: [string, string][] = [
   ["Validators, sequencers, RPC providers", "The same, plus the submitting IP and mempool timing."],
   ["Route provider (Relay) and its solvers", "For cross-chain legs only: every quote, deposit and fill. Its public request feed lists user → recipient pairs without authentication (verified)."],
   ["Wallet providers", "The connected wallet address, every signed transaction and message, the dapp origin."],
-  ["Rheo hosting operators", "Everything in the database: operations, legs, labels, memos, unrevealed plans, approvals, the original CSV."],
+  ["Raqio hosting operators", "Everything in the database: operations, legs, labels, memos, unrevealed plans, approvals, the original CSV."],
   ["Your desk operators and approvers", "Everything in your organisation, by design. Viewers see redacted addresses."],
 ];
 
@@ -21,16 +21,16 @@ export const IMPLEMENTED = [
   "Approvals bind to a hash of the leg set and are invalidated by any change.",
   "Append-only audit events for every state change, download and export, enforced by the data layer and by database triggers.",
   "Labels, memos, unrevealed plan legs and CSV originals are encrypted at rest (AES-256-GCM).",
-  "Rate-limited sign-in and sign-up; the server refuses to start in production with placeholder secrets.",
+  "Rate-limited sign-in and sign-up; the server refuses to start in production with placeholder secrets.", // raqio:real-data-ok
   "Idempotency keys and a duplicate-send guard: a leg is never re-sent while its last attempt is pending or unknown.",
   "Not-before is respected by the worker and, for StealthDesk, by the contract.",
 ];
 
 export const NOT_IMPLEMENTED = [
-  "Hiding amounts, timing or the desk contract address. All of it is public on Robinhood Chain.",
+  "Hiding amounts, timing or the desk contract address. All of it is public on Elysium.",
   "Hiding the claim link: PrivateClaim emits an event that names both the eligible account and its recipient.",
   "Mixing, shielded pools, zero-knowledge transfers or any privacy protocol.",
-  "Verifying a recipient for Robinhood Stock Tokens. Transfer restrictions apply; a fresh, unverified address cannot hold them.",
+  "Verifying a recipient for Tokens with transfer restrictions. Transfer restrictions apply; a fresh, unverified address cannot hold them.",
   "Gasless claims, prize or reward settlement, non-EVM addresses.",
   "Externally anchored audit storage; per-organisation KMS keys; hardware-key or SSO authentication.",
 ];
@@ -87,7 +87,7 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   ctx.fillStyle = ink;
   ctx.font = `600 34px ${labelFont}`;
   ctx.textBaseline = "middle";
-  ctx.fillText("Rheo  ·  SECURITY & PRIVACY MODEL  ·  FICHE 01", 150, 158);
+  ctx.fillText("Raqio  ·  SECURITY & PRIVACY MODEL  ·  FICHE 01", 150, 158);
   ctx.font = `18px ${labelFont}`;
   ctx.textAlign = "right";
   ctx.fillText("docs/security/privacy-threat-model.md", SHEET_SIZE - 150, 158);
@@ -96,11 +96,11 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   // Title block
   ctx.font = `700 46px ${textFont}`;
   ctx.textBaseline = "top";
-  ctx.fillText("HONEST SCOPE: WHAT Rheo PROTECTS,", 130, 240);
+  ctx.fillText("HONEST SCOPE: WHAT Raqio PROTECTS,", 130, 240);
   ctx.fillText("AND WHAT IT CANNOT.", 130, 296);
   ctx.font = `21px ${textFont}`;
   let y = 372;
-  for (const line of wrap(ctx, "Rheo is the private execution desk for Robinhood Chain. Privacy here means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing, the desk contract address and every contract event stay public. This sheet summarises the full threat model kept in the repository.", 1000)) {
+  for (const line of wrap(ctx, "Raqio is the private execution desk for Elysium. Privacy here means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing, the desk contract address and every contract event stay public. This sheet summarises the full threat model kept in the repository.", 1000)) {
     ctx.fillText(line, 130, y);
     y += 28;
   }
@@ -173,7 +173,7 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   // On-chain reality
   panel(710, 1090, 770, 300, "ON-CHAIN REALITY");
   ctx.font = `600 15px ${textFont}`;
-  ctx.fillText("ON ROBINHOOD CHAIN (DEFAULT)", 726, 1134);
+  ctx.fillText("ON ELYSIUM (DEFAULT)", 726, 1134);
   ctx.font = `14px ${textFont}`;
   y = 1156;
   for (const l of wrap(ctx, "The owning wallet funds a desk contract (PrivateClaim, StealthDesk, OtcEscrow or DelegatedTreasury). Every payout is then a public transfer from that contract to a recipient. The owner is not the destination, but the funding transfer, each payout and each event are visible and can be correlated by amount and timing.", 350)) {
@@ -184,7 +184,7 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   ctx.fillText("CROSS-CHAIN LEGS", 1100, 1134);
   ctx.font = `14px ${textFont}`;
   y = 1156;
-  for (const l of wrap(ctx, "When funds start on another chain, the wallet deposits with Relay on the origin chain and a solver pays the desk on Robinhood Chain. The incoming transaction does not name the wallet, but amounts, timing and the provider's public request listing still correlate the two. This is obfuscation against casual inspection, nothing stronger.", 350)) {
+  for (const l of wrap(ctx, "When funds start on another chain, the wallet deposits with Relay on the origin chain and a solver pays the desk on Elysium. The incoming transaction does not name the wallet, but amounts, timing and the provider's public request listing still correlate the two. This is obfuscation against casual inspection, nothing stronger.", 350)) {
     ctx.fillText(l, 1100, y);
     y += 18;
   }
@@ -198,11 +198,11 @@ export function renderSheet(textFont: string, labelFont: string): HTMLCanvasElem
   ctx.font = `700 26px ${textFont}`;
   ctx.fillText("Anonymous.  Untraceable.  Unlinkable.  Invisible.  Private transactions.", 140, 1462);
   ctx.font = `15px ${textFont}`;
-  ctx.fillText("If you see any of these in Rheo, it is a bug.", 140, 1496);
+  ctx.fillText("If you see any of these in Raqio, it is a bug.", 140, 1496);
 
   // Footer
   ctx.fillStyle = "#5d625c";
   ctx.font = `14px ${labelFont}`;
-  ctx.fillText("Rheo        sec-01.des        Robinhood Chain 4663        USDG        Append-only audit        Four contracts", 130, 1548);
+  ctx.fillText("Raqio        sec-01.des        Elysium 99801        USDG        Append-only audit        Four contracts", 130, 1548);
   return c;
 }

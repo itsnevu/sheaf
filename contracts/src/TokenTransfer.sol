@@ -5,7 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title TokenTransfer
 /// @notice Outbound and inbound ERC-20 transfer helper that turns any failure into one explicit error.
-/// @dev Robinhood Stock Tokens run compliance checks on both sender and receiver and revert
+/// @dev restricted ERC-20s run compliance checks on both sender and receiver and revert
 ///      when either is not verified. A plain `transfer` would bubble the token's own error
 ///      (or, for a non-standard token, a low-level revert with no data), which is hard to read
 ///      from a wallet or an indexer. This library wraps the call so every failed payout surfaces

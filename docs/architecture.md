@@ -1,12 +1,12 @@
-# Rheo architecture
+# Raqio architecture
 
-Rheo is the private execution desk for Robinhood Chain (chain id 4663). **Private externally. Transparent internally.** A Rheo is one controlled **operation** made of **legs**, executed from one desk. The settlement asset is USDG (6 decimals).
+Raqio is the private execution desk for Elysium (chain id 99801). **Private externally. Transparent internally.** A Raqio is one controlled **operation** made of **legs**, executed from one desk. The settlement asset is USDG (6 decimals).
 
-Privacy, in Rheo's sense, means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing and the desk contract address stay visible. Rheo never describes anything as anonymous, untraceable or unlinkable.
+Privacy, in Raqio's sense, means one thing: the wallet that owns the funds or the eligibility does not appear as the destination on-chain. Amounts, timing and the desk contract address stay visible. Raqio never describes anything as anonymous, untraceable or unlinkable.
 
 ## Overview
 
-Rheo is a single Next.js 14 (App Router) application with a Prisma/SQLite database, an in-process job worker, and a provider adapter that separates routing (Relay, or a deterministic mock in demo mode) from desk logic.
+Raqio is a single Next.js 14 (App Router) application with a Prisma/SQLite database, an in-process job worker, and a provider adapter that separates routing (Relay, or a deterministic mock in demo mode) from desk logic.
 
 ```
 ┌──────────────────────────────── Browser ────────────────────────────────┐
@@ -41,7 +41,7 @@ Rheo is a single Next.js 14 (App Router) application with a Prisma/SQLite databa
 | Product word | Stored as | Notes |
 |---|---|---|
 | Desk | `Organization` | Roles: Owner, Desk operator (`FINANCE_ADMIN`), Approver, Viewer |
-| Operation (a Rheo) | `PaymentBatch` | `kind` is `CLAIM`, `ACCUMULATE`, `OTC` or `TREASURY` |
+| Operation (a Raqio) | `PaymentBatch` | `kind` is `CLAIM`, `ACCUMULATE`, `OTC` or `TREASURY` |
 | Leg | `BatchRecipient` | `name` is the label, `reference` is the memo, `notBefore` is the earliest execution time |
 | Desk wallet | `Organization.treasuryAddress` | The wallet that funds and signs; never a leg's destination |
 
@@ -58,14 +58,14 @@ Each kind maps to a contract in `contracts/`. The contracts exist; **the applica
 | `OTC` Private OTC block | `OtcEscrow` | a single leg: counterparty, give asset/amount; the memo carries want asset/amount, expiry and the receive-into address |
 | `TREASURY` Delegated treasury | `DelegatedTreasury` | to, token, amount; proposer ≠ approver (four-eyes), daily cap |
 
-Robinhood Stock Tokens carry transfer restrictions on sender and receiver, so a fresh, unverified address cannot hold them. USDG can go anywhere. The demo seed includes a leg that fails with `RESTRICTED_TOKEN: recipient not allowlisted (simulated)` to make that visible.
+Tokens with transfer restrictions carry transfer restrictions on sender and receiver, so a fresh, unverified address cannot hold them. USDG can go anywhere. The demo seed includes a leg that fails with `RESTRICTED_TOKEN: recipient not allowlisted (simulated)` to make that visible.
 
 ## Important technical decisions
 
 | Decision | Why |
 |---|---|
 | Money as integer base-unit strings + `bigint` | No floating point anywhere near amounts. `src/lib/money.ts` parses and formats exactly; the DB stores strings because SQLite has no decimal type. |
-| Operation `mode` captured at creation | Flipping `Rheo_MODE` cannot silently convert a simulated operation into a real one or vice versa; execution refuses on mismatch. |
+| Operation `mode` captured at creation | Flipping `Raqio_MODE` cannot silently convert a simulated operation into a real one or vice versa; execution refuses on mismatch. |
 | Operation `kind` captured at creation | The kind picks the contract and the leg semantics shown in the UI; it is stored, exported and audited, never inferred. |
 | Approval bound to the leg-set hash | Any change to a valid leg's address or amount recomputes `recipientSetHash` and invalidates approvals server-side. Memo or not-before edits do not. |
 | `notBefore` wins over jitter | When execution starts, a leg's job runs at `max(now + jitter, notBefore)`, capped by the operation deadline. |

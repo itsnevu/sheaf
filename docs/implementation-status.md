@@ -1,14 +1,16 @@
 # Implementation status
 
-Last updated 23 September 2026 (pivot to the private execution desk for Robinhood Chain).
+Current vault/vesting platform status and verified checks: [8 November 2026 continuation](platform-implementation-status.md). The historical desk/Relay implementation below is separate from the new vault flows.
+
+Last updated 23 September 2026 (pivot to the private execution desk for Elysium).
 
 ## What is real and what is simulated
 
 | Layer | Status |
 |---|---|
 | Desk application (operations, legs, stages, roles, audit, reconciliation, exports) | Real. Every action is enforced on the server and recorded. |
-| Demo mode | Simulates routing, funding and every leg with a deterministic mock provider. Nothing touches Robinhood Chain. Every record carries `mode: demo` and a simulated label. |
-| Real mode | Quotes routes through Relay (`POST /quote/v2`) and polls `GET /intents/status/v3`; the desk wallet signs route steps in the browser. Quoting and polling were verified live on Base during development. **No on-chain transaction has been executed, and nothing has been verified against Robinhood Chain (4663) or USDG.** |
+| Demo mode | Simulates routing, funding and every leg with a deterministic mock provider. Nothing touches Elysium. Every record carries `mode: demo` and a simulated label. |
+| Real mode | Quotes routes through Relay (`POST /quote/v2`) and polls `GET /intents/status/v3`; the desk wallet signs route steps in the browser. Quoting and polling were verified live on Base during development. **No on-chain transaction has been executed, and nothing has been verified against Elysium (99801) or USDG.** |
 | Desk contracts (`contracts/`: `PrivateClaim`, `StealthDesk`, `OtcEscrow`, `DelegatedTreasury`) | Exist as Foundry sources maintained separately. **The application does not call them.** The operation kind is stored, shown and exported, but a leg today is a plain provider route whose on-chain sender is the desk wallet (or a Relay solver on cross-chain routes). |
 
 ## Verified on this commit
@@ -40,16 +42,16 @@ Last updated 23 September 2026 (pivot to the private execution desk for Robinhoo
 | Encryption at rest (labels, memos, CSV originals; AES-256-GCM; key required in production; migration script for older rows) | Complete |
 | Append-only audit trail (client extension + database triggers; audit rows survive leg/operation deletion) | Complete |
 | Production configuration guard, security headers, generic 500s in production, constant-time worker secret | Complete |
-| Relay adapter (quote v2, status v3, retryable classification) | Implemented; verified live on Base; not exercised on-chain; not verified for chain 4663 |
-| Real-mode wallet console (injected wallets, WalletConnect when a project id is set, Robinhood Chain in the chain list, network switch, balance check, per-step signing) | Implemented; not exercised with a funded wallet |
+| Relay adapter (quote v2, status v3, retryable classification) | Implemented; verified live on Base; not exercised on-chain; not verified for chain 99801 |
+| Real-mode wallet console (injected wallets, WalletConnect when a project id is set, Elysium in the chain list, network switch, balance check, per-step signing) | Implemented; not exercised with a funded wallet |
 | Docker image, compose stack with PostgreSQL, provider switch script, CI workflow | Complete; image build verified in CI configuration |
 | Responsive layouts and accessibility basics | Complete; mobile viewport covered by the E2E smoke tests; no automated axe run |
 
 ## Known limitations
 
 - The desk contracts are not called. `PrivateClaim`, `StealthDesk` (Merkle-committed plans), `OtcEscrow` and `DelegatedTreasury` (daily cap) have no on-chain effect from the app; the kind changes labels, validation hints and exports only.
-- Stock Token transfer restrictions are described, not checked: the app cannot tell whether a destination is allowlisted. The demo seed shows the failure shape (`RESTRICTED_TOKEN: recipient not allowlisted (simulated)`).
-- The USDG contract on Robinhood Chain is read from `SHEAF_USDG_ADDRESS_4663`; the placeholder in `KNOWN_ASSETS` only serves demo mode.
+- Restricted token transfer restrictions are described, not checked: the app cannot tell whether a destination is allowlisted. The demo seed shows the failure shape (`RESTRICTED_TOKEN: recipient not allowlisted (simulated)`).
+- The USDG contract on Elysium is read from `SHEAF_USDG_ADDRESS_99801`; the placeholder in `KNOWN_ASSETS` only serves demo mode.
 - One server-side encryption key for every desk; per-desk keys in a KMS are not implemented. Addresses and amounts are stored in clear because duplicate detection and search need them.
 - The audit table is append-only inside the database but is not anchored to an external or immutable store.
 - Free-text search scans up to 5,000 legs of the desk after decryption, then paginates.
@@ -63,6 +65,6 @@ Last updated 23 September 2026 (pivot to the private execution desk for Robinhoo
 ## Next steps
 
 1. **Wire the contracts.** Route preparation should build the contract call for the operation kind (claim into a fresh recipient through `PrivateClaim`; commit a plan root and execute legs through `StealthDesk`; open and settle an `OtcEscrow`; propose and approve through `DelegatedTreasury`) and the wallet console should sign those calls instead of plain transfers. Until then a real-mode leg is a plain route.
-2. **Verify Robinhood Chain in Relay.** Confirm chain 4663 and USDG in `GET /chains` and `POST /currencies/v2`; set `SHEAF_USDG_ADDRESS_4663`.
+2. **Verify Elysium in Relay.** Confirm chain 99801 and USDG in `GET /chains` and `POST /currencies/v2`; set `SHEAF_USDG_ADDRESS_99801`.
 3. **Funded testnet run** of the real-mode signing loop (`SHEAF_MODE=real`, desk wallet set in Settings) before any mainnet operation.
-4. Optional hardening: per-desk KMS keys, external audit anchoring, axe accessibility pass, a Stock Token allowlist check before approval.
+4. Optional hardening: per-desk KMS keys, external audit anchoring, axe accessibility pass, a Restricted token allowlist check before approval.

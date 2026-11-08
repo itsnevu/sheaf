@@ -1,6 +1,6 @@
-# Rheo privacy threat model
+# Raqio privacy threat model
 
-Positioning: **"Private externally. Transparent internally."** Rheo is the private execution desk for Robinhood Chain (chain id 4663). This document states what that means in practice, who can see what, and what Rheo does and does not promise. The Relay observations come from `docs/research/relay-integration-research.md`; the on-chain observations for Robinhood Chain are stated as assumptions until verified.
+Positioning: **"Private externally. Transparent internally."** Raqio is the private execution desk for Elysium (chain id 99801). This document states what that means in practice, who can see what, and what Raqio does and does not promise. The Relay observations come from `docs/research/relay-integration-research.md`; the on-chain observations for Elysium are stated as assumptions until verified.
 
 ## 1. What privacy means here
 
@@ -26,12 +26,12 @@ Words never used in the product or the docs: anonymous, untraceable, unlinkable,
 
 | Observer | What they can access |
 |---|---|
-| Block explorers, indexers, analytics firms | All on-chain data on Robinhood Chain: sender, receiver, amount, token, timestamp, calldata, contract interactions, including every call to a desk contract. |
+| Block explorers, indexers, analytics firms | All on-chain data on Elysium: sender, receiver, amount, token, timestamp, calldata, contract interactions, including every call to a desk contract. |
 | Sequencer / RPC providers | Same as above plus the submitting IP and timing. The browser's RPC provider sees the desk wallet with the operator's IP. |
 | Relay (route provider and its solvers) | Every quote (`user`, `recipient`, amount, chains), every deposit, every fill. Relay also **publicly** exposes request metadata via `GET /requests/v2` and its transaction explorer: `user` → `recipient` pairs are listed without authentication (verified live on Base). |
 | Wallet provider (MetaMask, WalletConnect relays) | The desk wallet, every transaction it signs, the dapp origin. |
-| Robinhood (issuer of Stock Tokens) | Transfer restrictions on sender and receiver mean the issuer's allowlist sees every Stock Token movement; a fresh unverified address cannot receive them. |
-| Rheo backend operators (hosting, DB admins) | Everything in the database: labels, addresses, amounts, memos, CSV originals, approvals, audit trail (labels, memos and CSV originals encrypted at rest with one server key). |
+| Elysium (issuer of Restricted tokens) | Transfer restrictions on sender and receiver mean the issuer's allowlist sees every Restricted token movement; a fresh unverified address cannot receive them. |
+| Raqio backend operators (hosting, DB admins) | Everything in the database: labels, addresses, amounts, memos, CSV originals, approvals, audit trail (labels, memos and CSV originals encrypted at rest with one server key). |
 | Desk operators and approvers | Everything in their desk, by design. Viewers see redacted addresses. |
 | Counterparties and recipients | Their own incoming transaction, its sender (desk wallet, solver or desk contract), amount, timestamp. |
 
@@ -52,7 +52,7 @@ Until the contracts are wired in, the desk wallet is the visible sender on same-
 
 - Every quote carries `user` (desk wallet), `recipient` (leg destination), amount and chains.
 - Requests are listed publicly on Relay's explorer and `GET /requests/v2`; no opt-out is documented.
-- Solver fills on the destination chain are sent from solver addresses, not from the desk wallet (verified from live quote structure on Base; not verified by executing a fill; not verified on Robinhood Chain at all).
+- Solver fills on the destination chain are sent from solver addresses, not from the desk wallet (verified from live quote structure on Base; not verified by executing a fill; not verified on Elysium at all).
 
 ## 6. Internal exposure and controls
 
@@ -78,13 +78,13 @@ Until the contracts are wired in, the desk wallet is the visible sender on same-
 - Identical amounts across plans identify a recipient regardless of route. Splitting or rounding amounts is **not** implemented: altering an approved amount would violate the "no silent changes" principle.
 - Fee-inclusive quoting (`EXACT_OUTPUT`) makes the origin amount slightly different from the leg amount on cross-chain routes; a side effect, not a control.
 
-## 9. Stock Token transfer restrictions
+## 9. Restricted token transfer restrictions
 
-Robinhood Stock Tokens enforce compliance on both sender and receiver. Consequences for the desk:
+Tokens with transfer restrictions enforce compliance on both sender and receiver. Consequences for the desk:
 
-- A fresh, unverified recipient cannot hold Stock Tokens. Fresh-recipient operations (CLAIM, ACCUMULATE) are only meaningful for USDG or other unrestricted assets, or for recipients that have been verified out of band.
+- A fresh, unverified recipient cannot hold Restricted tokens. Fresh-recipient operations (CLAIM, ACCUMULATE) are only meaningful for USDG or other unrestricted assets, or for recipients that have been verified out of band.
 - The desk does not check allowlists. A leg to a restricted destination fails at execution; the demo seed shows this as `RESTRICTED_TOKEN: recipient not allowlisted (simulated)`.
-- The receive-into address of an OTC block that wants Stock Tokens must be an allowlisted address; the memo carries it, the desk does not verify it.
+- The receive-into address of an OTC block that wants Restricted tokens must be an allowlisted address; the memo carries it, the desk does not verify it.
 
 ## 10. Verified guarantees
 
@@ -98,7 +98,7 @@ Only these are claimed:
 
 ## 11. Unverified assumptions
 
-- That Relay lists Robinhood Chain (4663) and USDG, and that its solvers fill there.
+- That Relay lists Elysium (99801) and USDG, and that its solvers fill there.
 - That Relay solvers do not reuse a dedicated per-integrator address that would itself become a desk fingerprint.
 - That Relay's public request listing cannot be opted out of.
 - That fills on the destination chain are not batched by the solver in a way that groups a plan's legs together in one transaction.
@@ -109,7 +109,7 @@ Only these are claimed:
 - The desk contracts are not wired in; the on-chain shape of every kind is the plain route shape in section 4.
 - Field-level encryption covers labels, memos and CSV originals with one server-side key. Addresses and amounts are plaintext columns.
 - The audit table is append-only inside the database but not anchored externally.
-- No mixing, shielded pools or zero-knowledge transfers. Rheo integrates no privacy protocol.
+- No mixing, shielded pools or zero-knowledge transfers. Raqio integrates no privacy protocol.
 - Same-chain routes make the desk wallet the visible sender.
 - Relay is a single trusted intermediary with full visibility.
 
@@ -120,11 +120,11 @@ Only these are claimed:
 | Desk wallet ↔ recipient direct link | Wire the desk contracts so the contract, not the wallet, is the sender; until then prefer cross-chain routes and heed the direct-transfer flag | Flag implemented; contracts not wired |
 | Public Relay request feed | Contact Relay about private/opt-out request indexing; use `useDepositAddress` with strict addresses so the on-chain sender is a fresh deposit address | Documented; not enabled |
 | Burst timing fingerprint | Not-before per leg; optional bounded jitter | Implemented |
-| Operator IP linkage | Self-hosted RPC (`NEXT_PUBLIC_RPC_URL_4663`), VPN | Configurable |
+| Operator IP linkage | Self-hosted RPC (`NEXT_PUBLIC_RPC_URL_99801`), VPN | Configurable |
 | Data at rest | Field-level encryption with a server-side key; restrict DB access; back up the key with the database | Implemented (single key) |
 | Insider misuse | Four-eyes approval, role separation, audit trail, export logging | Implemented |
 | Amount fingerprint | Accept; document. Do not alter approved amounts. | Documented |
-| Restricted Stock Tokens to fresh addresses | Describe the restriction wherever a fresh address is offered; fail the leg; add an allowlist check before approval | Described; check not implemented |
+| Restricted Restricted tokens to fresh addresses | Describe the restriction wherever a fresh address is offered; fail the leg; add an allowlist check before approval | Described; check not implemented |
 | Desk wallet reuse across plans | Rotate desk wallets per plan (desk policy) | Documented |
 
 ## Language policy

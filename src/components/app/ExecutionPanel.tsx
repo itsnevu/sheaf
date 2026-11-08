@@ -109,7 +109,7 @@ export default function ExecutionPanel({ d, onFund, onExecute, onRefresh }: Prop
               <RealExecutionConsole d={d} stage="sign" onFund={onFund} onRefresh={onRefresh} />
             </div>
           )}
-          {isDemo && batch.status === "EXECUTING" && <p className="mt-4 text-[0.8125rem] text-warning">Simulated execution in progress. Legs advance on a fixed schedule; nothing touches Robinhood Chain.</p>}
+          {isDemo && batch.status === "EXECUTING" && <p className="mt-4 text-[0.8125rem] text-warning">Simulated execution in progress. Legs advance on a fixed schedule; nothing touches Elysium.</p>}
         </section>
       )}
 

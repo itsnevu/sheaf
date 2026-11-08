@@ -87,7 +87,7 @@ export default function SettingsPage() {
               ))}
             </Select>
           </div>
-          <Select label="Asset" value={form.assetSymbol} onChange={(e) => setForm({ ...form, assetSymbol: e.target.value })} disabled={!canEdit} help={assets.length ? "USDG is the settlement asset of Robinhood Chain. Applies to new operations only." : "No shared asset is configured for this network pair."}>
+          <Select label="Asset" value={form.assetSymbol} onChange={(e) => setForm({ ...form, assetSymbol: e.target.value })} disabled={!canEdit} help={assets.length ? "The desk's ERC-20 accounting asset. Configure its actual address on the selected networks. Elysium gas is paid in HYPE." : "No shared asset is configured for this network pair."}>
             {(assets.length ? assets : [form.assetSymbol]).map((a) => (
               <option key={a} value={a}>
                 {a}

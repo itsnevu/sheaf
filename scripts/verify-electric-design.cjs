@@ -7,7 +7,7 @@ fs.mkdirSync(dir,{recursive:true});
  const browser=await chromium.launch();const report={base,viewports:[],routes:[],errors:[],checks:[]};
  for(const width of [375,768,1440]){
   const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
-  await context.addInitScript(()=>localStorage.setItem('rheo-cookie-choice','essential'));
+  await context.addInitScript(()=>localStorage.setItem('raqio-cookie-choice','essential'));
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));
   await page.goto(base,{waitUntil:'networkidle'});await page.waitForTimeout(400);
   await page.screenshot({path:`${dir}/hero-${width}.png`});
@@ -16,7 +16,7 @@ fs.mkdirSync(dir,{recursive:true});
   }
   await page.locator('#capabilities').scrollIntoViewIfNeeded();await page.waitForTimeout(500);await page.screenshot({path:`${dir}/floating-nav-${width}.png`});
   report.viewports.push({width,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),hiddenContent:await page.locator('.reveal').evaluateAll(es=>es.filter(e=>getComputedStyle(e).opacity==='0').length)});
-  await page.locator('#faq').scrollIntoViewIfNeeded();const question=page.getByRole('button',{name:'What is Rheo?'});await question.click();await expect(question).toHaveAttribute('aria-expanded','true');await question.click();
+  await page.locator('#faq').scrollIntoViewIfNeeded();const question=page.getByRole('button',{name:'What is Raqio?'});await question.click();await expect(question).toHaveAttribute('aria-expanded','true');await question.click();
   if(width===375){await page.getByRole('button',{name:'Open navigation'}).click();await expect(page.getByRole('dialog')).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).not.toBeVisible();}
   for(const route of ['/docs','/security','/privacy','/sign-in','/sign-up']){
    const res=await page.goto(base+route,{waitUntil:'networkidle'});report.routes.push({width,route,status:res.status(),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)});await page.screenshot({path:`${dir}/${route.slice(1)}-${width}.png`,fullPage:true});
@@ -33,7 +33,7 @@ fs.mkdirSync(dir,{recursive:true});
  }
  // Authenticate only to the existing local demo; no operations are created or executed.
  const context=await browser.newContext({viewport:{width:1440,height:1000}});const page=await context.newPage();
- const auth=await context.request.post(base+'/api/auth/sign-in',{data:{email:'owner@halden.example',password:'Rheo-demo-2026'}});
+ const auth=await context.request.post(base+'/api/auth/sign-in',{data:{email:'owner@halden.example',password:'Raqio-demo-2026'}});
  report.checks.push({demoAuth:auth.status()});
  if(auth.ok()){
   const response=await context.request.get(base+'/api/batches');const body=await response.json();

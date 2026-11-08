@@ -1,4 +1,5 @@
 import webpack from "next/dist/compiled/webpack/webpack-lib.js";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants.js";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -25,4 +26,9 @@ const nextConfig = {
     return config;
   },
 };
-export default nextConfig;
+// Development must never share build artifacts with `next build` / `next start`.
+// Otherwise a running dev server can emit CSS URLs that no longer exist on disk.
+export default (phase) => ({
+  ...nextConfig,
+  distDir: process.env.RAQIO_DIST_DIR || (phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next"),
+});

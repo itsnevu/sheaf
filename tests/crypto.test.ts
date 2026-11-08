@@ -5,7 +5,7 @@ const KEY_A = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 const KEY_B = "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
 
 afterEach(() => {
-  process.env.SHEAF_ENCRYPTION_KEY = KEY_A;
+  process.env.RAQIO_ENCRYPTION_KEY = KEY_A;
   resetEncryptionKey();
 });
 
@@ -31,12 +31,12 @@ describe("field encryption", () => {
   });
   it("fails loudly with the wrong key", () => {
     const ct = encryptString("secret");
-    process.env.SHEAF_ENCRYPTION_KEY = KEY_B;
+    process.env.RAQIO_ENCRYPTION_KEY = KEY_B;
     resetEncryptionKey();
     expect(() => decryptString(ct)).toThrow(/does not match/);
   });
   it("rejects malformed keys", () => {
-    process.env.SHEAF_ENCRYPTION_KEY = "short";
+    process.env.RAQIO_ENCRYPTION_KEY = "short";
     resetEncryptionKey();
     expect(() => encryptString("x")).toThrow(/64 hex/);
   });

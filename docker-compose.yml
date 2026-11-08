@@ -1,18 +1,18 @@
-# Local production-like stack: Rheo + PostgreSQL.
-# 1. Copy .env.example to .env and fill SESSION_SECRET, Rheo_ENCRYPTION_KEY, WORKER_SECRET.
+# Local production-like stack: Raqio + PostgreSQL.
+# 1. Copy .env.example to .env and fill SESSION_SECRET, Raqio_ENCRYPTION_KEY, WORKER_SECRET.
 # 2. Switch the Prisma provider to PostgreSQL:  npm run db:provider -- postgresql
 # 3. docker compose up --build
 services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: Rheo
-      POSTGRES_USER: Rheo
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Rheo-local-only}
+      POSTGRES_DB: Raqio
+      POSTGRES_USER: Raqio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Raqio-local-only}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U Rheo -d Rheo"]
+      test: ["CMD-SHELL", "pg_isready -U Raqio -d Raqio"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -24,8 +24,8 @@ services:
         condition: service_healthy
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://Rheo:${POSTGRES_PASSWORD:-Rheo-local-only}@db:5432/Rheo?schema=public
-      Rheo_SEED_DEMO: ${Rheo_SEED_DEMO:-0}
+      DATABASE_URL: postgresql://Raqio:${POSTGRES_PASSWORD:-Raqio-local-only}@db:5432/Raqio?schema=public
+      Raqio_SEED_DEMO: ${Raqio_SEED_DEMO:-0}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
     ports:
       - "3000:3000"

@@ -1,103 +1,53 @@
-# Rheo — design
+# Raqio — Electric Blue Engraving
 
-Rheo is the private execution desk for Robinhood Chain (chain id 4663). **Private externally. Transparent internally.** A Rheo is one controlled operation made of legs, executed from one desk, so the wallet that owns the funds or the eligibility never appears as the destination on-chain.
+The visual system replaces the former observatory palette. Raqio's routes, wallet sign-in, permissions, operation data, fee copy and existing documentation remain in place. The later Arcom reference informs the centered hero and single sculptural focal point; no Arcom logo, copy or artwork is used.
 
-Two faces:
+## Tokens and type
 
-- **The site** (`/`, `/docs`, `/security`, `/privacy`, sign-in): four pages, each built as one of the aquirin.com instruments. The chrome is corner-anchored and the instrument fills the centre.
-- **The desk** (`/app`, `/app/batches`, `/app/batches/new`, `/app/batches/[id]`, `/app/payments/[rid]`, `/app/reconciliation`, `/app/activity`, `/app/settings`): pick an operation kind, add legs by paste or CSV, validate, prepare routes, four-eyes approval, fund, execute leg by leg with retries, reconcile, export, audit trail. Roles: Owner, Desk operator, Approver, Viewer.
+`src/styles/tokens.css` is the color source. Electric, navy and paper alternate by section. Semantic aliases keep the existing desk components working. Tailwind reads variables rather than duplicating colors. Primary text uses ice on blue/navy and navy on paper; sky is reserved for large secondary headlines. Small metadata uses ice-85 for legibility. Ice-50 is retained for non-text rules and controls.
 
-Four operation kinds, each backed by a contract in `contracts/`: **CLAIM** (private allocation claim, `PrivateClaim`), **ACCUMULATE** (stealth accumulation, `StealthDesk`), **OTC** (private OTC block, `OtcEscrow`), **TREASURY** (delegated treasury, `DelegatedTreasury`).
+Display: Barlow Condensed 200/300, uppercase, -0.02em, 0.94 line height. Hero 64–112px; section titles 48–110px; cards 32–36px. Body: Barlow 400, 16px/1.55. UI: JetBrains Mono 400, 10–12px, uppercase with letter spacing. Playfair Display appears only in the showcase brand moment. All fonts use next/font and font-display swap.
 
-Demo mode (the default) simulates routing, funding and settlement and labels every record as simulated. Real mode quotes routes from Relay and signs with the connected wallet.
+Shapes are square (1px radius). Exceptions: the floating navigation, circular media controls and status dots. Borders replace card shadows. The original Raqio mark's geometry remains until a new logo is explicitly selected; the brandkit directory contains three unapproved SVG proposals.
 
-## Principles
+## Components
 
-1. **Restraint.** White page, black text, one signal red. Zero border radius, no drop shadows. Hierarchy comes from position and case, not size.
-2. **Monospace for everything.** Rheo reads like lab equipment. Numbers, addresses, statuses, labels and headings are all mono and upper case.
-3. **Instruments, not pages.** Each marketing route is a physical device on screen (printer, reader, fiche viewer). Chrome gets out of the way once the instrument is up.
-4. **Say what stays visible.** Privacy means the owning wallet is not the destination. Amounts, timing and the desk contract address are public, and the words "anonymous", "untraceable" and "unlinkable" are never used. Stock Token transfer restrictions are stated wherever a fresh address is offered.
-5. **State the mechanism.** Copy says what each contract does and what it cannot promise. Demo data is labelled. Nothing implies an execution that did not happen.
-6. **One idea per scene.** Short statements, one action, one visual.
+- Section: electric/navy/paper tones; colors inherit locally.
+- Navbar: full-width square bar, then a centered capsule after 120px. Mobile uses a native modal dialog, with focus trapping and Escape dismissal.
+- ReleaseSculpture / ReleaseScene: lazy Three.js release engine, built from original geometry, pointer response, DPR capped at 1.5, rendering paused off-screen and when the tab is hidden. A static original SVG is present before JS and under reduced motion.
+- EngravedMachine: three original SVG plates—a release press, a wheel train and a rail carriage. Hatching, mechanical construction and fine lines reinterpret the user's industrial engraving references. No external artwork is traced.
+- EngravingArt: local dithered Flammarion plate, used in the showcase and editorial headers.
+- GrainVideoPanel: generated CSS motion study, not a prerecorded product demonstration; pause control and explicit no-audio label.
+- CodeBlock: copyable existing network settings, with feedback.
+- CookieBanner: essential-only session cookies; accept/reject choice persists locally. No optional tracking is installed by either choice.
+- Shared buttons, cards, inputs, tables, badges and desk navigation use the same token and shape system.
 
-The palette history is visible in the code: `tailwind.config.ts` comments and the viewport `themeColor` (`#f6f5f1`) still describe the earlier warm off-white canvas with a teal accent (`#1d7a6f`). The current tokens are below. The dark theme was removed when the site moved to the instruments.
+## Art sources and licenses
 
-## Type
+Anonymous, *Flammarion engraving*, first published in Camille Flammarion's *L'Atmosphère: météorologie populaire*, 1888. Source and public-domain declaration: https://commons.wikimedia.org/wiki/File:Flammarion.jpg . Original downloaded preview: https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Flammarion.jpg/960px-Flammarion.jpg . Source is preserved at `public/art/engraving/flammarion-source.jpg`. Visible credits name the anonymous artist, year, public-domain status and Raqio's dither processing.
 
-| Role | Face | Where |
-| --- | --- | --- |
-| Everything in the app and site chrome | Space Mono 400/700 (`--font-mono`) | Tailwind maps `sans`, `display` and `mono` to it. |
-| Printer paper | VT323 (`--font-pixel`) | the receipt roll on `/` |
-| Reader roll | Courier Prime 400/700 (`--font-type`) | `/docs` |
-| Panel labels | Barlow 400/500/600 (`--font-label`) | knobs, sliders, dials |
-| Loaded but unused by the tokens | Inter (`--font-sans`), Bricolage Grotesque (`--font-display`) | left over from the earlier site |
+Rebuild: `node scripts/dither-art.mjs` (Bayer) or append `--floyd` (Floyd–Steinberg). Outputs: transparent ink plate, small particle map, normalized particle coordinates. No network is needed at build/runtime to fetch the artwork. Original mechanical SVG illustrations and the Three.js geometry are authored for Raqio.
 
-Type scale (`globals.css`, all upper case): `.display-1` `clamp(2.5rem, 5.6vw, 4.75rem)`, `.display-2` `clamp(1.875rem, 3.2vw, 3rem)`, `.title-1` `clamp(1.5rem, 2.2vw, 2.125rem)`, `.title-2` 1rem, `.title-3` 0.9375rem bold, `.lede` 1.0625–1.125rem / 1.6 in `ink-soft`, `.eyebrow` 0.6875rem tracking 0.12em in `ink-faint`, `.mono-data` 0.8125rem tabular. Body is 14px.
+## Motion and reliability
 
-## Colour
+One easing: cubic-bezier(.16,1,.3,1). Entrances move 12px over 700ms without hiding text. Navbar morph: 400ms. Hover sweep: 600ms. Reduced motion disables decorative movement and displays the static SVG engine. Particle code (retained for optional interactive engraving) pauses off-screen and on hidden tabs. The default hero uses the Three.js engine instead.
 
-Hex literals in `tailwind.config.ts` (so opacity modifiers work), mirrored as custom properties in `globals.css`.
+No text depends on hydration or IntersectionObserver to become visible. Section observation adds motion only. Hero, documentation and static artwork remain readable with JavaScript disabled.
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `canvas`, `surface` | `#ffffff` | page and cards |
-| `field` | `#f2f2f2` | inputs, hover fills, insets |
-| `line` / `line-strong` | `#d9d9d9` / `#1f1f1f` | table rules / card borders |
-| `ink` / `ink-soft` / `ink-faint` | `#1f1f1f` / `#4a4a4a` / `#9a9a9a` | text hierarchy |
-| `on-ink` | `#ffffff` | text on ink |
-| `veil` / `veil-deep` / `veil-tint` | `#ff0000` / `#cc0000` / `#ffe9e9` | the one accent: the mark, primary hover, progress badges |
-| `success` / tint | `#1f7a4d` / `#e3f3e9` | executed, reconciled |
-| `warning` / tint | `#9a6700` / `#fbf0d6` | needs attention |
-| `danger` / tint | `#b42318` / `#fbe6e3` | failed, destructive |
-| `info` / tint | `#3352c7` / `#e6eafb` | informational |
-| `night` / `night-2` / `night-line` | `#0f1012` / `#17181c` / `#2a2c33` | the `.night` section (legacy) |
+## Routes and content boundaries
 
-Instrument colours: chalk `#dcddde` and blackish `#1e1e1e` for the fiche bezel; printer body `#e6e7e8`, dark `#414042`, dial `#bcbec0`, red `#ff0000`; readout green `#9fe7b4` on `#101410`; reader body `#e9eaeb → #dedfe1`.
+Existing public routes: `/`, `/docs`, `/security`, `/privacy`, `/sign-in`, `/sign-up`. Existing private routes inherit the redesigned desk shell and primitives: overview, operations, new/detail operation, executions, payment detail, reconciliation, activity and settings. No fictional token address, tokenomics or subscription plans are created. The fee section restates the existing 25bps / 48-hour / 50bps product copy.
 
-Radii are `0` everywhere (`panel`, `card`, `pill` tokens are all `0px`); the only rounded things are instrument parts. Shadows `raised` and `lifted` are `none`; `inset` and `focus` remain. Selection is ink on white inverted. Focus is a 1px ink outline offset 3px.
+Docs and Security now expose the previous reader/canvas content as searchable semantic HTML. The historic desk documentation describes Elysium while the existing homepage describes Elysium vesting. That content mismatch predates this visual task and is deliberately preserved rather than silently changing the product's factual claims.
 
-## The site: four instruments
+## Verification artifacts
 
-Navigation on every site page is `PrintNav`: a red hamburger of three 70×8px bars top-left that morphs into a crossed mark when open. The menu is a thin-bordered white box with a mono list of codes: `__Index`, `APP_###`, `DOCS_###`, `SEC_###`, `PRIV_###`, `SIGN_IN` (or `OPEN_APP` when signed in). The current item is dimmed. Contact links sit bottom-right. The centre of the viewport is empty until the instrument fills it.
+`scripts/verify-electric-design.cjs` captures 375/768/1440px hero, showcase, features, product, fees, footer and floating navigation, plus public pages. It checks page errors, overflow, FAQ interaction, copy feedback, pause controls, mobile dialog, no-JS and reduced-motion content. Reports/screenshots: `test-results/electric-after/`. Before Home screenshots: `test-results/electric-before/`.
 
-| Route | Instrument | Design |
-| --- | --- | --- |
-| `/` | **Printer** (`components/print/Printer.tsx`, `styles/print.css`) | A draggable grey printer widget (203×142px) with a round print button, blend tabs, two number scrollers and a vertical dial label. Nothing prints until the power button is pressed. Pages cover the product, the four operations, how a Rheo runs, a sample operation, security, docs and start. Output is rendered to a black paper roll (`min(640px, 92vw)`, pixel font) with a zig-zag torn edge; the LED blinks and the red print head sweeps while busy. Strips of the roll are links (`OPEN >` on hover). |
-| `/docs` | **Reader** (`components/reader/Reader.tsx`, `styles/reader.css`) | A 613×899px handheld centred on the sheet and scaled to fit, tilting with the pointer in 3D. Documentation scrolls on its roll in the typewriter face. |
-| `/security` | **Fiche** (`components/fiche/Fiche.tsx`, `styles/fiche.css`) | An 878×878px microfiche viewer: chalk bezel, blackish body, a square glass screen with dust, scanlines, grain and a glass highlight that follows the pointer. Rotary knobs (`ns-resize`), a vertical range slider with ticks, a green LED readout and a red lamp. Every control works by touch. |
-| `/privacy`, sign-in | **Index sheet** (`styles/sheet.css`) | A white sheet, a 640px mono column at 15px / 1.7, a grey code title (`PRIV_### · Privacy notice`), sections with `__` headings, contact links bottom-right. |
+Typecheck and lint passed after the new engine was added. The first full browser pass (before the later centered 3D hero) returned 200 on public pages, zero page errors, no horizontal overflow and zero hidden reveal content at all three widths. Demo authentication returned 401 against the local database, so authenticated-page screenshots were not recorded in that pass. The unit suite could not start because Prisma's test-database schema engine failed; no tests passed in that attempt. Lighthouse scores must be measured on a production server; no unmeasured score is claimed.
 
-Site motion: instruments arrive like a print (a top-to-bottom `clip-path` reveal over 520ms) and leave with a 180ms fade; menu items stagger in 28ms apart; the printer shakes while busy; knobs scale on drag. All of it collapses under `prefers-reduced-motion`.
+Measured WCAG contrast ratios: ice/electric 6.03:1, ice/navy 14.75:1, navy/paper 14.42:1. The supplied sky/electric pairing measures below the 3:1 large-text threshold; electric sections therefore use an additional lighter `electric-secondary` token for secondary headlines (3.95:1). Sky remains unchanged on navy.
 
-### The bench and the margins
+The first production build including the release engine succeeded. Concurrent workspace additions subsequently introduced `/app/streams` and `/app/streams/new` before their `StreamsList` / `CreateStreamForm` components existed, blocking the next production build. These unrelated routes were preserved. A separate `.next-design-preview` cache (`RAQIO_DIST_DIR`) keeps the local design preview isolated from production build artifacts. A newly added block-feed component was made deterministic for SSR and explicitly labeled simulated to avoid hydration failures and misleading live-data claims.
 
-Every sheet (site, sign-in, app) sits on a bench drawn by `components/print/Backdrop.tsx` (`styles/deck.css`): graph paper (24px minor, 120px major, masked to fade at the edges), a ruler along the top and left edges, registration crop marks in three corners, a plate top-right (DESK SH-4663 · CHAIN · MODE from `executionMode()` · ROLE in the app · a live UTC clock) and a sheet label bottom-left (`SHEET 02/04 · DOCS`, `APP_002 · OPERATIONS`). The paper is at `z-index: -1` under everything; the plate, label, index card and stamp float in a `.bd-over` layer and only the card takes clicks. Under the app (`variant="desk"`) the paper is fainter and there is no card or stamp.
-
-On the docs, security and privacy sheets the left margin holds an **index card** (the four sheets, then "on this sheet"); on docs its items open the roll and follow it (`Rheo:roll` / `Rheo:roll:set` window events between `Reader` and `Backdrop`). A red **CONTROLLED COPY** stamp sits bottom-right (bottom-left on docs). `components/print/Margins.tsx` adds per-sheet cards: a glossary and a leg-CSV strip on docs; on security a "who sees what" matrix (●/◐/○ per observer, condensed from the threat model) and a "words we do not use" card with the four words struck through. Margin cards hide under 1240px wide or 700px tall.
-
-The home sheet (`components/print/HomeDeck.tsx`) fills the centre with a **cover** while the roll is empty: eyebrow, the headline "PRIVATE EXTERNALLY. TRANSPARENT INTERNALLY." (second half outlined), the cheque-bundle illustration taped on, the lede, a live diagram of one Rheo (owner → desk → five legs, a red dot travelling along the executing leg, then RECONCILED; `<animateMotion>`, 1.2s ticks), the six steps cycling, the four operations with their contracts, "stays public" beside "not the destination", and three calls (open the desk, docs, honest scope). The cover lifts (`:has(.p-paper[data-empty="false"])`) as soon as the printer starts. Around the printer: a spec label, a "PRESS POWER TO PRINT" hint and a **series card** whose rows set the dials and print (`Rheo:print` event into `Printer`). Right margin: a demo leg log with three odometers; foot: a black tape of demo legs with a red DEMO LEGS tab. Everything simulated says DEMO.
-
-Sign-in shows an **access badge** beside the form (`.x-badge`): the mark as the photo, holder/role/desk, the four roles with what each may do and a USE button that fills the form, a barcode band. The privacy sheet numbers its sections (`§01`…), ends with a protection-and-retention table (record · at-rest stamp · lifetime) and a colophon.
-
-## The app
-
-`AppShell` wraps every `/app` route with the signed-in user, their capabilities by role (owner, desk operator, approver, viewer), the demo banner and the bench (`Backdrop variant="desk"`, plate with the real mode and the role). `PageHeader` prefixes every page's eyebrow with its sheet code (`APP_001` overview … `APP_006` settings, `.N` for new, `.ID` for detail) in red. The overview draws a segmented leg-status bar under the tiles (ink completed, red pending, hatched failed). Operations open with a four-card kind picker (CLAIM, ACCUMULATE, OTC, TREASURY) drawn with the same `.card` and `.btn` primitives; the stepper reads Legs → Validate → Route → Approve → Fund → Execute → Reconcile. Components (`components/app/*`): `BatchStepper`, `CsvUpload` (with a worker), `RecipientTable`, `ReviewPanel`, `ExecutionPanel`, `RealExecutionConsole`, `ActivityFeed`, `WalletSettings`, `PageHeader`.
-
-Primitives (`globals.css`): `.btn` (mono upper case, tracking 0.1em, 2.5rem min height; `primary`, `accent`, `secondary`, `ghost`, `danger`, `sm`, `lg`), `.input` (ink border, veil on focus, danger when invalid), `.label`, `.help`, `.error-text`, `.card` / `.panel` (ink border), `.inset`, `.table` (eyebrow headers, line rules, hover tint), `.badge` (`neutral`, `info`, `progress` with a pulsing dot, `success`, `warning`, `danger`), `.skeleton` (shimmer), `dialog.dialog` (blurred backdrop), `.link` (underline offset 4). Containers are `container-site` (1200px) and `container-wide` (1360px).
-
-## Research
-
-- `docs/research/earnhop-design-research.md`: the principles adopted from the HOP reference (one accent, mono for data, one idea per scene, hard restraint on radii and shadows, hover gated behind `hover: hover`).
-- The instrument pages follow the four instruments of aquirin.com; the observations are in the sibling study in the Cabalwatcher repository (`docs/reference-aquirin.md`).
-
-## Stack and files
-
-Next.js 14 (App Router), React 18, Tailwind 3, Prisma 5 (SQLite in development, PostgreSQL in production), wagmi 2, viem 2, react-three-fiber, Vitest, Playwright.
-
-- Tokens: `tailwind.config.ts`, `src/app/globals.css`
-- Instrument styles: `src/styles/{print,reader,fiche,sheet}.css`
-- Instrument fonts: `src/components/print/fonts.ts`
-- Layout and site fonts: `src/app/layout.tsx`
-- App shell: `src/app/app/layout.tsx`, `src/components/app/AppShell.tsx`
-
-`lancefield/` is a separate product in this repository with its own `BRAND.md` and `design.md`.
+Final update: the concurrently authored stream components became available and the production build passed again, including stream list/new/detail routes. The final browser pass after the Three.js/SVG changes returned zero page errors, no horizontal overflow at 375/768/1440px, and visible no-JS/reduced-motion content. The public route and interaction checks passed again. Authenticated demo access still returned 401 against the local database. An existing ox/viem dynamic-dependency build warning remains. Public verification report: `test-results/electric-after/report.json`.

@@ -32,7 +32,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: "file:./e2e.db",
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789abcdef",
-      SHEAF_ENCRYPTION_KEY: "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+      RAQIO_ENCRYPTION_KEY: "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
       WORKER_SECRET: "e2e-worker-secret-0123456789abcdef",
       SHEAF_MODE: "demo",
       SHEAF_RATE_LIMIT: "off",

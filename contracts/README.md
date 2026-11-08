@@ -1,6 +1,6 @@
-# Rheo contracts
+# Raqio contracts
 
-Rheo is the private execution desk for Robinhood Chain (an Arbitrum Orbit L2, chain id 4663).
+Raqio is the private execution desk for Elysium (an Arbitrum Orbit L2, chain id 99801).
 Private externally. Transparent internally.
 
 This folder holds the four on-chain operations, one contract each, built with Foundry and
@@ -8,7 +8,7 @@ Solidity 0.8.24.
 
 ## What "private" means here, and what it does not
 
-Privacy in Rheo means one thing: the wallet that owns funds or eligibility does not appear as
+Privacy in Raqio means one thing: the wallet that owns funds or eligibility does not appear as
 the destination of the transfer on-chain. A claim goes to a fresh address, not to the eligible
 wallet. An OTC fill pays each side into an address of its choosing. A treasury pays out from a
 shared desk contract, not from its own wallet.
@@ -30,7 +30,7 @@ the words anonymous, untraceable or unlinkable.
 All four use custom errors (no `require` strings), OpenZeppelin `ReentrancyGuard` where funds
 move, and a shared `TokenTransfer` library that turns any failed ERC-20 transfer into a single
 explicit revert, `TransferRejected(token, to, amount, reason)` (or `TransferFromRejected` on the
-inbound side), with the token's own revert data attached. This matters for Robinhood Stock
+inbound side), with the token's own revert data attached. This matters for Elysium Stock
 Tokens, which run compliance checks on sender and receiver and revert for unverified addresses.
 When that happens the whole transaction unwinds: nothing is marked done, nothing is stuck, and
 the normal cancel or withdraw path still works.
@@ -49,7 +49,7 @@ Private allocation claim for a launch or airdrop.
   `Claim(address account,address recipient,uint256 amount,uint256 deadline)`. The signature is
   bound to the recipient, so a relayer cannot redirect it. Replay is prevented by the
   one-claim-per-account rule, so there is no separate nonce; `deadline` limits how long an
-  unsubmitted signature stays valid. Domain: name `Rheo PrivateClaim`, version `1`.
+  unsubmitted signature stays valid. Domain: name `Raqio PrivateClaim`, version `1`.
 - One claim per account. After `end`, the owner can `sweep` unclaimed tokens.
 - Leaf: `keccak256(bytes.concat(keccak256(abi.encode(account, amount))))`, OpenZeppelin
   sorted-pair hashing.
@@ -118,7 +118,7 @@ contracts/
     DelegatedTreasury.sol
     TokenTransfer.sol          shared transfer helper
     mocks/MockUSDG.sol         6-decimal stablecoin for tests
-    mocks/MockRestrictedToken.sol  allowlisted ERC-20 that models Stock Token restrictions
+    mocks/MockRestrictedToken.sol  allowlisted ERC-20 that models Restricted token restrictions
   test/                        one test file per contract, plus test/utils/Merkle.sol
   script/Deploy.s.sol          deploys all four
   lib/                         forge-std and openzeppelin-contracts (git submodules / vendored)
@@ -141,17 +141,17 @@ recipient in a signature, leg double-execute and `notBefore`, plan cancel and wi
 fill by the wrong taker, expiry refund, clean reverts on restricted tokens for every contract,
 four-eyes, the daily cap, role checks, and one fuzz test per contract.
 
-## Deploying to Robinhood Chain
+## Deploying to Elysium
 
-Robinhood Chain is an Arbitrum Orbit L2 with chain id 4663. For the RPC URL, explorer and the
-USDG contract address, see the Robinhood Chain docs; nothing here hard-codes them.
+Elysium is an Arbitrum Orbit L2 with chain id 99801. For the RPC URL, explorer and the
+USDG contract address, see the Elysium docs; nothing here hard-codes them.
 
 Environment (put these in `contracts/.env`, which is git-ignored, or export them):
 
 ```
-ROBINHOOD_RPC_URL=<from the Robinhood Chain docs>
-Rheo_OWNER=0x...             # owner of PrivateClaim and DelegatedTreasury
-Rheo_CLAIM_TOKEN=0x...       # ERC-20 distributed by PrivateClaim, e.g. USDG
+ELYSIUM_RPC_URL=<from the Elysium docs>
+Raqio_OWNER=0x...             # owner of PrivateClaim and DelegatedTreasury
+Raqio_CLAIM_TOKEN=0x...       # ERC-20 distributed by PrivateClaim, e.g. USDG
 PRIVATE_KEY=0x...             # deployer key (or use --ledger / --account instead)
 ```
 
@@ -160,13 +160,13 @@ Then:
 ```
 cd contracts
 forge script script/Deploy.s.sol:Deploy \
-  --rpc-url "$ROBINHOOD_RPC_URL" \
-  --chain-id 4663 \
+  --rpc-url "$ELYSIUM_RPC_URL" \
+  --chain-id 99801 \
   --private-key "$PRIVATE_KEY" \
   --broadcast
 ```
 
-The script prints the four addresses. Verification depends on the explorer Robinhood Chain
+The script prints the four addresses. Verification depends on the explorer Elysium
 provides; pass the usual `--verify` flags for it if supported.
 
 After deployment:

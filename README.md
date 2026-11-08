@@ -1,10 +1,12 @@
-# Rheo
+# Raqio
 
-The private execution desk for Robinhood Chain. **Private externally. Transparent internally.**
+Vault platform continuation: [implementation status](docs/platform-implementation-status.md). Includes token/LP/NFT locks, streamed airdrops, a public explorer and a bounded on-chain commitment score on Elysium Testnet. Public deployments and independent audits are separate from the local implementation.
 
-A Rheo is one controlled operation made of legs, executed from one desk: prepare the legs, get a second pair of eyes, fund, execute leg by leg, reconcile, keep an append-only record. The wallet that owns the funds or the eligibility never appears as the destination on-chain.
+The private execution desk for Elysium. **Private externally. Transparent internally.**
 
-Rheo never says "anonymous", "untraceable" or "unlinkable". Amounts, timing and the desk contract address stay public, and anyone comparing explorers can correlate them. Every page says what stays visible.
+A Raqio is one controlled operation made of legs, executed from one desk: prepare the legs, get a second pair of eyes, fund, execute leg by leg, reconcile, keep an append-only record. The wallet that owns the funds or the eligibility never appears as the destination on-chain.
+
+Raqio never says "anonymous", "untraceable" or "unlinkable". Amounts, timing and the desk contract address stay public, and anyone comparing explorers can correlate them. Every page says what stays visible.
 
 ## The four operations
 
@@ -15,7 +17,7 @@ Rheo never says "anonymous", "untraceable" or "unlinkable". Amounts, timing and 
 | **OTC** · Private OTC block | Maker deposits asset A, names a counterparty (or anyone), wants asset B, sets an expiry. The taker fills atomically in one transaction. Never touches a pool or an order book. Each side can receive into a fresh address. | `OtcEscrow` |
 | **TREASURY** · Delegated treasury | Owner funds; an operator proposes (token, to, amount); an approver who is not the proposer approves; the operator executes. Daily spend cap per token. Four-eyes enforced on-chain. | `DelegatedTreasury` |
 
-Robinhood Stock Tokens carry transfer restrictions (compliance checks on sender and receiver). A fresh, unverified address cannot hold them, so stock-token legs must go to verified addresses; USDG legs can go anywhere. The contracts surface a restricted transfer as a clean revert and never leave funds stuck.
+Tokens with transfer restrictions carry transfer restrictions (compliance checks on sender and receiver). A fresh, unverified address cannot hold them, so stock-token legs must go to verified addresses; USDG legs can go anywhere. The contracts surface a restricted transfer as a clean revert and never leave funds stuck.
 
 ## What is in this repository
 
@@ -28,13 +30,13 @@ Demo mode (the default) simulates routing, funding and settlement with a determi
 ## Quick start
 
 ```bash
-cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET, Rheo_ENCRYPTION_KEY
+cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET, Raqio_ENCRYPTION_KEY
 npm install
 npm run db:push && npm run db:seed
 npm run dev
 ```
 
-Open http://localhost:3000 and sign in as `desk@halden.example` / `Rheo-demo-2026` (also `owner@`, `approver@`, `viewer@`).
+Open http://localhost:3000 and sign in as `desk@halden.example` / `Raqio-demo-2026` (also `owner@`, `approver@`, `viewer@`).
 
 Contracts:
 
@@ -61,4 +63,4 @@ forge test -vv
 
 ## Also in this repository
 
-- [lancefield/](lancefield/README.md): Lancefield, a separate Next.js app (an AI-agent contest ground with its own brand). It has its own `package.json`, database and tests; nothing in it depends on Rheo.
+- [lancefield/](lancefield/README.md): Lancefield, a separate Next.js app (an AI-agent contest ground with its own brand). It has its own `package.json`, database and tests; nothing in it depends on Raqio.

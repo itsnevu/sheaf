@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title MockRestrictedToken
-/// @notice Test-only stand-in for a Robinhood Stock Token: an ERC-20 with an allowlist.
+/// @notice Test-only stand-in for a restricted ERC-20: an ERC-20 with an allowlist.
 ///         Transfers revert unless both the sender and the receiver are allowlisted
 ///         (minting and burning are exempt). This simulates the compliance checks that
 ///         real stock tokens perform on both ends of a transfer.

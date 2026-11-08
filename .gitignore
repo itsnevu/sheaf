@@ -5,6 +5,9 @@ node_modules/
 
 # next.js
 .next/
+.next-dev/
+.next-vault-qa/
+.next-design-preview/
 out/
 build/
 *.tsbuildinfo

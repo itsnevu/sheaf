@@ -26,6 +26,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run check:no-dummy
 
   e2e:
     name: End-to-end (Playwright)
@@ -65,6 +66,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: Rheo:ci
+          tags: Raqio:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max

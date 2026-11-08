@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "brand_context": {
+    "name": "Raqio",
+    "offering": "Token vesting and streaming on Elysium",
+    "industry": "Web3 infrastructure",
+    "audience": "Builders and token distribution teams",
+    "positioning": "Value released over time; no additional product claims"
+  },
+  "identity_route": "create-identity",
+  "requested_outputs": "Exactly three symbol-only SVG logo concepts for review; no application until selected",
+  "palette": {
+    "state": "fixed",
+    "evidence": "source-declared",
+    "source": "User Electric Blue Engraving brief",
+    "foreground": "#0040FF",
+    "background": "#F2F4FF"
+  },
+  "reference_signals": [
+    "fluid silhouette",
+    "low-detail icon",
+    "confident solid fill",
+    "recognizable at small sizes"
+  ],
+  "forbidden": [
+    "Do not reproduce Hyperliquid's logo geometry or negative space",
+    "No infinity symbol, H-shaped blob, generic droplet, gradients, bevels, mockups, ornamental initials",
+    "No wordmark or extra text"
+  ],
+  "typography": "not_applicable"
+}

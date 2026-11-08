@@ -13,7 +13,7 @@ export default function Navbar({signedIn=false}:{signedIn?:boolean}){
  return <>
   <header className={`engraving-nav ${scrolled?'is-floating':''}`}>
    <motion.div layout className="engraving-nav-inner" transition={{duration:.4,ease:[.16,1,.3,1]}}>
-    <LogoLink/>
+    <LogoLink white={scrolled}/>
     <nav aria-label="Primary" className="engraving-nav-links">{LINKS.map(l=><Link key={l.href} href={l.href} aria-current={path===l.href?'page':undefined}>{l.label}</Link>)}</nav>
     <div className="engraving-nav-actions"><span className="network-label micro">CHAIN 99801</span><Link href="/sign-in" className="nav-signin">Sign in</Link><Link href={signedIn?'/app':'/sign-in'} className="btn btn-primary">Launch app ↗</Link><span className="nav-language micro" lang="en">EN</span><button type="button" className="nav-menu" aria-label="Open navigation" aria-haspopup="dialog" aria-expanded={open} onClick={()=>setOpen(true)}>☰</button></div>
    </motion.div>
@@ -21,7 +21,7 @@ export default function Navbar({signedIn=false}:{signedIn?:boolean}){
   <dialog ref={dialog} className="nav-sheet" onClose={()=>setOpen(false)}>
    <div className="nav-sheet-top"><LogoLink/><button type="button" className="btn btn-secondary" onClick={()=>setOpen(false)}>Close ×</button></div>
    <nav aria-label="Mobile">{[...LINKS,{href:'/privacy',label:'Privacy'},{href:'/sign-in',label:'Sign in'}].map((l,i)=><Link href={l.href} key={l.href} onClick={()=>setOpen(false)}><span className="micro">0{i+1}</span>{l.label} ↗</Link>)}</nav>
-   <p className="micro">Rheo / Elysium Testnet / tokens have no value</p>
+   <p className="micro">Raqio / Elysium Testnet / tokens have no value</p>
   </dialog>
  </>;
 }

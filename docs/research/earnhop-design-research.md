@@ -7,7 +7,7 @@ Reference: https://www.earnhop.app/ — reviewed 21 September 2026.
 - The live site was **not reachable** during this research. `https://www.earnhop.app/` and `https://earnhop.app/` both return HTTP 404 with the body `DEPLOYMENT_NOT_FOUND` (Vercel). DNS resolves to Vercel (`*.vercel-dns-016.com`), so the domain exists but the deployment behind it has been removed or unpublished.
 - The Internet Archive holds **one** HTML capture, 13 September 2026 17:09 UTC (`web.archive.org/web/20260913170935/https://www.earnhop.app/`). Only the home page was captured; no sub-pages (`/dashboard`, `/dashboard/docs`, `/dashboard/leaderboard`, `/dashboard/whitepaper`, `/dashboard/privacy`, `/dashboard/terms`) exist in the archive.
 - Method: the archived HTML (300 KB), its three Next.js CSS bundles (about 97 KB total), and headless-Chrome renders of the archived page at 1440 px and 390 px widths. JavaScript-driven scroll scenes did not fully play back through the archive, so most observations below the hero come from the markup and CSS rather than a rendered screenshot.
-- The archived page's `og:url` is `breachbunny-clone.vercel.app`, and the product on the page is called **HOP** ("precision markets on Robinhood Chain"), a prediction-market product. Whatever EarnHop was intended to be, the capture that exists is this page. It is treated here purely as a visual and structural reference.
+- The archived page's `og:url` is `breachbunny-clone.vercel.app`, and the product on the page is called **HOP** ("precision markets on Elysium"), a prediction-market product. Whatever EarnHop was intended to be, the capture that exists is this page. It is treated here purely as a visual and structural reference.
 
 ## 1. Observed design characteristics
 
@@ -22,13 +22,13 @@ Reference: https://www.earnhop.app/ — reviewed 21 September 2026.
 
 Order as found in the archived DOM (headings quoted verbatim):
 
-1. **Top bar**: small live-status line ("Live precision pools on Robinhood Chain · settled in USDG ·"), wordmark, nav links (Pools, Leaderboard, How it works, Whitepaper), X/Twitter icon, "Open app" pill, hamburger "Menu" on mobile.
+1. **Top bar**: small live-status line ("Live precision pools on Elysium · settled in USDG ·"), wordmark, nav links (Pools, Leaderboard, How it works, Whitepaper), X/Twitter icon, "Open app" pill, hamburger "Menu" on mobile.
 2. **Hero**: `h1` "Don't pick a side. / Pick the number." Two-line headline, second line in accent. One paragraph, one tag line ("Nobody is wrong. Some are just further away."), one CTA ("Open app"). Left-aligned, vertically centred, occupying the first viewport.
 3. **Ticker / proof strip**: eight short one-line statements ("Forecast a number. Not up or down — the exact price.", "Closer pays more…", "Settled in USDG…") that read like a rotating marquee.
 4. **Definition scene**: `h2` "HOP is a precision market." plus one paragraph.
 5. **Three-step how-it-works**: three `h2` scenes ("Pick a pool / Any market, any horizon", "Post your number / Stake USDG", "Get scored / Closer pays more"), each with one paragraph and one link.
 6. **Feature grid**: `h2` "What's under the hood." followed by eight `h3` feature cards (Wallet sign-in, Timing bonus, Precision scoring, Conviction, Public rules, Live price feeds, USDG settlement, Leaderboard). Every card is a link with an "Open pool" label.
-7. **About / mission / stack**: three `h2` scenes ("Who we are — on-chain, by the numbers.", "Our mission: markets priced by precision.", "Built on Robinhood Chain.") and "The stack:" with three bracketed items ([Robinhood Chain], [USDG], [Your wallet]).
+7. **About / mission / stack**: three `h2` scenes ("Who we are — on-chain, by the numbers.", "Our mission: markets priced by precision.", "Built on Elysium.") and "The stack:" with three bracketed items ([Elysium], [USDG], [Your wallet]).
 8. **Scroll cue**: "Scroll to see how it works" with three animated chevrons (`slideDown` 1.8 s staggered).
 9. **Summary panel**: wordmark, one-line definition, two paragraphs, a bulleted list of five facts with the key word emphasised ("Settled in **USDG**", "Scoring is **public**", "House cut **3 %**").
 10. **Closing / "Pools open"** CTA scene with a short paragraph.
@@ -68,24 +68,24 @@ Order as found in the archived DOM (headings quoted verbatim):
 - Display copy width is capped (`width: 600px` desktop, `310px` under 768 px) rather than fluid, which keeps line lengths short.
 - No horizontal overflow observed in the mobile render.
 
-## 7. Design principles adaptable to Rheo
+## 7. Design principles adaptable to Raqio
 
-1. **One accent, used sparingly and only for action or emphasis.** Rheo uses a single accent for primary actions and the emphasised word in headings, never for decoration.
-2. **A distinctive display/body pairing.** Rheo pairs a grotesk display with a monospace used for numbers, addresses, statuses and eyebrow labels (the inverse of HOP's mono-display choice, which suits a finance tool where the mono carries data rather than slogans).
+1. **One accent, used sparingly and only for action or emphasis.** Raqio uses a single accent for primary actions and the emphasised word in headings, never for decoration.
+2. **A distinctive display/body pairing.** Raqio pairs a grotesk display with a monospace used for numbers, addresses, statuses and eyebrow labels (the inverse of HOP's mono-display choice, which suits a finance tool where the mono carries data rather than slogans).
 3. **Scene-based storytelling with one idea per scene.** Each marketing section carries one heading, one paragraph and one visual. Feature descriptions are one sentence.
 4. **Viewport-scaled sections and alternating alignment** to create rhythm without dividers.
-5. **Hard restraint on radii and shadows.** Rheo uses two radii (pill and 14–20 px panels) and one ink-tinted shadow scale.
-6. **Proof strip under the hero** (short factual lines) becomes Rheo's batch-status strip fed by the demo data.
-7. **Copy that states the mechanism**, not the benefit ("Stakes and payouts are plain USDG transfers…"). Rheo describes what the batch engine does and what it cannot promise.
+5. **Hard restraint on radii and shadows.** Raqio uses two radii (pill and 14–20 px panels) and one ink-tinted shadow scale.
+6. **Proof strip under the hero** (short factual lines) becomes Raqio's batch-status strip fed by the demo data.
+7. **Copy that states the mechanism**, not the benefit ("Stakes and payouts are plain USDG transfers…"). Raqio describes what the batch engine does and what it cannot promise.
 8. **Hover effects gated behind `hover: hover`** and animations behind `prefers-reduced-motion`.
 
 ## 8. Elements that should not be copied
 
 - The HOP/EarnHop name, wordmark, logo, favicon and OG image.
-- The neon magenta-on-violet palette and glow buttons. They read as consumer crypto/gaming and contradict Rheo's enterprise-finance positioning; Rheo uses charcoal, warm neutrals and one restrained accent.
+- The neon magenta-on-violet palette and glow buttons. They read as consumer crypto/gaming and contradict Raqio's enterprise-finance positioning; Raqio uses charcoal, warm neutrals and one restrained accent.
 - The uppercase Space Mono headlines (a signature choice of the reference).
 - Any copy, section titles, illustrations or the "[bracketed]" stack list styling.
-- The Robinhood Chain and USDG imagery (`logo-robinhood.png`, `logo-usdg.png`, `pay-*.png` uploads) and the cloudfront illustrations (`eyeballs`, `virtual_ears`, `device_plug`), which belong to the original site.
+- The Elysium and USDG imagery (`third-party exchange logo`, `logo-usdg.png`, `pay-*.png` uploads) and the cloudfront illustrations (`eyeballs`, `virtual_ears`, `device_plug`), which belong to the original site.
 
 ## 9. Uncertainties and inaccessible areas
 

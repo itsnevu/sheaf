@@ -1,0 +1,23 @@
+{
+  "source_summary": "Exact electric blue, navy and ice palette specified by the user in the Electric Blue Engraving brief; reused for the requested Raqio logo concepts.",
+  "palette": {
+    "colors": [
+      {
+        "hex": "#0040FF",
+        "name": "Electric",
+        "role": "accent"
+      },
+      {
+        "hex": "#00126B",
+        "name": "Navy",
+        "role": "background"
+      },
+      {
+        "hex": "#F2F4FF",
+        "name": "Ice",
+        "role": "text"
+      }
+    ],
+    "gradients": []
+  }
+}

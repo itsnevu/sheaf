@@ -4,7 +4,7 @@ import { configProblems } from "@/lib/env";
 const good = {
   NODE_ENV: "production",
   SESSION_SECRET: "a".repeat(40),
-  SHEAF_ENCRYPTION_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  RAQIO_ENCRYPTION_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   DATABASE_URL: "file:./prod.db",
   WORKER_MODE: "in-process",
   SHEAF_MODE: "demo",
@@ -19,9 +19,9 @@ describe("configProblems", () => {
     expect(configProblems({ NODE_ENV: "production", NEXT_PHASE: "phase-production-build" } as NodeJS.ProcessEnv)).toEqual([]);
   });
   it("refuses placeholder secrets", () => {
-    const problems = configProblems({ ...good, SESSION_SECRET: "change-me-to-a-long-random-string", SHEAF_ENCRYPTION_KEY: "" });
+    const problems = configProblems({ ...good, SESSION_SECRET: "change-me-to-a-long-random-string", RAQIO_ENCRYPTION_KEY: "" });
     expect(problems.some((p) => p.includes("SESSION_SECRET"))).toBe(true);
-    expect(problems.some((p) => p.includes("SHEAF_ENCRYPTION_KEY"))).toBe(true);
+    expect(problems.some((p) => p.includes("RAQIO_ENCRYPTION_KEY"))).toBe(true);
   });
   it("requires a worker secret when the worker is external", () => {
     expect(configProblems({ ...good, WORKER_MODE: "off", WORKER_SECRET: "change-me" }).some((p) => p.includes("WORKER_SECRET"))).toBe(true);

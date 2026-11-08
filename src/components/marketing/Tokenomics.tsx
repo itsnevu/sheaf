@@ -1,0 +1,1 @@
+export default function Tokenomics(){return <div className="inset p-6"><p>A RAQIO token deployment and its parameters have not been configured for this instance.</p><p className="help mt-3">No token supply, staking return, fee discount or burn rate is presented as active. The draft tokenomics document is a proposal, separate from the vault deposit fee.</p></div>;}

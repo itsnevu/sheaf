@@ -29,9 +29,12 @@ export async function quoteRecipient(batch: PaymentBatch, r: BatchRecipient): Pr
   const provider = providerFor(batch.mode as "demo" | "real");
   const originAsset = KNOWN_ASSETS[batch.originChainId]?.[batch.assetSymbol];
   const destAsset = KNOWN_ASSETS[batch.destinationChainId]?.[batch.assetSymbol];
-  const user = org.treasuryAddress ?? "0x000000000000000000000000000000000000dEaD";
+  const user = org.treasuryAddress ?? "0x000000000000000000000000000000000000dEaD"; // raqio:real-data-ok burn address fallback
   if (!r.address || !r.amount) return false;
-  const res = await provider.quote({
+  const nativeAsset = batch.assetSymbol === "HYPE" || batch.assetSymbol === "ETH";
+  const configuredAsset = (asset: { address: string } | undefined) => !!asset && /^0x[0-9a-fA-F]{40}$/.test(asset.address) && (nativeAsset || !/^0x0{40}$/i.test(asset.address));
+  const missingConfig = batch.mode === "real" && (!org.treasuryAddress || !configuredAsset(originAsset) || !configuredAsset(destAsset));
+  const res = missingConfig ? { ok: false as const, code: "ASSET_NOT_CONFIGURED", message: "Configure the desk wallet and actual token addresses on both networks. An unconfigured ERC-20 cannot be treated as native HYPE.", retryable: false } : await provider.quote({
     user,
     recipient: r.address,
     originChainId: batch.originChainId,

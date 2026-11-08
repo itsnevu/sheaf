@@ -1,0 +1,17 @@
+/* Engraved feature plates; the hero uses the original editorial composition. */
+.hero-illustration{order:2}
+.electric-hero .hero-copy h1>span,[data-tone="electric"] .second-line,.fee-grid>article:first-child .fee-value>span{color:var(--electric-secondary)}
+.release-sculpture{position:relative;isolation:isolate;height:340px;width:min(640px,100%);margin:0 auto 24px}
+.release-canvas,.sculpture-fallback{position:absolute;inset:0;width:100%;height:100%}
+.release-canvas canvas{touch-action:pan-y!important}
+.sculpture-fallback{display:flex;align-items:center;justify-content:center;transition:opacity 400ms}
+.sculpture-fallback .machine-engraving{height:100%;width:100%;color:var(--ice)}
+.scene-ready .sculpture-fallback{opacity:0;pointer-events:none}
+.sculpture-caption{position:absolute;left:0;right:0;bottom:-8px;text-align:center;font-size:8px;pointer-events:none;color:var(--ice-85)}
+.feature-image .machine-engraving{width:100%;height:100%;color:var(--ice);transition:transform 600ms var(--ease)}
+.machine-wheel{transform-origin:0 0}
+.machine-flow{stroke-dasharray:5 12;animation:release-flow 5s linear infinite}
+@keyframes release-flow{to{stroke-dashoffset:-170}}
+@media(hover:hover){.feature-card:hover .machine-engraving{transform:scale(1.035)}.feature-card:hover .machine-wheel{animation:machine-turn 20s linear infinite}}
+@keyframes machine-turn{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.machine-wheel,.machine-flow{animation:none}.sculpture-fallback{transition:none}}

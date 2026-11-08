@@ -1,5 +1,5 @@
 {
-  "name": "Rheo",
+  "name": "Raqio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -19,7 +19,10 @@
     "db:encrypt": "tsx scripts/encrypt-existing.ts",
     "db:migrate": "prisma migrate deploy && tsx scripts/db-harden.ts",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run typecheck && npm test",
+    "test:vault-ui": "node scripts/qa-vault-flow.cjs",
+    "contracts:abi": "node scripts/sync-contract-abis.cjs",
+    "check:no-dummy": "tsx scripts/check-no-dummy.ts",
+    "check": "npm run lint && npm run typecheck && npm test && npm run check:no-dummy",
     "db:provider": "node scripts/db-provider.mjs",
     "start:standalone": "node .next/standalone/server.js"
   },

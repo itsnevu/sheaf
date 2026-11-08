@@ -13,7 +13,7 @@ import {DelegatedTreasury} from "../src/DelegatedTreasury.sol";
 /// @dev Environment variables:
 ///      - `SHEAF_OWNER`        owner of PrivateClaim and DelegatedTreasury (required)
 ///      - `SHEAF_CLAIM_TOKEN`  ERC-20 distributed by PrivateClaim, e.g. USDG (required)
-///      Run with `--rpc-url $ROBINHOOD_RPC_URL --broadcast` (see README).
+///      Run with `--rpc-url $ELYSIUM_RPC_URL --broadcast` (see README).
 contract Deploy is Script {
     function run() external {
         address owner = vm.envAddress("SHEAF_OWNER");

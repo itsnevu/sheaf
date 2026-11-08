@@ -1,6 +1,6 @@
 # Deployment
 
-Rheo ships as a single Next.js server with a built-in job worker. This guide covers the Docker image, the database, the secrets the server refuses to start without, and the checks to run before the first real operation.
+Raqio ships as a single Next.js server with a built-in job worker. This guide covers the Docker image, the database, the secrets the server refuses to start without, and the checks to run before the first real operation.
 
 ## 1. Secrets and configuration
 
@@ -9,11 +9,11 @@ Generate each secret once and store it in your secret manager. The server valida
 | Variable | How to generate | Notes |
 |---|---|---|
 | `SESSION_SECRET` | `openssl rand -hex 32` | Signs session token hashes. Rotating it signs everyone out. |
-| `Rheo_ENCRYPTION_KEY` | `openssl rand -hex 32` | AES-256-GCM key for leg labels, memos and CSV originals. **Losing it makes those fields unreadable.** Back it up together with the database and never store it next to a backup of the data. |
+| `Raqio_ENCRYPTION_KEY` | `openssl rand -hex 32` | AES-256-GCM key for leg labels, memos and CSV originals. **Losing it makes those fields unreadable.** Back it up together with the database and never store it next to a backup of the data. |
 | `WORKER_SECRET` | `openssl rand -hex 16` | Only needed when `WORKER_MODE=off` (external scheduler calls `POST /api/worker/run`). |
-| `DATABASE_URL` | — | `file:/data/Rheo.db` for SQLite on a persistent volume, or a PostgreSQL URL. |
-| `Rheo_MODE` | — | `demo` (simulated) or `real` (Relay + desk wallet). Recorded on every operation; changing it never re-routes old operations. |
-| `Rheo_USDG_ADDRESS_4663` | from Relay `/currencies/v2` | Real mode only. The USDG contract on Robinhood Chain. |
+| `DATABASE_URL` | — | `file:/data/Raqio.db` for SQLite on a persistent volume, or a PostgreSQL URL. |
+| `RAQIO_MODE` | — | `demo` (simulated) or `real` (Relay + desk wallet). Recorded on every operation; changing it never re-routes old operations. |
+| `RAQIO_USDG_ADDRESS_99801` | from Relay `/currencies/v2` | Real mode only. The USDG contract on Elysium. |
 | `NEXT_PUBLIC_APP_URL` | — | Public HTTPS origin, used for absolute links and metadata. |
 | `RELAY_API_KEY` | from Relay | Real mode only. Raises the 50 quotes/minute public limit. Server-side only. |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | from cloud.reown.com | Optional; adds WalletConnect next to injected wallets in real mode. |
@@ -22,13 +22,13 @@ Everything else has a safe default; see `.env.example`.
 
 ## 2. Database
 
-**SQLite** (default) suits a single server. Mount a volume at `/data` and set `DATABASE_URL=file:/data/Rheo.db`. Back up the file with `sqlite3 /data/Rheo.db ".backup /backups/Rheo-$(date +%F).db"`; do not copy a live file.
+**SQLite** (default) suits a single server. Mount a volume at `/data` and set `DATABASE_URL=file:/data/Raqio.db`. Back up the file with `sqlite3 /data/Raqio.db ".backup /backups/Raqio-$(date +%F).db"`; do not copy a live file.
 
 **PostgreSQL** is recommended for anything with more than one operator or where point-in-time recovery matters:
 
 ```bash
 npm run db:provider -- postgresql      # switches prisma/schema.prisma and regenerates the client
-export DATABASE_URL=postgresql://Rheo:***@host:5432/Rheo?schema=public
+export DATABASE_URL=postgresql://Raqio:***@host:5432/Raqio?schema=public
 npm run db:push                        # or: npx prisma migrate dev --name init, then npm run db:migrate in production
 ```
 
@@ -39,16 +39,16 @@ If the database was populated before encryption was enabled, run `npm run db:enc
 ## 3. Docker
 
 ```bash
-docker build -t Rheo .
-docker run -d --name Rheo -p 3000:3000 \
-  -v Rheo-data:/data \
-  -e DATABASE_URL=file:/data/Rheo.db \
-  -e SESSION_SECRET=... -e Rheo_ENCRYPTION_KEY=... -e WORKER_SECRET=... \
-  -e Rheo_MODE=demo -e NEXT_PUBLIC_APP_URL=https://desk.example.com \
-  Rheo
+docker build -t Raqio .
+docker run -d --name Raqio -p 3000:3000 \
+  -v Raqio-data:/data \
+  -e DATABASE_URL=file:/data/Raqio.db \
+  -e SESSION_SECRET=... -e Raqio_ENCRYPTION_KEY=... -e WORKER_SECRET=... \
+  -e RAQIO_MODE=demo -e NEXT_PUBLIC_APP_URL=https://desk.example.com \
+  Raqio
 ```
 
-The entrypoint applies the schema and triggers, then starts the standalone server as a non-root user. Set `Rheo_SEED_DEMO=1` on a fresh volume to load the Halden Desk demo workspace, and `Rheo_SKIP_MIGRATE=1` if migrations run from a separate job. `/api/health` returns `{"ok":true,...}` and the image has a `HEALTHCHECK` on it.
+The entrypoint applies the schema and triggers, then starts the standalone server as a non-root user. Set `Raqio_SEED_DEMO=1` on a fresh volume to load the Halden Desk demo workspace, and `Raqio_SKIP_MIGRATE=1` if migrations run from a separate job. `/api/health` returns `{"ok":true,...}` and the image has a `HEALTHCHECK` on it.
 
 `docker-compose.yml` runs the app with PostgreSQL 16 for a local production-like stack (`docker compose up --build` after switching the provider and filling `.env`).
 
@@ -70,17 +70,17 @@ Terminate TLS in front of the app and forward `X-Forwarded-For` (the sign-in rat
 ## 6. Pre-launch checklist
 
 - [ ] `npm run check` and `npm run test:e2e` pass on the release commit (CI runs both).
-- [ ] Production secrets generated and stored; `Rheo_ENCRYPTION_KEY` backed up separately from the database.
+- [ ] Production secrets generated and stored; `Raqio_ENCRYPTION_KEY` backed up separately from the database.
 - [ ] Database on a persistent volume or managed PostgreSQL with automated backups; a restore has been rehearsed.
 - [ ] `/api/health` reachable from the load balancer; alerts on non-200.
 - [ ] Exactly one worker path enabled (in-process on one instance, or scheduler → `/api/worker/run`).
 - [ ] First desk created through `/sign-up` (creates the Owner); demo seed **not** loaded in production.
 - [ ] Four-eyes approval left on in Settings (delegated treasury depends on it); retry limit reviewed.
-- [ ] Real mode only: desk wallet set in Settings, `Rheo_USDG_ADDRESS_4663` verified, `RELAY_API_KEY` configured, and one small operation executed on the Robinhood Chain testnet (chain `46630`, `RELAY_API_URL=https://api.testnets.relay.link`, if Relay lists it) or on Base Sepolia (`84532`) with a funded test wallet before any mainnet run.
+- [ ] Real mode only: desk wallet set in Settings, `RAQIO_USDG_ADDRESS_99801` verified, `RELAY_API_KEY` configured, and one small operation executed on the Elysium testnet (chain `99801`, `RELAY_API_URL=https://api.testnets.relay.link`, if Relay lists it) or on Base Sepolia (`84532`) with a funded test wallet before any mainnet run.
 - [ ] Understood that the desk contracts in `contracts/` are not called by this version: real-mode legs are plain routes signed by the desk wallet.
 
 ## 7. Upgrades
 
 1. Back up the database.
-2. Deploy the new image; the entrypoint applies schema changes (`prisma db push`) and re-installs the triggers. For PostgreSQL with a migration history, use `npm run db:migrate` instead and set `Rheo_SKIP_MIGRATE=1`.
+2. Deploy the new image; the entrypoint applies schema changes (`prisma db push`) and re-installs the triggers. For PostgreSQL with a migration history, use `npm run db:migrate` instead and set `Raqio_SKIP_MIGRATE=1`.
 3. Check `/api/health` and the activity feed.

@@ -187,6 +187,11 @@ describe("poll_route outcomes", () => {
 });
 
 describe("processJobs", () => {
+  beforeEach(async () => {
+    // Other integration cases leave queued jobs in the shared test database.
+    // Isolate this scheduler fixture so a limit of 10 cannot select unrelated work first.
+    await db.job.deleteMany({});
+  });
   it("claims each job once, retries with backoff and gives up after maxAttempts", async () => {
     const job = await db.job.create({ data: { type: "poll_route", idempotencyKey: "poll:missing:" + Date.now(), payload: JSON.stringify({ attemptId: "missing", polls: 0 }), maxAttempts: 2 } });
     // Unknown attempt id is a no-op success.

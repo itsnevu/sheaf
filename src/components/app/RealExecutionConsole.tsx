@@ -1,16 +1,17 @@
 "use client";
+import { elysiumTestnet } from "@/lib/contracts/config";
 
 /**
  * Real-mode wallet console. Loaded only in real mode (dynamic import) so wagmi/viem stay out
  * of the demo bundle. The desk wallet signs each leg's route steps here; the server records the
  * hash and polls the provider. The server never holds a key. The desk contracts in contracts/
- * are not called from here yet: legs are plain Relay routes into Robinhood Chain.
+ * are not called from here yet: legs are plain Relay routes into Elysium.
  */
 import { useMemo, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, createConfig, http, useAccount, useConnect, useDisconnect, useReadContract, useSendTransaction, useSwitchChain } from "wagmi";
 import { injected, walletConnect } from "wagmi/connectors";
-import { robinhood, base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia, type Chain } from "wagmi/chains";
+import { base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia, type Chain } from "wagmi/chains";
 import { erc20Abi, formatUnits as viemFormat } from "viem";
 import { Button, Money, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/client";
@@ -19,7 +20,7 @@ import { chainName } from "@/lib/config";
 import type { BatchDetail } from "./useBatch";
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
-const CHAINS: readonly [Chain, ...Chain[]] = [robinhood, base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia];
+const CHAINS: readonly [Chain, ...Chain[]] = [elysiumTestnet, base, baseSepolia, arbitrum, mainnet, optimism, polygon, sepolia];
 const config = createConfig({
   chains: CHAINS,
   connectors: [injected(), ...(WC_PROJECT_ID ? [walletConnect({ projectId: WC_PROJECT_ID, showQrModal: true })] : [])],

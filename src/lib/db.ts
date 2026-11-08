@@ -35,7 +35,7 @@ function encryptData(data: unknown, fields: string[]): void {
 export function createPrismaClient() {
   const base = new PrismaClient({ log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"] });
   return base.$extends({
-    name: "rheo",
+    name: "raqio",
     query: {
       $allModels: {
         async $allOperations({ model, operation, args, query }) {

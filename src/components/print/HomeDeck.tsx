@@ -32,7 +32,7 @@ const SIM = [
   { to: "0x5d44…a0c8", amt: "12,000 USDG" },
   { to: "0x9e07…6f12", amt: "0.85 ETH" },
 ];
-/** One diagram cycle: each leg executes in turn, then the Rheo reconciles, then it starts over. */
+/** One diagram cycle: each leg executes in turn, then the Raqio reconciles, then it starts over. */
 const SIM_TICKS = SIM.length + 2;
 
 function useTick(ms: number) {
@@ -64,7 +64,7 @@ function Odometer({ label, value }: { label: string; value: number }) {
 }
 
 /**
- * One Rheo, drawn live: the owner funds the desk, the desk pays five legs out one at a time,
+ * One Raqio, drawn live: the owner funds the desk, the desk pays five legs out one at a time,
  * then the whole thing reconciles. The owner never appears on the right-hand side.
  */
 function Simulator({ tick }: { tick: number }) {
@@ -116,7 +116,7 @@ function Simulator({ tick }: { tick: number }) {
 
 /**
  * The index around the printer. While the roll is empty a cover sheet fills the centre (what
- * Rheo is, one Rheo drawn live, how a Rheo runs, the four operations, what stays visible);
+ * Raqio is, one Raqio drawn live, how a Raqio runs, the four operations, what stays visible);
  * it lifts as soon as the printer starts. A series card and a spec label sit by the printer,
  * a demo leg log with counters hangs in the right margin, and a tape of legs runs along the foot.
  */
@@ -129,12 +129,12 @@ export default function HomeDeck() {
     return { n: 1 + (n % 48), ...LEGS[n % LEGS.length]! };
   }).reverse();
   const tape = [...LEGS, ...LEGS];
-  const printSeries = (i: number) => window.dispatchEvent(new CustomEvent("Rheo:print", { detail: { series: i, work: 0 } }));
+  const printSeries = (i: number) => window.dispatchEvent(new CustomEvent("Raqio:print", { detail: { series: i, work: 0 } }));
 
   return (
     <>
-      <section className="h-cover" aria-label="About Rheo">
-        <p className="h-eyebrow">SH-4663 · THE PRIVATE EXECUTION DESK · ROBINHOOD CHAIN</p>
+      <section className="h-cover" aria-label="About Raqio">
+        <p className="h-eyebrow">RH-99801 · THE PRIVATE EXECUTION DESK · ELYSIUM</p>
         <div className="h-head">
           <h2 className="h-title">
             PRIVATE<br />EXTERNALLY<span className="h-red">.</span><br />
@@ -145,8 +145,8 @@ export default function HomeDeck() {
             <span className="h-tape h-tape-a" />
             <span className="h-tape h-tape-b" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/art/print/Rheo.png" alt="" width={148} height={148} />
-            <figcaption>FIG. 1 · A Rheo: MANY LEGS, ONE BAND</figcaption>
+            <img src="/art/print/Raqio.png" alt="" width={148} height={148} />
+            <figcaption>FIG. 1 · A Raqio: MANY LEGS, ONE BAND</figcaption>
           </figure>
         </div>
         <p className="h-lede">
@@ -154,12 +154,12 @@ export default function HomeDeck() {
         </p>
 
         <div className="h-block">
-          <p className="h-label"><span>__One Rheo, drawn live</span><span><i className="h-demo">DEMO</i> 05 LEGS</span></p>
+          <p className="h-label"><span>__One Raqio, drawn live</span><span><i className="h-demo">DEMO</i> 05 LEGS</span></p>
           <Simulator tick={simTick} />
         </div>
 
         <div className="h-block">
-          <p className="h-label"><span>__How a Rheo runs</span><span>06 STEPS</span></p>
+          <p className="h-label"><span>__How a Raqio runs</span><span>06 STEPS</span></p>
           <ol className="h-flow">
             {STEPS.map((s, i) => (
               <li key={s} data-on={i === step} data-done={i < step}>
@@ -212,7 +212,7 @@ export default function HomeDeck() {
       </section>
 
       <p className="h-spec" aria-hidden="true">
-        <b>MODEL SH-4663</b><br />THERMAL ROLL · 7 SERIES A–G<br />DRAG ME · TURN THE DIALS
+        <b>MODEL RH-99801</b><br />THERMAL ROLL · 7 SERIES A–G<br />DRAG ME · TURN THE DIALS
       </p>
       <p className="h-hint" aria-hidden="true"><span className="h-hint-arrow">▲</span> PRESS POWER TO PRINT</p>
 
@@ -246,7 +246,7 @@ export default function HomeDeck() {
           <Odometer label="LEGS" value={128 + logTick} />
           <Odometer label="RECONCILED" value={119 + logTick} />
         </div>
-        <p className="h-log-foot">FROM: Rheo DESK CONTRACT<br />OWNER: NOT A DESTINATION</p>
+        <p className="h-log-foot">FROM: Raqio DESK CONTRACT<br />OWNER: NOT A DESTINATION</p>
       </aside>
 
       <div className="h-tape-run" aria-hidden="true">

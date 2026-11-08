@@ -1,0 +1,46 @@
+{
+  "brandbookElements": [],
+  "essentialKitApproved": false,
+  "logo": {
+    "approvalSummary": "User explicitly selected: 3 · Meter — susunan aliran bertahap, and requested it be installed on the site.",
+    "asset": {
+      "id": "bc0eef78-3b91-4c4a-9878-aad14fa965f9",
+      "path": "C:\\Users\\user\\Documents\\sheaf\\brandkit\\logo\\meter.svg",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3GPZk7eTUINJTJb7dtXNk17dOv2/hf_20261108_061515_bc0eef78-3b91-4c4a-9878-aad14fa965f9.svg"
+    },
+    "geometryFingerprint": "1dd94bc0b19cc246d397d5615ab287f202c0a617333a21c9d47c341afb8c7727",
+    "name": "Meter",
+    "origin": "brandkit_generated",
+    "paletteRevision": 1,
+    "revision": 1
+  },
+  "palette": {
+    "approvalSummary": "Exact electric blue, navy and ice palette specified by the user in the Electric Blue Engraving brief; reused for the requested Raqio logo concepts.",
+    "colors": [
+      {
+        "hex": "#0040ff",
+        "name": "Electric",
+        "role": "accent"
+      },
+      {
+        "hex": "#00126b",
+        "name": "Navy",
+        "role": "background"
+      },
+      {
+        "hex": "#f2f4ff",
+        "name": "Ice",
+        "role": "text"
+      }
+    ],
+    "gradients": [],
+    "origin": "user_supplied",
+    "revision": 1
+  },
+  "version": 3,
+  "visualAxes": {
+    "familiarExperimental": 50,
+    "geometricOrganic": 50,
+    "restrainedExpressive": 50
+  }
+}

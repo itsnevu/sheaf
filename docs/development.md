@@ -8,15 +8,15 @@
 ## Setup
 
 ```bash
-cd Rheo
-cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET and Rheo_ENCRYPTION_KEY (openssl rand -hex 32)
+cd Raqio
+cp .env.example .env            # set SESSION_SECRET, WORKER_SECRET and Raqio_ENCRYPTION_KEY (openssl rand -hex 32)
 npm install                     # runs prisma generate
 npm run db:push                 # creates prisma/dev.db (SQLite) and installs the audit triggers
 npm run db:seed                 # demo desk "Halden Desk" with operations at every stage
 npm run dev                     # http://localhost:3000 (use -- -p 3100 if 3000 is taken)
 ```
 
-Seeded accounts (password `Rheo-demo-2026`):
+Seeded accounts (password `Raqio-demo-2026`):
 
 | Email | Role |
 |---|---|
@@ -52,15 +52,15 @@ See `.env.example` for the full list with comments. Summary:
 |---|---|---|
 | `DATABASE_URL` | `file:./dev.db` | Prisma connection |
 | `SESSION_SECRET` | — | Required; signs session token hashes. Production refuses placeholders or fewer than 32 characters |
-| `Rheo_ENCRYPTION_KEY` | — | 64 hex characters. Encrypts leg labels, memos and CSV originals at rest. Required in production; derived from `SESSION_SECRET` elsewhere. Back it up with the database |
-| `Rheo_RATE_LIMIT` | `on` | Sign-in/sign-up rate limiting; `off` only for automated tests |
-| `Rheo_MODE` | `demo` | `demo` or `real`; shown in the UI, recorded on every operation |
+| `Raqio_ENCRYPTION_KEY` | — | 64 hex characters. Encrypts leg labels, memos and CSV originals at rest. Required in production; derived from `SESSION_SECRET` elsewhere. Back it up with the database |
+| `Raqio_RATE_LIMIT` | `on` | Sign-in/sign-up rate limiting; `off` only for automated tests |
+| `RAQIO_MODE` | `demo` | `demo` or `real`; shown in the UI, recorded on every operation |
 | `RELAY_API_URL` | `https://api.relay.link` | Use `https://api.testnets.relay.link` for testnets |
 | `RELAY_API_KEY` | empty | Optional; raises rate limits; server-only |
 | `RELAY_REFERRER` | empty | Optional label; requires the key |
-| `Rheo_ORIGIN_CHAIN_ID` / `Rheo_DESTINATION_CHAIN_ID` | `4663` | Robinhood Chain on both sides; a different origin makes Relay route the funding into Robinhood Chain. Per-desk values live in Settings |
-| `Rheo_USDG_ADDRESS_4663` | empty | USDG contract on Robinhood Chain. Required for real mode; verify against Relay `/currencies/v2` |
-| `NEXT_PUBLIC_RPC_URL_<chainId>` | empty | Browser RPC override for the wallet console (viem ships the public Robinhood Chain RPC) |
+| `Raqio_ORIGIN_CHAIN_ID` / `Raqio_DESTINATION_CHAIN_ID` | `99801` | Elysium on both sides; a different origin makes Relay route the funding into Elysium. Per-desk values live in Settings |
+| `RAQIO_USDG_ADDRESS_99801` | empty | USDG contract on Elysium. Required for real mode; verify against Relay `/currencies/v2` |
+| `NEXT_PUBLIC_RPC_URL_<chainId>` | empty | Browser RPC override for the wallet console (viem ships the public Elysium RPC) |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | empty | Adds a WalletConnect connector (QR modal) next to injected wallets when set |
 | `WORKER_MODE` | `in-process` | `off` on serverless hosts |
 | `WORKER_SECRET` | — | Protects `POST /api/worker/run` |
@@ -83,7 +83,7 @@ Tranche 1,0x1b3f…9f0a,USDG,1250.00,2026-10-01T09:00:00Z,fresh recipient A
 
 ## Demo mode behaviour
 
-The mock provider (`src/lib/providers/mock.ts`) is deterministic and never touches a network. Every route, funding record, attempt, transaction reference and export row is marked simulated, and the desk shows the banner "Demo desk — every leg is simulated; no funds move on Robinhood Chain."
+The mock provider (`src/lib/providers/mock.ts`) is deterministic and never touches a network. Every route, funding record, attempt, transaction reference and export row is marked simulated, and the desk shows the banner "Demo desk — every leg is simulated; no funds move on Elysium."
 
 Scenario triggers for testing failure handling (by leg address / amount):
 
@@ -101,13 +101,13 @@ Simulated submissions are held in process memory; restarting the server while a 
 
 ## Real mode requirements
 
-1. Set `Rheo_MODE=real`, `RELAY_API_URL` (mainnet or testnets), `Rheo_USDG_ADDRESS_4663` and optionally `RELAY_API_KEY`.
+1. Set `RAQIO_MODE=real`, `RELAY_API_URL` (mainnet or testnets), `RAQIO_USDG_ADDRESS_99801` and optionally `RELAY_API_KEY`.
 2. In Settings, set the desk wallet address and the origin/destination network and asset. Assets known to the app are listed in `src/lib/config.ts` (`KNOWN_ASSETS`); add entries after checking `POST /currencies/v2` on Relay.
 3. Prepare routes: the worker calls `POST /quote/v2` per leg with `EXACT_OUTPUT`, `refundTo` = desk wallet, `ttl` 600 s, at a pace that respects the public 50 requests/minute limit.
 4. Funding: the wallet console reads the ERC-20 balance of the connected wallet, checks it equals the configured desk wallet and covers the requirement, and records it.
 5. Execution: "Sign next leg" sends each route step (approve, then deposit or send) through the injected wallet; the server records the hash and polls `GET /intents/status/v3` until success, failure or refund.
 
-Status of real mode: quoting and status polling were verified against the live public API during development on Base. **No on-chain transaction was executed, and nothing was verified against Robinhood Chain.** The desk contracts in `contracts/` are not called by the application; a real-mode leg today is a plain Relay route whose sender is the desk wallet (or a Relay solver on cross-chain routes). Wiring `PrivateClaim`, `StealthDesk`, `OtcEscrow` and `DelegatedTreasury` into route preparation and signing is the next step.
+Status of real mode: quoting and status polling were verified against the live public API during development on Base. **No on-chain transaction was executed, and nothing was verified against Elysium.** The desk contracts in `contracts/` are not called by the application; a real-mode leg today is a plain Relay route whose sender is the desk wallet (or a Relay solver on cross-chain routes). Wiring `PrivateClaim`, `StealthDesk`, `OtcEscrow` and `DelegatedTreasury` into route preparation and signing is the next step.
 
 ## Tests
 

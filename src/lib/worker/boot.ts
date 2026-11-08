@@ -6,15 +6,15 @@ import { assertConfig } from "@/lib/env";
  * the root layout so it runs with the first request. Set WORKER_MODE=off and trigger
  * POST /api/worker/run from a scheduler on serverless or multi-instance hosts.
  */
-const g = globalThis as unknown as { __rheoWorkerBooted?: boolean };
+const g = globalThis as unknown as { __raqioWorkerBooted?: boolean };
 
 export async function ensureWorker() {
   // next build renders pages with NODE_ENV=production; nothing should boot or be validated then.
   if (process.env.NEXT_PHASE === "phase-production-build") return;
   assertConfig();
-  if (g.__rheoWorkerBooted) return;
+  if (g.__raqioWorkerBooted) return;
   if ((process.env.WORKER_MODE ?? "in-process") !== "in-process") return;
-  g.__rheoWorkerBooted = true;
+  g.__raqioWorkerBooted = true;
   const { startInProcessWorker } = await import("./index");
   startInProcessWorker(Number(process.env.WORKER_INTERVAL_MS || 2000));
 }

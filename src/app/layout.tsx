@@ -10,17 +10,17 @@ const display = Barlow_Condensed({ variable: "--font-display", subsets: ["latin"
 const serif = Playfair_Display({ variable: "--font-serif", subsets: ["latin"], weight: ["400"], display: "swap" });
 const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "500", "700"], display: "swap" });
 
-const TITLE = "Rheo";
+const TITLE = "Raqio";
 const DESCRIPTION =
   "Token vesting and streaming protocol on Elysium L2. Linear streams with cliff, batch create, 25 bps fee, fully on-chain.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
-  title: { default: TITLE, template: "%s · Rheo" },
+  title: { default: TITLE, template: "%s · Raqio" },
   description: DESCRIPTION,
-  applicationName: "Rheo",
+  applicationName: "Raqio",
   icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }] },
-  openGraph: { type: "website", siteName: "Rheo", title: TITLE, description: DESCRIPTION, images: ["/art/og.jpg"] },
+  openGraph: { type: "website", siteName: "Raqio", title: TITLE, description: DESCRIPTION, images: ["/art/og.jpg"] },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   robots: { index: true, follow: true },
 };
