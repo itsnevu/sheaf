@@ -12,6 +12,26 @@
 - Hindari hashtag tambahan pada putaran pertama agar gaya brand tetap bersih.
 - Sisihkan 15–20 menit setelah posting untuk membalas pertanyaan yang relevan.
 
+## Konten sudah dipakai — jangan digunakan ulang
+
+Daftar ini mencatat copy yang sudah dipilih pengguna sebagai dipakai; bukan verifikasi posting langsung di X. Jangan jadwalkan ulang copy atau visual yang sama.
+
+### USED-001 · GM / release schedule · 10 November 2026
+
+**Status:** sudah dipakai, keluarkan dari antrean konten.
+
+**Copy final:**
+
+```text
+gm.
+
+Building Raqio around one idea: make the release schedule as clear as the allocation.
+```
+
+**Visual:** `remotion/stills/gm/raqio-mountains-v3.png` — pegunungan biru, headline “YOUR TOKENS. YOUR TIMELINE.”, tanpa GM atau border.
+
+**Varian yang juga jangan dipakai ulang:** draft GM Hari 01 di bawah dengan tambahan “Your tokens. Your timeline.”; itu varian dari konten yang sama, bukan tweet baru.
+
 ## Kalender
 
 | Hari | Tanggal | 08.30 WIB | 19.30 WIB |
@@ -33,7 +53,7 @@
 
 ## Hari 01 — Selasa, 10 November
 
-### 08.30 · GM · Text only
+### 08.30 · GM · SUDAH DIPAKAI (USED-001) — jangan posting ulang
 
 ```text
 gm.
