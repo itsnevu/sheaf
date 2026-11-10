@@ -36,11 +36,13 @@
     ".next/types/**/*.ts",
     ".next-design-preview/types/**/*.ts",
     ".next-dev/types/**/*.ts",
-    ".next-vault-qa/types/**/*.ts"
+    ".next-vault-qa/types/**/*.ts",
+    ".next-wallet-qa/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "tests/**/*.test.ts",
-    "lancefield"
+    "lancefield",
+    "remotion"
   ]
 }

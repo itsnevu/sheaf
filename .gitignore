@@ -7,6 +7,7 @@ node_modules/
 .next/
 .next-dev/
 .next-vault-qa/
+.next-wallet-qa/
 .next-design-preview/
 out/
 build/
@@ -54,3 +55,6 @@ Thumbs.db
 .claude/
 skills-lock.json
 .firecrawl/
+
+# Local-only video project and renders
+/remotion/

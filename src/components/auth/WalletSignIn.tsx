@@ -10,10 +10,10 @@ import { solanaSignInMessage } from "@/lib/auth/wallet-message";
 type Sol = { connect(): Promise<{ publicKey: { toString(): string } }>; signMessage(message: Uint8Array, encoding?: string): Promise<{ signature: Uint8Array } | Uint8Array> };
 type Choice = { id: string; name: string; icon: string; eth?: Eth; sol?: Sol; install?: string };
 const choices: Choice[] = [
-  { id: "metamask", name: "MetaMask", icon: "https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg", install: "https://metamask.io/download/" },
-  { id: "rabby", name: "Rabby", icon: "https://rabby.io/favicon.ico", install: "https://rabby.io/" },
-  { id: "phantom", name: "Phantom", icon: "https://phantom.com/favicon.ico", install: "https://phantom.com/download" },
-  { id: "solflare", name: "Solflare", icon: "https://solflare.com/favicon.ico", install: "https://solflare.com/" },
+  { id: "metamask", name: "MetaMask", icon: "/wallets/metamask.svg", install: "https://metamask.io/download/" },
+  { id: "rabby", name: "Rabby", icon: "/wallets/rabby.svg", install: "https://rabby.io/" },
+  { id: "phantom", name: "Phantom", icon: "/wallets/phantom.svg", install: "https://phantom.com/download" },
+  { id: "solflare", name: "Solflare", icon: "/wallets/solflare.svg", install: "https://solflare.com/" },
 ];
 
 /**
@@ -44,7 +44,9 @@ export default function WalletSignIn({ mode = "signin", next = "/app", onLinked 
       if (!detail?.info || !detail.provider) return;
       const { info, provider } = detail;
       const id = info.rdns === "io.metamask" ? "metamask" : info.rdns === "io.rabby" ? "rabby" : info.uuid;
-      setWallets(current => [...current.filter(w => w.id !== id && w.eth !== provider), { id, name: info.name, icon: info.icon.startsWith("data:image/") ? info.icon : "", eth: provider }]);
+      const knownWallet = choices.find(wallet => wallet.id === id);
+      const icon = knownWallet?.icon ?? (info.icon?.startsWith("data:image/") ? info.icon : "");
+      setWallets(current => [...current.filter(w => w.id !== id && w.eth !== provider), { ...knownWallet, id, name: info.name, icon, eth: provider }]);
     };
     window.addEventListener("eip6963:announceProvider", announce);
     window.addEventListener("ethereum#initialized", discover);
