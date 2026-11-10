@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createWalletClient, custom, type EIP1193Provider } from "viem";
 import { createSiweMessage } from "viem/siwe";
@@ -35,6 +36,7 @@ export default function WalletSignIn({ mode = "signin", next = "/app", onLinked 
       setWallets(current => current.map(w => {
         if (w.id === "phantom") return { ...w, sol: browser.phantom?.solana };
         if (w.id === "solflare") return { ...w, sol: browser.solflare };
+        if (w.id !== "metamask" && w.id !== "rabby") return w;
         const provider = (browser.ethereum?.providers ?? (browser.ethereum ? [browser.ethereum] : [])).find(p => w.id === "rabby" ? p.isRabby : p.isMetaMask && !p.isRabby);
         return provider ? { ...w, eth: provider } : w;
       }));
@@ -44,7 +46,8 @@ export default function WalletSignIn({ mode = "signin", next = "/app", onLinked 
       if (!detail?.info || !detail.provider) return;
       const { info, provider } = detail;
       const id = info.rdns === "io.metamask" ? "metamask" : info.rdns === "io.rabby" ? "rabby" : info.uuid;
-      const knownWallet = choices.find(wallet => wallet.id === id);
+      const knownWallet = choices.find(wallet => wallet.id === id)
+        ?? choices.find(wallet => info.name.toLowerCase().includes(wallet.id) || info.rdns?.toLowerCase().includes(wallet.id));
       const icon = knownWallet?.icon ?? (info.icon?.startsWith("data:image/") ? info.icon : "");
       setWallets(current => [...current.filter(w => w.id !== id && w.eth !== provider), { ...knownWallet, id, name: info.name, icon, eth: provider }]);
     };
@@ -115,7 +118,7 @@ export default function WalletSignIn({ mode = "signin", next = "/app", onLinked 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {wallets.map(wallet => {
           const installed = !!(wallet.eth || wallet.sol);
-          const content = <><span className="flex items-center gap-3">{wallet.icon && <Image src={wallet.icon} alt="" width={28} height={28} unoptimized className="h-7 w-7 object-contain" />}<span>{wallet.name}</span></span><span className="text-[10px] opacity-70">{installed ? wallet.sol ? "SOLANA" : "EVM" : "INSTALL ↗"}</span></>;
+          const content = <><span className="flex items-center gap-3">{wallet.icon ? <Image src={wallet.icon} alt="" width={28} height={28} unoptimized className="h-7 w-7 object-contain" /> : <Wallet aria-hidden="true" className="h-7 w-7" />}<span>{wallet.name}</span></span><span className="text-[10px] opacity-70">{installed ? wallet.sol ? "SOLANA" : "EVM" : "INSTALL ↗"}</span></>;
           const style = "flex min-h-[64px] items-center justify-between gap-3 border border-line bg-surface px-4 py-3 text-left text-[13px] text-fg hover:border-current disabled:opacity-50";
           return installed ? <button key={wallet.id} type="button" className={style} onClick={() => run(wallet)} disabled={!!busy} data-testid="wallet-signin">{content}</button> : <a key={wallet.id} className={style} href={wallet.install} target="_blank" rel="noreferrer noopener">{content}</a>;
         })}
