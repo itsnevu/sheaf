@@ -141,6 +141,10 @@ Value, released in time.
 
 **Visual opsional:** satu diagram SVG “allocation → schedule → claim”; tidak perlu gambar berbeda untuk setiap balasan.
 
+**Visual yang sudah disiapkan:** [The recipient’s path — ilustrasi engraving biru tanpa tulisan](assets/raqio-clear-release-terms-no-text.png). Disiapkan 11 November 2026 untuk thread ini; belum menandakan konten sudah diposting atau masuk Scheduled Posts di X. Panduan visual: [RAQIO_VISUAL_GUIDE.md](../../RAQIO_VISUAL_GUIDE.md).
+
+**Versi template terbaru:** [Know the terms. Before you claim. — right blue overlay](assets/raqio-right-blue-overlay-template.png). Mengikuti koreksi pengguna: ilustrasi sesuai topik, opacity biru transparan di kanan, logo dan tulisan putih. Contoh foto gunung tidak dijadikan latar wajib. Ini menjadi acuan layout terkini, tanpa mengubah status publikasi.
+
 ## Hari 03 — Kamis, 12 November
 
 ### 08.30 · GM · Text only

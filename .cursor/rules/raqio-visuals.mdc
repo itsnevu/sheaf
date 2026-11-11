@@ -1,0 +1,6 @@
+---
+description: Read the canonical Raqio visual guide before creating social, article, cover, infographic, or video artwork.
+alwaysApply: true
+---
+
+For a Raqio visual task, first read `RAQIO_VISUAL_GUIDE.md` at the repository root and inspect the primary reference image it names. Follow that guide, including the Blue Shadow template with topic-specific illustration, RIGHT-side blue opacity, and white typography/logo by default and final delivery to Downloads. Keep the actual visual rules in that one guide; this file only routes to it. Do not apply the artwork workflow to unrelated engineering tasks.
